@@ -1,18 +1,68 @@
 import { message } from "antd";
 import { useEffect } from "react";
-const AlertAntCom = ({ type = "success", msg = "Successfully" }) => {
-  const [messageApi, contextHolder] = message.useMessage();
+import {
+  RadiusBottomleftOutlined,
+  RadiusBottomrightOutlined,
+  RadiusUpleftOutlined,
+  RadiusUprightOutlined,
+} from "@ant-design/icons";
+import { Button, Divider, Space, notification } from "antd";
+import React, { useMemo } from "react";
+
+const AlertAntCom = ({
+  type = "success",
+  message = "Successfully",
+  children = "",
+}) => {
+  const Context = React.createContext({
+    name: "Nofitication Context",
+  });
+  // const [messageApi, contextHolder] = message.useMessage();
+  const [api, contextHolder] = notification.useNotification();
 
   useEffect(() => {
     if (type === "success") {
-      messageApi.success(`${msg}`);
+      api.success({
+        message,
+        description: (
+          <Context.Consumer>
+            {({ name }) => `Hello, ${name} ${children}!`}
+          </Context.Consumer>
+        ),
+        placement: "topRight",
+      });
     } else if (type === "error") {
-      messageApi.error(`${msg}`);
+      api.error({
+        message,
+        description: (
+          <Context.Consumer>
+            {({ name }) => `Hello, ${name} ${children}!`}
+          </Context.Consumer>
+        ),
+        placement: "topRight",
+      });
     } else if (type === "warning") {
-      messageApi.warning(`${msg}`);
+      api.warning({
+        message,
+        description: (
+          <Context.Consumer>
+            {({ name }) => `Hello, ${name} ${children}!`}
+          </Context.Consumer>
+        ),
+        placement: "topRight",
+      });
     }
-  }, [type, msg, messageApi]);
+  }, [type, message, api, children]);
 
-  return <>{contextHolder}</>;
+  const contextValue = useMemo(
+    () => ({
+      name: "Ric Pham",
+    }),
+    []
+  );
+
+  return (
+    <Context.Provider value={contextValue}>{contextHolder}</Context.Provider>
+  );
 };
 export default AlertAntCom;
