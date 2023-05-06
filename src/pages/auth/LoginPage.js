@@ -62,7 +62,7 @@ const LoginPage = () => {
 
   return (
     <LayoutAuthentication>
-      {isError && <AlertAntCom type="error" message="Login Fail" children="Invalid Username or Password !!!"></AlertAntCom>}
+      {isError && <AlertAntCom type="error" message="Invalid Username or Password !"></AlertAntCom>}
       <form className="theme-form" onSubmit={handleSubmit(handleLogin)}>
         {/* <HeadingFormH1Com className="text-center !text-[#818cf8] font-tw-primary font-light mb-3">
           Sign in your account
