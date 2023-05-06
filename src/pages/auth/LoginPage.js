@@ -11,6 +11,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
+import { AlertAntCom } from "../../components/ant";
 
 const schemaValidation = yup.object().shape({
   email: yup
@@ -37,10 +38,12 @@ const LoginPage = () => {
   });
 
   const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = (values) => {
     const { email, password } = values;
+    setIsError(false);
     setIsLoading(!isLoading);
     // If Login correct
     if (email === "admin@gmail.com" && password === "123456") {
@@ -53,11 +56,13 @@ const LoginPage = () => {
     // If Login Wrong, remove loading
     setTimeout(() => {
       setIsLoading(false);
+      setIsError(true);
     }, 1000);
   };
 
   return (
     <LayoutAuthentication>
+      {isError && <AlertAntCom type="error" msg="Invalid Username or Password !!!"></AlertAntCom>}
       <form className="theme-form" onSubmit={handleSubmit(handleLogin)}>
         {/* <HeadingFormH1Com className="text-center !text-[#818cf8] font-tw-primary font-light mb-3">
           Sign in your account
