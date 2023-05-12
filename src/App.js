@@ -43,6 +43,7 @@ function App() {
             element={<RegisterPage></RegisterPage>}
           ></Route>
           <Route path="/login" element={<LoginPage></LoginPage>}></Route>
+          {/* Backup */}
         </Route>
         {/* ********* END Authentication ********* */}
       </Routes>
