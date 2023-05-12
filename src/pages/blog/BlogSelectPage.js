@@ -13,7 +13,7 @@ const BlogSelectPage = () => {
     <>
       <div className="max-w-[1240px] mx-auto py-6 px-4 text-center">
         <HeadingFormH1Com>MY BLOG </HeadingFormH1Com>
-        <HeadingH2Com className="py-4">
+        <h2 className="py-4">
           <div>
             We’ve got everything you need to deliver flexible and effective
             skills development for your entire workforce.
@@ -27,10 +27,9 @@ const BlogSelectPage = () => {
             control of your own content.
           </div>
           <div>
-            Expand your professional network, build your expertise, and earn
-            money on each paid enrollment.
+            Expand your professional network, build your expertise, and earn money on each paid enrollment.
           </div>
-        </HeadingH2Com>
+        </h2>
       </div>
       <section className="my-12">
         <div className="max-w-[95%] m-auto grid lg:grid-cols-3 sm:grid-cols-2 gap-4">
@@ -46,6 +45,13 @@ const BlogSelectPage = () => {
                   className="w-full h-[250px] object-cover rounded-[10px] mb-[20px]"
                 />
               </div>
+              <div className="flex items-center mb-3">
+              <AiOutlineTags className="mr-[10px] text-[25px]" />
+                  <label className="block mr-[20px] mb-0 text-[#999] text-[15px]">
+                    {blog.category}
+                  </label>
+              </div>
+              
               <div id="details">
                 <Link to={`/details/${blog.id}`}>
                   <div className="text-black border-none bg-none outline-none cursor-pointer no-underline list-none text-[17px]">
@@ -53,18 +59,15 @@ const BlogSelectPage = () => {
                   </div>
                 </Link>
                 <p className="text-[#999] font-[400] my-[20px] text-[17px] leading-[25px]">
-                  {blog.desc}
+                  {blog.desc}...
                 </p>
-                <div id="date" className="flex items-center">
-                  <AiOutlineTags className="mr-[10px] text-[20px]" />
-                  <label className="block mr-[20px] mb-0 text-[#999] text-[13px]">
-                    {blog.category}
-                  </label>
-                  <AiOutlineClockCircle className="mr-[10px] text-[20px]" />
+                <div id="date" className="flex items-center mt-3">
+                  
+                  <AiOutlineClockCircle className="mr-[10px] text-[40px]" />
                   <label className="block mr-[20px] mb-0 text-[#999] text-[13px]">
                     {blog.date}
                   </label>
-                  <BsFillPersonVcardFill className="mr-[10px] text-[20px]" />
+                  <BsFillPersonVcardFill className="mr-[10px] text-[40px]" />
                   <label className="block mr-[20px] mb-0 text-[#999] text-[13px]">
                     {blog.author}
                   </label>

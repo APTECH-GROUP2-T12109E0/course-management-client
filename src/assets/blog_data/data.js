@@ -12,7 +12,7 @@ export const blog = [
   {
     id: 2,
     title: "How to Build a Table of Contents Component for Your Blog",
-    desc: "When you visit documentation sites, you'll notice that many of them have a common component: the <TableOfContent /> component.",
+    desc: "Many of them have a common component: the <TableOfContent /> component.",
     category: "React",
     cover: "Carousel_6.jpg",
     date: "March 3, 2023",
@@ -32,7 +32,7 @@ export const blog = [
   {
     id: 4,
     title: "How to Use GitHub Discussions as Your Blog's Chat System",
-    desc: "If you have a personal blog, you might be using a comment system to manage your blog's discussions and comments. If so, it's time to think about updating your comment system.",
+    desc: "You might be using a comment system to manage your blog's discussions and comments.",
     category: "Github",
     cover: "Carousel_8.jpg",
     date: "May 13, 2022",

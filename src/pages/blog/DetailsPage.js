@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom";
 import { useEffect } from "react";
 import { blog } from "../../assets/blog_data/data";
 import LayoutHome from "../../layouts/LayoutHome";
+import { HeadingH2Com } from "../../components/heading";
 
 const DetailsPage = () => {
   const { id } = useParams();
@@ -39,7 +40,7 @@ const DetailsPage = () => {
                 </button>
               </div>
               <h1 className="text-3xl font-medium">{blogs.title}</h1>
-              <p className="my-5 text-lg capitalize leading-7">{blogs.desc}</p>
+              <HeadingH2Com className="my-5 text-lg capitalize leading-7">{blogs.desc}</HeadingH2Com>
               <p className="my-5 text-lg capitalize leading-7">
                 "But I must explain to you how all this mistaken idea of
                 denouncing pleasure and praising pain was born and I will give
