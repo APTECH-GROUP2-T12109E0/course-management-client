@@ -8,7 +8,7 @@ import Pagination from '@mui/material/Pagination';
 import PaginationItem from '@mui/material/PaginationItem';
 import Stack from '@mui/material/Stack';
 
-const BlogPage_Select = () => {
+const BlogSelectPage = () => {
   return (
     <>
       <div className="max-w-[1240px] mx-auto py-6 px-4 text-center">
@@ -93,4 +93,4 @@ const BlogPage_Select = () => {
   );
 };
 
-export default BlogPage_Select;
+export default BlogSelectPage;

@@ -16,7 +16,7 @@ const sliderData = [
     url: Carousel_3,
   },
 ];
-const Carousel = () => {
+const BlogCarouselPage = () => {
     const [slide, setSlide] = useState(0);
     const lenght = sliderData.length;
     const prevSlide = () =>{
@@ -46,4 +46,4 @@ const Carousel = () => {
   );
 };
 
-export default Carousel;
+export default BlogCarouselPage;
