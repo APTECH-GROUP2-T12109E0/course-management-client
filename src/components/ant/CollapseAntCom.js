@@ -9,8 +9,6 @@ const CollapseAntCom = ({
   childItems = [],
 }) => {
   const ids = parentItems.map((item) => String(item.id));
-  console.log(`inside Collapse: ${isOpen}`);
-  console.log(`inside openKeys ${openKeys}`);
   return (
     <Collapse
       // defaultActiveKey={["1"]}
