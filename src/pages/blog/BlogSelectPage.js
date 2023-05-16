@@ -1,18 +1,43 @@
 import React from "react";
 import { HeadingFormH1Com, HeadingH2Com } from "../../components/heading";
-import {
-  BsFillPersonVcardFill,
-  BsArrowLeftSquareFill,
-  BsArrowRightSquareFill,
-} from "react-icons/bs";
+import { BsFillPersonVcardFill } from "react-icons/bs";
 import { AiOutlineTags, AiOutlineClockCircle } from "react-icons/ai";
 import { blog } from "../../assets/blog_data/data";
 import { Link } from "react-router-dom";
-import Pagination from "@mui/material/Pagination";
-import PaginationItem from "@mui/material/PaginationItem";
-import Stack from "@mui/material/Stack";
+import { Pagination } from "antd";
+import { useState } from "react";
 
 const BlogSelectPage = () => {
+  /**
+   * Phân tích:
+   * Nếu total items = 5, LIMIT = 3
+   * - Đầu tiên nếu currentPage = 1 thì index của items ở page 1 sẽ là 0, 1, 2 ( 3 phần tử đầu tiên )
+   * - OnChange, nếu CurrentPage = 2, thì index của items ở page 2 sẽ là 4,5 ( 2 phần tử cuối )
+   * => Vậy vị trí bắt đầu của 1 items sẽ tính = (page hiện tại - 1) * LIMIT - Ví dụ: (1-1) = 0 * 3 = 0, ta có startOffSet = 0
+   *    Vị trí kết thúc của 1 items sẽ tính endOffSet = startOffSet + LIMIT - Ví dụ 0 + 3 = 3
+   * Tiếp tục nếu sang page 2, startOffset:(2-1) = 1 * 3 = 3, ta có startOffSet = 3
+   *                      còn  endOffSet: 3 + 3 = 6
+   * => page 2 sẽ có phần từ tử vị trí index 3 đến 6, vì items chỉ có 5 phần tử, nên sẽ chỉ chạy từ vị trí 3 đến vị trí 5, sẽ thiếu đi 1 item ở page 2
+   * Nếu chỗ này đổi lại tên biến thành startIndex và endIndex thì đúng cho case này hơn.
+   *
+   * Công thức
+   *   const startOffSet = (currentPage - 1) * parseInt(defaultPageSize);
+   *   const endOffSet = startOffSet + parseInt(defaultPageSize);
+   */
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const limit = 3;
+  
+  const onChange = (page) => {
+    console.log("Page: ", page);
+    setCurrentPage(page);
+  };
+
+  const startIndex = (currentPage - 1) * parseInt(limit);
+  const endIndex = startIndex + parseInt(limit);
+
+  // Còn step cuối là vào vông lặp, check nếu index >= startIndex && index < endIndex thì hiện các items ra, còn ở ngoài thì return null thôi :3
+
   return (
     <>
       <div className="max-w-[1240px] mx-auto py-6 px-4 text-center">
@@ -80,23 +105,12 @@ const BlogSelectPage = () => {
           ))}
         </div>
       </section>
-
-      <Stack spacing={2}>
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <Pagination
-            count={10}
-            renderItem={(item) => (
-              <PaginationItem
-                slots={{
-                  previous: BsArrowLeftSquareFill,
-                  next: BsArrowRightSquareFill,
-                }}
-                {...item}
-              />
-            )}
-          />
-        </div>
-      </Stack>
+      <Pagination
+        current={currentPage} // Page hiện tại đang đứng
+        onChange={onChange}
+        total={5} // Tổng Items: total
+        defaultPageSize={limit} // Tổng số items trong 1 Page hay còn gọi là LIMIT
+      />
     </>
   );
 };
