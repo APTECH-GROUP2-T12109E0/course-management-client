@@ -12,8 +12,7 @@ import { InputCom } from "../../components/input";
 import { LabelCom } from "../../components/label";
 import { MESSAGE_EMAIL, MESSAGE_REQUIRED } from "../../constants/config";
 import useClickToggleBoolean from "../../hooks/useClickToggleBoolean";
-import { loginStart } from "../../store/login/action";
-import { selectLoginIsSuccess } from "../../store/login/selector";
+import { onLogin } from "../../store/auth/authSlice";
 import OAuth2Page from "./OAuth2Page";
 
 const schemaValidation = yup.object().shape({
@@ -27,12 +26,6 @@ const schemaValidation = yup.object().shape({
 });
 
 const LoginPage = () => {
-  const isLoginSuccess = useSelector(selectLoginIsSuccess);
-  const navigate = useNavigate();
-  useEffect(() => {
-    isLoginSuccess && navigate("/");
-  }, [isLoginSuccess, navigate]);
-
   const {
     control,
     register,
@@ -52,21 +45,8 @@ const LoginPage = () => {
     useClickToggleBoolean();
 
   const handleLogin = (values) => {
-    // const { email, password } = values;
-    // setIsLoading(!isLoading);
-    // // If Login correct
-    // if (email === "admin@gmail.com" && password === "123456") {
-    //   setTimeout(() => {
-    //     setIsLoading(false);
-    //     navigate("/");
-    //   }, 1000);
-    // }
-
-    // // If Login Wrong, remove loading
-    // setTimeout(() => {
-    //   setIsLoading(false);
-    // }, 1000);
-    dispatch(loginStart(values));
+    // Step 1: User có hành động login, dispatch event onLogin, truyền values là pay load vào, chính xác đoạn code bên dưới là dispatch(onLogin({payload: values}));
+    dispatch(onLogin(values));
   };
 
   return (
