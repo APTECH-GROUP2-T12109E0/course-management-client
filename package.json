@@ -63,7 +63,7 @@
   "scripts": {
     "start": "craco start",
     "dev": "craco start",
-    "build": "react-scripts build && react-inject-env set",
+    "build": "DISABLE_ESLINT_PLUGIN=true react-scripts build && react-inject-env set",
     "test": "react-scripts test",
     "eject": "craco eject"
   },
