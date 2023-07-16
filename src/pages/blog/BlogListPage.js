@@ -76,7 +76,7 @@ const BlogListPage = () => {
   const [tableKey, setTableKey] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isFetching, setIsFetching] = useState(false);
+  const [isFetching, setIsFetching] = useState(false); 
 
   const [filterBlog, setFilterBlog] = useState([]);
   const [search, setSearch] = useState("");
