@@ -1,8 +1,8 @@
 export const APP_KEY_NAME = "click_and_learn";
 export const BASE_DOMAIN_URL =
-  process.env.REACT_APP_DOMAIN_URL ?? "https://https://clicknlearn.up.railway.app";
+  process.env.REACT_APP_DOMAIN_URL ?? "https://clicknlearn.up.railway.app";
 export const BASE_API_URL =
-  process.env.REACT_APP_API_URL ?? "clicknlearn-api.up.railway.app";
+  process.env.REACT_APP_API_URL ?? "https://clicknlearn-api.up.railway.app";
 
 export const NOT_FOUND_URL = "/not-found";
 
