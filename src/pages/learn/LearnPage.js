@@ -23,6 +23,7 @@ import {
   onGetEnrollId,
   onGetMyLearning,
   onGetTrackingLesson,
+  onLoadProgress,
   onManualSelectedLesson,
   onMyCourseLoading,
   onReady,
@@ -56,6 +57,7 @@ const LearnPage = () => {
     countdown,
     prevTime,
   } = useSelector(selectAllCourseState);
+
   const isLoading = useSelector(selectIsLoading);
   const [isPlaying, setIsPlaying] = useState(false);
   // const [isSeek, setIsSeek] = useState(false);
@@ -67,7 +69,6 @@ const LearnPage = () => {
   // const [readyExam, setReadyExam] = useState(false);
 
   const { slug } = useParams();
-
   const userId = useSelector(selectUserId);
 
   const isLoadLearningStatus = useSelector(selectIsLoadLearningStatus);
@@ -98,6 +99,7 @@ const LearnPage = () => {
   useEffect(() => {
     if (courseId > 0 && enrollId > 0) {
       dispatch(onGetMyLearning({ courseId, enrollId }));
+      dispatch(onLoadProgress({ courseId, enrollmentId: enrollId }));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [courseId, enrollId]);
@@ -246,10 +248,8 @@ const LearnPage = () => {
   };
 
   const handleOnReady = React.useCallback(() => {
-    console.log(isReady);
-    console.log(isReload);
-    console.log(!isReady || isReload);
     if (!isReady || isReload) {
+      console.log("ASLDKJSADLJASLKJDLSKADJLKDJLSKAJDKLSADJL");
       player.current.seekTo(tracking ? tracking.resumePoint : 0);
       dispatch(onReady(true));
       dispatch(onReload(false));
@@ -386,7 +386,7 @@ const LearnPage = () => {
             borderRadius: "10px",
           }}
         >
-          <CommentCom />
+          <CommentCom type="COURSE" />
         </Paper>
       ),
     },

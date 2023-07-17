@@ -1,11 +1,12 @@
+import { Paper } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { NavLink } from "react-router-dom";
 import { SelectDefaultAntCom, SpinAntCom } from "../../components/ant";
 import { BreadcrumbCom } from "../../components/breadcrumb";
 import { ButtonCom } from "../../components/button";
-import CardItemModalCom from "../../components/common/card/CardItemModalCom";
 import GapYCom from "../../components/common/GapYCom";
+import CardItemModalCom from "../../components/common/card/CardItemModalCom";
 import { HeadingH1Com, HeadingH2Com } from "../../components/heading";
 import {
   IconAdminCom,
@@ -14,50 +15,65 @@ import {
   IconMoneyCom,
   IconUserCom,
 } from "../../components/icon";
+import { ImageCom } from "../../components/image";
+import { ChartsMuiCom } from "../../components/mui";
 import { RowCourseItem, RowUserItem } from "../../components/table/dashboard";
 import { categoryItems, sortItems } from "../../constants/config";
+import {
+  ALLOWED_ADMIN_MANAGER,
+  ALLOWED_ADMIN_MANAGER_EMPLOYEE,
+  EMPLOYEE_ROLE,
+  TITLE_POSITION_LIST,
+} from "../../constants/permissions";
 import useShowMore from "../../hooks/useShowMore";
 import { onGetCourses } from "../../store/admin/course/courseSlice";
 import { onGetUsers } from "../../store/admin/user/userSlice";
+import { selectAllDashboardState } from "../../store/dashboard/dashboardSelector";
+import { onLoadDashboard } from "../../store/dashboard/dashboardSlice";
 import {
+  convertDateTime,
   convertIntToStrMoney,
   formatNumber,
-  getCurrentDate,
+  getEmployeePermission,
 } from "../../utils/helper";
-import { Paper } from "@mui/material";
-import {
-  onLoadCategoryEnrollmentChart,
-  onLoadRevenueYearChart,
-} from "../../store/dashboard/dashboardSlice";
-import { Pie } from "react-chartjs-2";
-import { ChartsMuiCom } from "../../components/mui";
 
 const adminMenuItems = [
   {
     id: 1,
     title: "Learn",
     slug: "/admin/courses",
+    permission: ALLOWED_ADMIN_MANAGER_EMPLOYEE,
+    area: ["COURSE", "EXAM"],
     icon: <IconLearnCom className="mx-auto" />,
   },
   {
     id: 2,
     title: "User",
     slug: "/admin/users",
+    permission: ALLOWED_ADMIN_MANAGER,
+    area: ["USER"],
     icon: <IconUserCom className="mx-auto" />,
   },
   {
     id: 3,
     title: "Blog",
     slug: "/admin/blogs",
+    permission: ALLOWED_ADMIN_MANAGER_EMPLOYEE,
+    area: ["BLOG"],
     icon: <IconBlogCom className="mx-auto" />,
   },
 ];
 
 const AdminDashboardPage = () => {
   const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
+  let empPermissions = getEmployeePermission(user);
+
   const [orderUser, setOrderUser] = useState("DESC");
   const [orderCourse, setOrderCourse] = useState(1);
   const [orderBlog, setOrderBlog] = useState("DESC");
+
+  const { dashboard } = useSelector(selectAllDashboardState);
   const {
     users,
     isPostUserSuccess,
@@ -94,12 +110,16 @@ const AdminDashboardPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isUpdateCourseSuccess]);
 
-  const currentDate = getCurrentDate();
-  const usersRegisteredToday = users.filter((item, index) => {
-    const userCreatedAt = new Date(item?.created_at);
-    const userCreatedDateString = userCreatedAt.toISOString().split("T")[0];
-    return userCreatedDateString === currentDate && item?.role === "USER";
-  });
+  // const currentDate = getCurrentDate();
+  // const usersRegisteredToday = users.filter((item, index) => {
+  //   const userCreatedAt = new Date(item?.created_at);
+  //   const userCreatedDateString = userCreatedAt.toISOString().split("T")[0];
+  //   return userCreatedDateString === currentDate && item?.role === "USER";
+  // });
+
+  useEffect(() => {
+    dispatch(onLoadDashboard());
+  }, [dispatch]);
 
   // Handle Sort Users
   useEffect(() => {
@@ -161,194 +181,261 @@ const AdminDashboardPage = () => {
 
       <GapYCom></GapYCom>
       <div className="row">
-        <div className="col-sm-11 relative">
+        <div className="col-md-10 col-xl-11 relative">
           <div className="card earning-card">
             <div className="card-body p-0">
-              <div className="row border-top m-0 bg-tw-dark text-white rounded-2xl">
-                <div className="col-xl-3 col-md-6 col-sm-6 ps-0">
+              <div className="row border-top m-0 bg-tw-dark text-white rounded-2xl text-center 2xl:!text-left">
+                <div
+                  className={user?.role === EMPLOYEE_ROLE ? "col-6" : "col-3"}
+                >
                   <CardItemModalCom title="Total Users" icon={<IconUserCom />}>
-                    {formatNumber(users?.length ?? 0)} accounts
+                    {formatNumber(dashboard.totalUser ?? 0)} accounts
                   </CardItemModalCom>
                 </div>
-                <div className="col-xl-3 col-md-6 col-sm-6">
+                <div
+                  className={user?.role === EMPLOYEE_ROLE ? "col-6" : "col-3"}
+                >
                   <CardItemModalCom
                     title="Today Registered"
                     icon={<IconUserCom />}
                     classNameIcon="!bg-tw-light-pink"
                   >
-                    {formatNumber(usersRegisteredToday?.length ?? 0)}{" "}
-                    {usersRegisteredToday?.length > 1 ? "accounts" : "account"}
+                    {formatNumber(dashboard?.todayRegister ?? 0)}{" "}
+                    {dashboard?.todayRegister > 1 ? "accounts" : "account"}
                   </CardItemModalCom>
                 </div>
-                <div className="col-xl-3 col-md-6">
-                  <CardItemModalCom
-                    title="Total Revenue"
-                    icon={<IconMoneyCom />}
-                  >
-                    ${convertIntToStrMoney(250293)} this year
-                  </CardItemModalCom>
-                </div>
-                <div className="col-xl-3 col-md-6 pe-0">
-                  <CardItemModalCom
-                    title="Total Revenue"
-                    icon={<IconMoneyCom />}
-                    classNameIcon="!bg-tw-light-pink"
-                  >
-                    ${convertIntToStrMoney(6789)} this month
-                  </CardItemModalCom>
-                </div>
+                {ALLOWED_ADMIN_MANAGER.includes(user?.role) && (
+                  <>
+                    <div className="col-3">
+                      <CardItemModalCom
+                        title="Total Revenue"
+                        icon={<IconMoneyCom />}
+                      >
+                        ${convertIntToStrMoney(dashboard?.yearRevenue)} this
+                        year
+                      </CardItemModalCom>
+                    </div>
+                    <div className="col-3">
+                      <CardItemModalCom
+                        title="Total Revenue"
+                        icon={<IconMoneyCom />}
+                        classNameIcon="!bg-tw-light-pink"
+                      >
+                        ${convertIntToStrMoney(dashboard?.monthRevenue)} this
+                        month
+                      </CardItemModalCom>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>
           <div className="row">
-            <div className="col-xl-5 appointment">
+            <div className="col-xl-12">
               <div className="card">
-                <div className="card-header card-no-border">
-                  <div className="header-top">
-                    <h5 className="m-0">Employee</h5>
-                    <div className="card-header-right-icon">
-                      <div>
-                        <SelectDefaultAntCom
-                          listItems={sortItems}
-                          defaultValue={sortItems[0].value}
-                          value={orderUser}
-                          onChange={handleChangeSortUser}
-                          className="custom-dropdown"
-                        ></SelectDefaultAntCom>
+                <div className="card-header text-center">
+                  <h5 className="font-[600] text-2xl">
+                    Hi,{" "}
+                    <span className="text-tw-danger">{user?.first_name} !</span>{" "}
+                    Hope you have a nice working day !
+                  </h5>
+                </div>
+                <div className="card-body">
+                  <div className="row">
+                    <div className="col-xl-3">
+                      <div className="w-20 h-20 mx-auto">
+                        <ImageCom srcSet={user?.imageUrl} />
                       </div>
+                    </div>
+                    <div className="col-xl-9">
+                      <p className="text-xl">
+                        Fullname:{" "}
+                        <span className="text-tw-light-pink">{user?.name}</span>
+                      </p>
+                      <p className="text-xl">
+                        Position:{" "}
+                        <span className="text-tw-light-pink">
+                          {(() => {
+                            const newItem = TITLE_POSITION_LIST.find((item) => {
+                              if (ALLOWED_ADMIN_MANAGER.includes(user?.role)) {
+                                return item;
+                              } else if (
+                                empPermissions.includes(item.permission)
+                              ) {
+                                return item;
+                              }
+                              return null;
+                            });
+                            return newItem ? newItem.title : "N/A";
+                          })()}
+                        </span>
+                      </p>
+                      <p className="text-xl">
+                        Start date:{" "}
+                        <span className="text-tw-light-pink">
+                          {convertDateTime(user?.created_at)}
+                        </span>
+                      </p>
                     </div>
                   </div>
                 </div>
-                <div className="card-body pt-0">
-                  {isUserLoading ? (
-                    <SpinAntCom loadingText={"Loading ..."} />
-                  ) : (
-                    <div className="appointment-table table-responsive">
-                      <table className="table table-bordernone">
-                        <tbody>
-                          {showItems?.length > 0 &&
-                            showItems.map((item) => (
-                              <RowUserItem
-                                key={item?.id}
-                                item={item}
-                                users={users}
-                              />
-                            ))}
-                        </tbody>
-                      </table>
-                      {isRemain && (
-                        <ButtonCom
-                          className="w-full mt-2"
-                          onClick={handleShowMore}
-                        >
-                          Show more
-                        </ButtonCom>
-                      )}
-                    </div>
-                  )}
-                </div>
               </div>
             </div>
-            <div className="col-xl-7 appointment">
-              <div className="card">
-                <div className="card-header card-no-border">
-                  <div className="header-top">
-                    <h5 className="m-0">Course</h5>
-                    <div className="card-header-right-icon">
-                      <div>
-                        <SelectDefaultAntCom
-                          listItems={categoryItems}
-                          defaultValue={categoryItems[0].label}
-                          value={orderCourse}
-                          onChange={handleChangeSortCourse}
-                          className="custom-dropdown"
-                        ></SelectDefaultAntCom>
+            {ALLOWED_ADMIN_MANAGER.includes(user?.role) && (
+              <>
+                <div className="col-xl-5 appointment">
+                  <div className="card">
+                    <div className="card-header card-no-border">
+                      <div className="header-top">
+                        <h5 className="m-0">Employee</h5>
+                        <div className="card-header-right-icon">
+                          <div>
+                            <SelectDefaultAntCom
+                              listItems={sortItems}
+                              defaultValue={sortItems[0].value}
+                              value={orderUser}
+                              onChange={handleChangeSortUser}
+                              className="custom-dropdown"
+                            ></SelectDefaultAntCom>
+                          </div>
+                        </div>
                       </div>
+                    </div>
+                    <div className="card-body pt-0">
+                      {isUserLoading ? (
+                        <SpinAntCom loadingText={"Loading ..."} />
+                      ) : (
+                        <div className="appointment-table table-responsive">
+                          <table className="table table-bordernone">
+                            <tbody>
+                              {showItems?.length > 0 &&
+                                showItems.map((item) => (
+                                  <RowUserItem
+                                    key={item?.id}
+                                    item={item}
+                                    users={users}
+                                  />
+                                ))}
+                            </tbody>
+                          </table>
+                          {isRemain && (
+                            <ButtonCom
+                              className="w-full mt-2"
+                              onClick={handleShowMore}
+                            >
+                              Show more
+                            </ButtonCom>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
-                <div className="card-body pt-0">
-                  {isCourseLoading ? (
-                    <SpinAntCom loadingText={"Loading ..."} />
-                  ) : (
-                    <div className="appointment-table table-responsive">
-                      <table className="table table-bordernone">
-                        <tbody>
-                          {showCourseItems?.length > 0 &&
-                            showCourseItems.map((item) => (
-                              <RowCourseItem
-                                item={item}
-                                courses={courses}
-                                key={item?.id}
-                              />
-                            ))}
-                        </tbody>
-                      </table>
-                      {isCourseRemain && (
-                        <ButtonCom
-                          className="w-full mt-2"
-                          onClick={handleShowMoreCourse}
-                        >
-                          Show more
-                        </ButtonCom>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-            <div className="col-xl-12 appointment">
-              <div className="card">
-                <div className="card-header card-no-border">
-                  <div className="header-top">
-                    <h5 className="m-0">Blog</h5>
-                    <div className="card-header-right-icon">
-                      <div>
-                        <SelectDefaultAntCom
-                          listItems={sortItems}
-                          defaultValue={sortItems[0].value}
-                          value={orderBlog}
-                          onChange={handleChangeSortBlog}
-                          className="custom-dropdown"
-                        ></SelectDefaultAntCom>
+                <div className="col-xl-7 appointment">
+                  <div className="card">
+                    <div className="card-header card-no-border">
+                      <div className="header-top">
+                        <h5 className="m-0">Course</h5>
+                        <div className="card-header-right-icon">
+                          <div>
+                            <SelectDefaultAntCom
+                              listItems={categoryItems}
+                              defaultValue={categoryItems[0].label}
+                              value={orderCourse}
+                              onChange={handleChangeSortCourse}
+                              className="custom-dropdown"
+                            ></SelectDefaultAntCom>
+                          </div>
+                        </div>
                       </div>
+                    </div>
+                    <div className="card-body pt-0">
+                      {isCourseLoading ? (
+                        <SpinAntCom loadingText={"Loading ..."} />
+                      ) : (
+                        <div className="appointment-table table-responsive">
+                          <table className="table table-bordernone">
+                            <tbody>
+                              {showCourseItems?.length > 0 &&
+                                showCourseItems.map((item) => (
+                                  <RowCourseItem
+                                    item={item}
+                                    courses={courses}
+                                    key={item?.id}
+                                  />
+                                ))}
+                            </tbody>
+                          </table>
+                          {isCourseRemain && (
+                            <ButtonCom
+                              className="w-full mt-2"
+                              onClick={handleShowMoreCourse}
+                            >
+                              Show more
+                            </ButtonCom>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
-                <div className="card-body pt-0">
-                  {isCourseLoading ? (
-                    <SpinAntCom loadingText={"Loading ..."} />
-                  ) : (
-                    <div className="appointment-table table-responsive">
-                      <table className="table table-bordernone">
-                        <tbody>
-                          {showCourseItems?.length > 0 &&
-                            showCourseItems.map((item) => (
-                              <RowCourseItem
-                                key={item?.id}
-                                item={item}
-                                courses={courses}
-                              />
-                            ))}
-                        </tbody>
-                      </table>
-                      {isCourseRemain && (
-                        <ButtonCom
-                          className="w-full mt-2"
-                          onClick={handleShowMoreCourse}
-                        >
-                          Show more
-                        </ButtonCom>
-                      )}
+              </>
+            )}
+            {(ALLOWED_ADMIN_MANAGER.includes(user?.role) ||
+              user?.permissions.includes("EMP_BLOG")) && (
+              <div className="col-xl-12 appointment">
+                <div className="card">
+                  <div className="card-header card-no-border">
+                    <div className="header-top">
+                      <h5 className="m-0">Blog</h5>
+                      <div className="card-header-right-icon">
+                        <div>
+                          <SelectDefaultAntCom
+                            listItems={sortItems}
+                            defaultValue={sortItems[0].value}
+                            value={orderBlog}
+                            onChange={handleChangeSortBlog}
+                            className="custom-dropdown"
+                          ></SelectDefaultAntCom>
+                        </div>
+                      </div>
                     </div>
-                  )}
+                  </div>
+                  <div className="card-body pt-0">
+                    {isCourseLoading ? (
+                      <SpinAntCom loadingText={"Loading ..."} />
+                    ) : (
+                      <div className="appointment-table table-responsive">
+                        <table className="table table-bordernone">
+                          <tbody>
+                            {showCourseItems?.length > 0 &&
+                              showCourseItems.map((item) => (
+                                <RowCourseItem
+                                  key={item?.id}
+                                  item={item}
+                                  courses={courses}
+                                />
+                              ))}
+                          </tbody>
+                        </table>
+                        {isCourseRemain && (
+                          <ButtonCom
+                            className="w-full mt-2"
+                            onClick={handleShowMoreCourse}
+                          >
+                            Show more
+                          </ButtonCom>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
 
-        <div className="col-sm-1 p-0 flex flex-col">
+        <div className="col-md-2 col-xl-1 p-0 flex flex-col">
           <div className="flex-grow">
             <div className="card bg-tw-dark h-full relative">
               <div className="card-header !py-5 px-0 !bg-tw-primary shadow-primary">
@@ -358,31 +445,48 @@ const AdminDashboardPage = () => {
               </div>
               <div className="card-body mx-auto p-0">
                 <div className="sticky top-0 py-10">
-                  {adminMenuItems.map((item, index) => (
-                    <AdminMenuItems
-                      key={item.id}
-                      item={item}
-                      isLastItem={index === adminMenuItems.length - 1}
-                    />
-                  ))}
+                  {adminMenuItems.map((item, index) => {
+                    if (user?.role && !item.permission.includes(user.role)) {
+                      return null;
+                    } else {
+                      const empPermissions = getEmployeePermission(user);
+                      if (empPermissions && empPermissions.length > 0) {
+                        for (let empPer of empPermissions) {
+                          if (!item.area.includes(empPer)) {
+                            return null;
+                          }
+                        }
+                      }
+
+                      return (
+                        <AdminMenuItems
+                          key={item.id}
+                          item={item}
+                          isLastItem={index === adminMenuItems.length - 1}
+                        />
+                      );
+                    }
+                  })}
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <Paper
-        square
-        elevation={5}
-        sx={{
-          padding: "20px",
-          width: "100%",
-          mt: "20px",
-          borderRadius: "10px",
-        }}
-      >
-        <ChartsMuiCom />
-      </Paper>
+      {ALLOWED_ADMIN_MANAGER.includes(user?.role) && (
+        <Paper
+          square
+          elevation={5}
+          sx={{
+            padding: "20px",
+            width: "100%",
+            mt: "20px",
+            borderRadius: "10px",
+          }}
+        >
+          <ChartsMuiCom />
+        </Paper>
+      )}
     </>
   );
 };
@@ -394,7 +498,7 @@ const AdminMenuItems = ({ item, isLastItem = false }) => {
         <ButtonCom
           className="px-3 py-2 w-20"
           minHeight="xs:min-h-[24px] md:min-h-[36px] xl:min-h-[42px]"
-          backgroundColor={`${item.id % 2 !== 0 ? "pink" : "primary"}`}
+          backgroundColor="pink"
         >
           {item.icon}
           <span>{item.title}</span>

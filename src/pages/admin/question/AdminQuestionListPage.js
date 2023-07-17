@@ -186,7 +186,7 @@ const AdminQuestionListPage = () => {
       name: "Finish",
       cell: (row) => (
         <>
-          {!row.fullAnswer ? (
+          {row.fullAnswer ? (
             <ButtonCom
               icon={<IconCheckCom />}
               padding="px-3"

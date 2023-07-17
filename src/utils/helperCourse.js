@@ -1,10 +1,15 @@
-export function helperChangeStatusCourse(isActive, courseId, courses) {
+export function helperChangeStatusCourse(
+  isActive,
+  courseId,
+  courses,
+  isSwitch = false
+) {
   //update new status of Course
   const newCourses = courses.map((course) =>
     course.id === courseId
       ? {
           ...course,
-          status: isActive ? 0 : 1,
+          status: isSwitch ? (isActive ? 1 : 0) : isActive ? 0 : 1,
         }
       : course
   );

@@ -453,7 +453,7 @@ function* handleLoadCertificate({ payload }) {
       });
 
       const fileObjectUrl = URL.createObjectURL(blob);
-      window.open(fileObjectUrl);
+
       sessionStorage.setItem("certificatePdf", fileObjectUrl);
       yield put(onLoadCertificateSuccess());
     }

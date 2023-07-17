@@ -15,7 +15,7 @@ const LayoutHome = () => {
           <div className="flex-1">
             <Outlet></Outlet>
           </div>
-        </div>
+        </div> 
       </div>
       <FooterMod />
     </>

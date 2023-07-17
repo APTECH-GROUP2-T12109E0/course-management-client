@@ -1,24 +1,25 @@
 import Cookies from "js-cookie";
-import { COOKIE_EXPIRED_BLOG_DAYS, COOKIE_VIEW_COUNT_KEY } from "../constants/config";
-
+import {
+  COOKIE_EXPIRED_BLOG_DAYS,
+  COOKIE_VIEW_COUNT_KEY,
+} from "../constants/config";
 
 const objBlogCookies = {
   expires: COOKIE_EXPIRED_BLOG_DAYS,
   domain: process.env.REACT_APP_COOKIE_DOMAIN,
 };
 
-
-export const setBlogViewCount = (blogId, view_count) => {
+export const setBlogViewCount = (slug, view_count) => {
   if (view_count) {
     const viewCountObjString = Cookies.get(COOKIE_VIEW_COUNT_KEY);
-    console.log("COOKIE_VIEW_COUNT_KEY",COOKIE_VIEW_COUNT_KEY)
+
     let viewCountObj = {};
     if (viewCountObjString) {
       viewCountObj = JSON.parse(viewCountObjString);
-    }console.log("viewCountObj",viewCountObj);
-    console.log("viewCountObjString",viewCountObjString)
-    if (!viewCountObj[blogId]) {
-      viewCountObj[blogId] = true;
+    }
+
+    if (!viewCountObj[slug]) {
+      viewCountObj[slug] = true;
       Cookies.set(COOKIE_VIEW_COUNT_KEY, JSON.stringify(viewCountObj), {
         ...objBlogCookies,
       });
@@ -32,11 +33,11 @@ export const setBlogViewCount = (blogId, view_count) => {
   }
 };
 
-export const getBlogViewCount = (blogId) => {
+export const getBlogViewCount = (slug) => {
   const viewCountObjString = Cookies.get(COOKIE_VIEW_COUNT_KEY);
   if (viewCountObjString) {
     const viewCountObj = JSON.parse(viewCountObjString);
-    return viewCountObj[blogId] || 0;
+    return viewCountObj[slug] || 0;
   }
   return 0;
 };

@@ -96,6 +96,7 @@ const RankingAuthorsCardMuiCom = ({ top3, rank }) => {
                   },
                 }}
                 onClick={() => handleClickAuthor(top3.id)}
+                disabled={!top3.id}
               >
                 <Avatar
                   alt={top3.name}
@@ -133,6 +134,7 @@ const RankingAuthorsCardMuiCom = ({ top3, rank }) => {
               variant="contained"
               color="info"
               onClick={() => handleUnsubcribe(top3)}
+              disabled={!top3.id}
             >
               Unsubcribe
               <NotificationsOffIcon sx={{ ml: "5px", fontSize: "20px" }} />
@@ -143,6 +145,7 @@ const RankingAuthorsCardMuiCom = ({ top3, rank }) => {
               variant="contained"
               color="error"
               onClick={() => handleSubcribe(top3)}
+              disabled={!top3.id}
             >
               Subcribe
               <NotificationsNoneIcon sx={{ ml: "5px", fontSize: "20px" }} />

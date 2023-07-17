@@ -15,6 +15,7 @@ import {
   CAPTION_EXT_VALID,
   MESSAGE_CAPTION_FILE_INVALID,
   MESSAGE_FIELD_REQUIRED,
+  MESSAGE_GENERAL_FAILED,
   MESSAGE_NO_ITEM_SELECTED,
   MESSAGE_NUMBER_POSITIVE,
   MESSAGE_NUMBER_REQUIRED,
@@ -50,53 +51,48 @@ import { getToken } from "../../../utils/auth";
 import { BreadcrumbCom } from "../../../components/breadcrumb";
 import useExportExcel from "../../../hooks/useExportExcel";
 
-/********* Validation for Section function ********* */
-const schemaValidation = yup.object().shape({
-  id: yup.number(),
-  name: yup.string().trim().required(MESSAGE_FIELD_REQUIRED),
-  duration: yup
-    .number(MESSAGE_FIELD_REQUIRED)
-    .typeError(MESSAGE_NUMBER_REQUIRED)
-    .min(0, MESSAGE_NUMBER_POSITIVE),
-  status: yup.number().default(1),
-  ordered: yup.number(MESSAGE_NUMBER_REQUIRED),
-  videoFile: yup
-    .mixed()
-    .test("fileFormat", MESSAGE_VIDEO_FILE_INVALID, function (value) {
-      if (!value) return true;
-      const extValidArr = VIDEO_EXT_VALID.split(", ");
-      const videoFileExt = value[0]?.name.split(".").pop().toLowerCase();
-      return extValidArr.includes(videoFileExt);
-    }),
-  captionFiles: yup
-    .mixed()
-    .test("fileRequired", MESSAGE_UPLOAD_REQUIRED, function (value) {
-      // Check if existed upload videoFile
-      if (
-        this.parent.videoFile !== "" &&
-        typeof this.parent.videoFile === "object"
-      ) {
-        if (!value) return false;
-      }
-      return true;
-    })
-    .test("fileFormat", MESSAGE_CAPTION_FILE_INVALID, function (value) {
-      if (!value) return true;
-      for (let i = 0; i < value.length; i++) {
-        const captionFile = value[i]?.name.toLowerCase();
-        if (!CAPTION_EXT_REGEX.test(captionFile)) return false;
-      }
-      return true;
-    }),
-});
-
 const AdminLessonListPage = () => {
   /********* API State ********* */
   const [lessons, setLessons] = useState([]);
   const [section, setSection] = useState({});
   const [course, setCourse] = useState({});
   const [video, setVideo] = useState(); //{} ko có null, undefined nên kiểm tra lúc nào cũng + token -> lỗi
+  const [videoFile, setVideoFile] = useState([]);
   /********* END API State ********* */
+  /********* Validation for Section function ********* */
+  const schemaValidation = yup.object().shape({
+    id: yup.number(),
+    name: yup.string().trim().required(MESSAGE_FIELD_REQUIRED),
+    duration: yup
+      .number(MESSAGE_FIELD_REQUIRED)
+      .typeError(MESSAGE_NUMBER_REQUIRED)
+      .min(0, MESSAGE_NUMBER_POSITIVE),
+    status: yup.number().default(1),
+    ordered: yup.number(MESSAGE_NUMBER_REQUIRED),
+    // videoFile: yup
+    //   .mixed()
+    //   .test("fileFormat", MESSAGE_VIDEO_FILE_INVALID, function (value) {
+    //     if (!value) return true;
+    //     const extValidArr = VIDEO_EXT_VALID.split(", ");
+    //     const videoFileExt = value[0]?.name.split(".").pop().toLowerCase();
+    //     return extValidArr.includes(videoFileExt);
+    //   }),
+    captionFiles: yup
+      .mixed()
+      .test("fileRequired", MESSAGE_UPLOAD_REQUIRED, function (value) {
+        // Check if existed upload videoFile
+        if (videoFile?.length > 0 && !value) return false;
+        return true;
+      })
+      .test("fileFormat", MESSAGE_CAPTION_FILE_INVALID, function (value) {
+        if (!value) return true;
+        for (let i = 0; i < value.length; i++) {
+          const captionFile = value[i]?.name.toLowerCase();
+          if (!CAPTION_EXT_REGEX.test(captionFile)) return false;
+        }
+        return true;
+      }),
+  });
 
   /********* Variable State ********* */
   const [filterLesson, setFilterLesson] = useState([]);
@@ -319,7 +315,6 @@ const AdminLessonListPage = () => {
   const getLessonsBySectionId = async () => {
     try {
       const res = await axiosBearer.get(`/section/${sectionId}/lesson`);
-      console.log(res.data);
 
       setLessons(res.data);
       setFilterLesson(res.data);
@@ -383,9 +378,6 @@ const AdminLessonListPage = () => {
   };
 
   useEffect(() => {
-    // getLessonsBySectionId();
-    // getCourseById();
-    // getSectionById();
     fetchingData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -419,6 +411,19 @@ const AdminLessonListPage = () => {
 
   /********* Update ********* */
   const handleSubmitForm = async (values) => {
+    if (videoFile && videoFile.length > 0) {
+      const extValidArr = VIDEO_EXT_VALID.split(", ");
+      const file = videoFile[0];
+      const videoFileExt = file.name.split(".").pop().toLowerCase();
+
+      if (!extValidArr.includes(videoFileExt)) {
+        toast.error(MESSAGE_GENERAL_FAILED);
+        setError("videoFile", { message: MESSAGE_VIDEO_FILE_INVALID });
+        setValue("videoFile", null);
+        return;
+      }
+    }
+
     const {
       id,
       name,
@@ -426,7 +431,7 @@ const AdminLessonListPage = () => {
       duration,
       ordered,
       description,
-      videoFile,
+      // videoFile,
       captionFiles,
     } = values;
     // Case Click choose Caption then click again and choose cancel then submit
@@ -521,6 +526,12 @@ const AdminLessonListPage = () => {
   const clearSelectedRows = () => {
     setSelectedRows([]);
     setTableKey((prevKey) => prevKey + 1);
+  };
+
+  const handleGetDurationForVideo = (e) => {
+    const file = e.target.files;
+    setVideoFile(file);
+    getDurationFromVideo(file[0], setValue);
   };
 
   return (
@@ -657,7 +668,7 @@ const AdminLessonListPage = () => {
                     register={register}
                     placeholder="Upload video"
                     errorMsg={errors.videoFile?.message}
-                    onChange={(e) => getDurationFromVideo(e, setValue)}
+                    onChange={(e) => handleGetDurationForVideo(e)}
                   ></InputCom>
                 </div>
                 <div className="col-sm-6">

@@ -3,6 +3,10 @@ const {
   axiosBearer,
 } = require("../../api/axiosInstance");
 
+export const requestLoadDashboard = () => {
+  return axiosBearer.get(`/home/admin/dashboard`);
+};
+
 export const requestLoadCategoryEnrollmentChart = () => {
   return axiosBearer.get(`/home/admin/category-chart`);
 };

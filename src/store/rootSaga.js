@@ -10,6 +10,7 @@ import userSaga from "./admin/user/userSaga";
 import adminCourseSaga from "./admin/course/courseSaga";
 import orderSaga from "./order/orderSaga";
 import categorySaga from "./category/categorySaga";
+import adminBlogSaga from "./admin/blog/blogSaga";
 
 export default function* rootSaga() {
   yield all([
@@ -23,6 +24,7 @@ export default function* rootSaga() {
     fork(answerSaga),
     fork(userSaga),
     fork(adminCourseSaga),
+    fork(adminBlogSaga),
     fork(orderSaga),
   ]);
 }

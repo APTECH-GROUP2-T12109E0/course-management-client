@@ -15,7 +15,7 @@ const SearchItemMod = ({ item, type, objectOriginal }) => {
 
   return (
     <Link to={newItem.slug} className="tw-transition-all">
-      <div className="c-search-item flex items-center gap-x-5 px-[0.5rem] tw-transition-all hover:border-l-[6px] hover:solid hover:border-tw-primary hover:bg-tw-light">
+      <div className="c-search-item flex items-center gap-x-5 px-[0.5rem] tw-transition-all hover:bg-tw-light">
         <img
           srcSet={newItem?.image}
           className="w-[50px] h-[50px] object-cover flex-shrink-0 rounded-xl"

@@ -225,7 +225,7 @@ const AdminUserListPage = () => {
       name: "Authorize",
       selector: (row) => (
         <ButtonCom
-          className="px-3 rounded-lg"
+          className="px-3 rounded-lg !text-[12px]"
           onClick={() => {
             handlePermission(row);
           }}
@@ -233,11 +233,12 @@ const AdminUserListPage = () => {
           Permission
         </ButtonCom>
       ),
+      width: "150px",
     },
     {
       name: "Role",
       selector: (row) => row.role,
-      width: "80px",
+      width: "150px",
     },
     {
       name: "Status",
@@ -247,6 +248,7 @@ const AdminUserListPage = () => {
             <ButtonCom
               onClick={() => handleChangeStatus(row.id)}
               backgroundColor="success"
+              className="px-3 rounded-lg !text-[12px]"
             >
               Active
             </ButtonCom>
@@ -254,12 +256,14 @@ const AdminUserListPage = () => {
             <ButtonCom
               onClick={() => handleChangeStatus(row.id)}
               backgroundColor="danger"
+              className="px-3 rounded-lg !text-[12px]"
             >
               InActive
             </ButtonCom>
           )}
         </>
       ),
+      width: "150px",
     },
     {
       name: "Action",
@@ -299,10 +303,10 @@ const AdminUserListPage = () => {
   useEffect(() => {
     dispatch(onLoadRole());
     dispatch(onLoadPermission());
-  }, [dispatch]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
-    console.log(role);
     role
       ? setPermissionList(permissions.filter((p) => p.role.id === role.id))
       : setPermissionList([]);
@@ -341,11 +345,17 @@ const AdminUserListPage = () => {
 
   /********* Search ********* */
   useEffect(() => {
-    const result = users.filter((user) => {
-      const keys = Object.keys(user);
+    const result = users.filter((item) => {
+      if (user?.role === item.role) {
+        return false;
+      }
+      if (user?.role === item.role) {
+        return false;
+      }
+      const keys = Object.keys(item);
       for (let i = 0; i < keys.length; i++) {
         const key = keys[i];
-        const value = user[key];
+        const value = item[key];
         if (
           typeof value === "string" &&
           value.toLowerCase().includes(search.toLowerCase())
@@ -359,9 +369,12 @@ const AdminUserListPage = () => {
           return true;
         }
       }
+
       return false;
     });
+
     setFilterUser(result);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [users, search]);
 
   useEffect(() => {
@@ -525,7 +538,7 @@ const AdminUserListPage = () => {
     const role = roles.find((r) => r.name === item.role);
     setRole({ id: role.id, value: role.name, label: role.name });
     setSelectedUser(item.id);
-    //setPermission
+
     const userPermissions = [];
     for (let i = 0; i < item.permissions.length; i++) {
       const element = permissions.find(

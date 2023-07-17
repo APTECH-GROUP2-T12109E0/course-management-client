@@ -85,14 +85,14 @@ const HomeSearchMod = () => {
   }
   let relatedCourses = [];
   if (courseInSearch) {
-    const searchTags = courseInSearch?.tags.split(",");
+    const searchTags = courseInSearch?.tags?.split(",");
 
     relatedCourses = courses
       .filter((item) => {
         const courseTags = item?.tags?.split(",");
         return (
           item.id !== courseInSearch.id &&
-          searchTags.some((tag) => courseTags?.includes(tag))
+          searchTags?.some((tag) => courseTags?.includes(tag))
         );
       })
       .slice(0, 3);

@@ -28,6 +28,7 @@ const schemaValidation = yup.object().shape({
 const CommentCom = ({
   title,
   placeholder = "Leave your comment here...",
+  type,
   commentUrl = "",
   replyUrl = "",
 }) => {
@@ -35,6 +36,10 @@ const CommentCom = ({
   const [isShowCommentBox, setIsShowCommentBox] = useState(false);
   const [posts, setPosts] = useState([]);
   const [comment, setComment] = useState("");
+  const { courseId, isSubmitting } = useSelector(selectAllCourseState);
+
+  //Chỗ này lấy blogId từ Selector
+  const blogId = 0;
 
   const {
     control,
@@ -51,14 +56,15 @@ const CommentCom = ({
   const dispatch = useDispatch();
 
   useEffect(() => {
-    let url = BASE_API_URL + `/post/stream/${courseId}`;
+    let url =
+      BASE_API_URL +
+      `/post/stream/${type === "COURSE" ? courseId : blogId}/${type}`;
     const sse = new EventSource(url);
-
     sse.addEventListener("post-list-event", (event) => {
       const data = JSON.parse(event.data);
+      console.log(data);
       setPosts(data);
     });
-
     sse.onerror = () => {
       sse.close();
     };
@@ -68,13 +74,13 @@ const CommentCom = ({
   }, []);
 
   const user = useSelector(selectUser);
-  const { courseId, isSubmitting } = useSelector(selectAllCourseState);
 
   const handleSubmitForm = ({ comment }) => {
     const newPost = {
       comments: [],
       content: comment,
-      courseId,
+      typeId: type === "COURSE" ? courseId : blogId,
+      type,
       created_at: new Date(),
       id: Math.floor(Math.random() * 1000) + 1000,
       likedUsers: [],
@@ -82,8 +88,17 @@ const CommentCom = ({
       userId: user.id,
       userName: user.name,
     };
+    console.log(newPost);
+    console.log(posts);
     setPosts([...posts, newPost]);
-    dispatch(onSavePost({ courseId, userId: user.id, content: comment }));
+    dispatch(
+      onSavePost({
+        typeId: type === "COURSE" ? courseId : blogId,
+        type,
+        userId: user.id,
+        content: comment,
+      })
+    );
 
     setIsShowCommentBox(false);
     setComment("");
@@ -91,12 +106,35 @@ const CommentCom = ({
 
   const addComment = (comment) => {
     const newPosts = [...posts];
-
     const newPost = newPosts.find((p) => p.id === comment.postId);
+    console.log(newPost);
+    console.log(newPosts);
     if (newPost !== undefined) {
       newPost.comments = [...newPost.comments, comment];
       setPosts(newPosts);
+    } else {
+      setPosts(newPosts.filter((p) => p.id !== comment.postId));
     }
+  };
+  const deleteComment = (comment) => {
+    let newPost = posts.find((p) => p.id === comment.postId);
+    if (newPost) {
+      const comments = newPost.comments.filter((c) => c.id !== comment.id);
+      newPost.comments = comments;
+      const newListPost = posts.map((p) =>
+        p.id === newPost.id
+          ? {
+              ...newPost,
+            }
+          : p
+      );
+
+      setPosts(newListPost);
+    }
+  };
+  const deletePost = (postId) => {
+    const newPosts = posts.filter((p) => p.id !== postId);
+    setPosts(newPosts);
   };
   return (
     <section className="comment-box">
@@ -123,6 +161,7 @@ const CommentCom = ({
               likeUsers={p.likedUsers}
               comments={p.comments}
               addComment={addComment}
+              deletePost={deletePost}
             ></CommentParent>
             {p.comments.map((c) => (
               <CommentChild
@@ -130,9 +169,10 @@ const CommentCom = ({
                 image={c.imageUrl}
                 userName={c.userName}
                 role={c.role}
-                commentId={c.id}
+                commentId={c}
                 userCommentId={c.userId}
                 childComment={c.content}
+                deleteComment={deleteComment}
               ></CommentChild>
             ))}
           </React.Fragment>
@@ -202,6 +242,7 @@ const CommentParent = ({
   comments,
   addComment,
   addPost,
+  deletePost,
 }) => {
   const user = useSelector(selectUser);
   const [isLiked, setLiked] = useState(
@@ -271,6 +312,7 @@ const CommentParent = ({
   };
 
   const onConfirm = () => {
+    deletePost(deletedPostId);
     dispatch(onDeletePost(deletedPostId));
     setOpenDialog(false);
   };
@@ -285,7 +327,7 @@ const CommentParent = ({
     >
       <DialogConfirmMuiCom
         title="Warning"
-        content="Do you want to delete this note?"
+        content="Do you want to delete this post?"
         confirmContent="Yes"
         closeContent="No"
         onConfirm={onConfirm}
@@ -349,7 +391,12 @@ const CommentParent = ({
               <div className="flex gap-x-3">
                 <div dangerouslySetInnerHTML={{ __html: parentComment }}></div>
               </div>
-              {user.role === "ADMIN" || user.id === userPostId ? (
+              {user.role === "ADMIN" ||
+              (user.role === "MANAGER" && role !== "ADMIN") ||
+              (user.role === "EMPLOYEE" &&
+                role !== "ADMIN" &&
+                role !== "MANAGER") ||
+              user.id === userPostId ? (
                 <div className="flex gap-x-3">
                   <ButtonCom
                     className="px-3 rounded-lg"
@@ -359,9 +406,7 @@ const CommentParent = ({
                     <IconTrashCom className="w-4"></IconTrashCom>
                   </ButtonCom>
                 </div>
-              ) : (
-                ""
-              )}
+              ) : null}
             </div>
 
             {isReply && (
@@ -410,11 +455,12 @@ const CommentChild = ({
   commentId = 0,
   userCommentId = 0,
   childComment = "Thanks for your comment!",
+  deleteComment,
 }) => {
   const user = useSelector(selectUser);
   const dispatch = useDispatch();
   const [openDialogComment, setOpenDialogComment] = useState(false);
-  const [deleteCommentId, setDeleteCommentId] = useState(false);
+  const [deleteCommentId, setDeleteCommentId] = useState();
 
   const handleToggleDeleteComment = (commentId) => {
     setOpenDialogComment(true);
@@ -422,15 +468,15 @@ const CommentChild = ({
   };
 
   const onConfirm = () => {
-    dispatch(onRemoveReplyInPost(deleteCommentId));
+    deleteComment(deleteCommentId);
+    dispatch(onRemoveReplyInPost(deleteCommentId.id));
     setOpenDialogComment(false);
   };
-
   return (
     <li>
       <DialogConfirmMuiCom
         title="Warning"
-        content="Do you want to delete this note?"
+        content="Do you want to delete this reply?"
         confirmContent="Yes"
         closeContent="No"
         onConfirm={onConfirm}
@@ -473,7 +519,12 @@ const CommentChild = ({
                 <div className="flex gap-x-3">
                   <div dangerouslySetInnerHTML={{ __html: childComment }}></div>
                 </div>
-                {user.role === "ADMIN" || user.id === userCommentId ? (
+                {user.role === "ADMIN" ||
+                (user.role === "MANAGER" && role !== "ADMIN") ||
+                (user.role === "EMPLOYEE" &&
+                  role !== "ADMIN" &&
+                  role !== "MANAGER") ||
+                user.id === userCommentId ? (
                   <div className="flex gap-x-3">
                     <ButtonCom
                       className="px-3 rounded-lg"
@@ -483,9 +534,7 @@ const CommentChild = ({
                       <IconTrashCom className="w-4"></IconTrashCom>
                     </ButtonCom>
                   </div>
-                ) : (
-                  ""
-                )}
+                ) : null}
               </div>
             </div>
           </div>

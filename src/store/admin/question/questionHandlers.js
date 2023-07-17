@@ -3,13 +3,16 @@ import { call, put } from "redux-saga/effects";
 import { MESSAGE_GENERAL_FAILED } from "../../../constants/config";
 import { showMessageError } from "../../../utils/helper";
 import {
-  requestDeleteQuestion, requestGetQuestionsByPartId,
-  requestPostQuestion
+  requestDeleteQuestion,
+  requestGetQuestionsByPartId,
+  requestPostQuestion,
 } from "./questionRequests";
 import {
-  onBulkDeleteQuestionSuccess, onGetQuestionsByPartId,
+  onBulkDeleteQuestionSuccess,
+  onGetQuestionsByPartId,
   onGetQuestionsByPartIdSuccess,
-  onLoading, onPostQuestionSuccess
+  onLoading,
+  onPostQuestionSuccess,
 } from "./questionSlice";
 
 function* handleOnGetQuestionsByPartId({ payload }) {
@@ -63,7 +66,7 @@ function* handleOnBulkDeleteQuestion({ payload }) {
     yield put(onBulkDeleteQuestionSuccess(true));
     toast.success(
       `Delete [${payload.length}] ${
-        payload.length > 1 ? "parts" : "part"
+        payload.length > 1 ? "questions" : "question"
       } success`
     );
   } catch (error) {
@@ -83,4 +86,3 @@ export {
   handleOnDeleteQuestion,
   handleOnBulkDeleteQuestion,
 };
-

@@ -3,7 +3,10 @@ import Modal from "react-modal";
 import { useDispatch, useSelector } from "react-redux";
 import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import LoaderCom from "./components/common/LoaderCom.js";
-import { ADMIN_ROLE, MANAGER_ROLE } from "./constants/permissions.js";
+import {
+  ALLOWED_ADMIN_MANAGER,
+  ALLOWED_ADMIN_MANAGER_EMPLOYEE,
+} from "./constants/permissions.js";
 import LayoutAuthentication from "./layouts/LayoutAuthentication.js";
 import LayoutHome from "./layouts/LayoutHome.js";
 import LayoutLearning from "./layouts/LayoutLearn.js";
@@ -11,7 +14,11 @@ import CheckAuthPage from "./pages/auth/CheckAuthPage.js";
 import CheckUserLoginPage from "./pages/auth/CheckUserLoginPage.js";
 import OAuth2RedirectPage from "./pages/auth/OAuth2RedirectPage.js";
 import ExamPage from "./pages/exam/ExamPage.js";
-import { onRemoveToken } from "./store/auth/authSlice.js";
+import {
+  onAuthInitialState,
+  onLoadCurrentUser,
+  onRemoveToken,
+} from "./store/auth/authSlice.js";
 import {
   onAuthorInitialState,
   onGetAuthors,
@@ -22,6 +29,8 @@ import {
   onCourseLoading,
 } from "./store/course/courseSlice.js";
 import { getToken } from "./utils/auth.js";
+import { BASE_API_URL } from "./constants/config.js";
+import { selectUser } from "./store/auth/authSelector.js";
 
 const AuthorPage = lazy(() => import("./pages/author/AuthorPage.js"));
 const AuthorDetailsPage = lazy(() =>
@@ -98,12 +107,11 @@ const AdminCreateLessonPage = lazy(() =>
 );
 
 const AdminBlogListPage = lazy(() =>
-  import("./pages/admin/blog/AdminBlogListPage.js") 
+  import("./pages/admin/blog/AdminBlogListPage.js")
 );
 const AdminBlogCreatePage = lazy(() =>
-  import("./pages/admin/blog/AdminBlogCreatePage.js") 
+  import("./pages/admin/blog/AdminBlogCreatePage.js")
 );
-
 
 const AdminUserListPage = lazy(() =>
   import("./pages/admin/user/AdminUserListPage.js")
@@ -158,7 +166,7 @@ Modal.setAppElement("#root");
 Modal.defaultStyles = {};
 window.removeEventListener("onbeforeunload", () => {});
 function App() {
-  const { user } = useSelector((state) => state.auth);
+  const user = useSelector(selectUser);
   const { examination } = useSelector(selectAllCourseState);
   const { access_token } = getToken();
   const navigate = useNavigate();
@@ -172,6 +180,28 @@ function App() {
   // });
 
   useEffect(() => {
+    if (user) {
+      let url = BASE_API_URL + `/auth/user/me/stream/${user.id}`;
+      const sse = new EventSource(url);
+
+      sse.addEventListener("current-user-event", (event) => {
+        const data = JSON.parse(event.data);
+
+        if (JSON.stringify(data) !== JSON.stringify(user)) {
+          dispatch(onLoadCurrentUser(data));
+        }
+      });
+
+      sse.onerror = () => {
+        sse.close();
+      };
+      return () => {
+        sse.close();
+      };
+    }
+  }, [dispatch, user]);
+
+  useEffect(() => {
     if (user?.status === 0) {
       navigate("/logout");
       dispatch(onRemoveToken());
@@ -180,6 +210,7 @@ function App() {
   }, [dispatch, navigate, user?.status]);
 
   useEffect(() => {
+    // dispatch(onAuthInitialState());
     dispatch(onAuthorInitialState());
     dispatch(onGetAuthors());
     dispatch(onCourseLoading());
@@ -303,15 +334,15 @@ function App() {
           </Route>
           <Route path="/blogs" element={<BlogPage></BlogPage>}></Route>
           <Route
-            path="/blogs/:id"
+            path="/blogs/:slug"
             element={<BlogDetailsPage></BlogDetailsPage>}
           />
           <Route
-            path="/blogs/blogList"
+            path="/blogs/manage"
             element={<BlogListPage></BlogListPage>}
           ></Route>
           <Route
-            path="/blogs/blogCreate"
+            path="/blogs/create"
             element={<BlogCreatePage></BlogCreatePage>}
           ></Route>
           <Route
@@ -342,7 +373,7 @@ function App() {
             path="/admin"
             element={
               <CheckAuthPage
-                allowPermissions={[ADMIN_ROLE, MANAGER_ROLE]}
+                allowPermissions={ALLOWED_ADMIN_MANAGER_EMPLOYEE}
               ></CheckAuthPage>
             }
           >
@@ -413,18 +444,22 @@ function App() {
               element={<AdminBlogListPage></AdminBlogListPage>}
             ></Route>
             <Route
-              path="blogs/:slug"
+              path="blogs/create"
               element={<AdminBlogCreatePage></AdminBlogCreatePage>}
             ></Route>
+
             {/* Admin Users */}
             <Route
               path="users"
-              element={<AdminUserListPage></AdminUserListPage>}
-            ></Route>
-            <Route
-              path="users/create"
-              element={<AdminCreateUserPage></AdminCreateUserPage>}
-            ></Route>
+              element={
+                <CheckAuthPage
+                  allowPermissions={ALLOWED_ADMIN_MANAGER}
+                ></CheckAuthPage>
+              }
+            >
+              <Route index element={<AdminUserListPage />}></Route>
+              <Route path="create" element={<AdminCreateUserPage />}></Route>
+            </Route>
           </Route>
           {/* ******* END ADMIN ******* */}
         </Route>

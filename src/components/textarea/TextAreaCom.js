@@ -1,10 +1,8 @@
-import React from "react";
-import { useController } from "react-hook-form";
 import PropTypes from "prop-types";
+import React from "react";
 import { withErrorBoundary } from "react-error-boundary";
+import { useController } from "react-hook-form";
 import ErrorCom from "../common/ErrorCom";
-import ReactQuill, { Quill } from "react-quill";
-import "react-quill/dist/quill.snow.css";
 
 const TextAreaCom = (props) => {
   const { register = () => {}, control, name, children, ...rest } = props;

@@ -10,12 +10,17 @@
     {
       "src": "logo_click_thumb_light.png",
       "type": "image/png",
-      "sizes": "273x289"
+      "sizes": "273x289" 
     },
     {
       "src": "logo_click_light.png",
       "type": "image/png",
       "sizes": "500x227"
+    },
+    {
+      "src": "footer_download_android.png",
+      "type": "image/png",
+      "sizes": "273x289"
     }
   ],
   "start_url": ".",

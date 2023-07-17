@@ -1,5 +1,4 @@
 import { toast } from "react-toastify";
-import axiosInstance from "../api/axiosInstance";
 import { APP_KEY_NAME, MESSAGE_GENERAL_FAILED } from "../constants/config";
 
 // Input: 123456 - Output: 123.456 using For Count items
@@ -7,7 +6,7 @@ export function formatNumber(number) {
   if (number === null || isNaN(number)) number = 0;
   const formattedNumber = number
     .toString()
-    .replace(/\B(?=(\d{3})+(?!\d))/g, "."); 
+    .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   return formattedNumber;
 }
 
@@ -41,7 +40,7 @@ export function showMessageError(error) {
 
 // Get Duration for Video
 export function getDurationFromVideo(
-  e,
+  file,
   setValue = () => {},
   name = "duration"
 ) {
@@ -52,10 +51,8 @@ export function getDurationFromVideo(
     setValue(name, Math.round(video.duration));
   };
 
-  if (e.target.files.length === 0) {
-    return null;
-  }
-  video.src = URL.createObjectURL(e.target.files[0]);
+  if (!file) return null;
+  video.src = URL.createObjectURL(file);
 }
 
 // Convert second to DiffForHumans Timming, Input: 96, output: 1 min 36 seconds
@@ -124,6 +121,15 @@ export function convertDateTime(dateTimeString, isShowYear = true) {
   );
 
   return newDateTime;
+}
+
+// Input: 2023-06-20T16:21:34.017435Z, Output: 10 Total date
+export function countDateTime(createdAt) {
+  const createdDate = new Date(createdAt);
+  const currentDate = new Date();
+  const timeDiff = currentDate.getTime() - createdDate.getTime();
+  const daysDiff = Math.ceil(Math.abs(timeDiff / (1000 * 3600 * 24)));
+  return daysDiff;
 }
 
 // return "YYYY-MM-DD"
@@ -256,7 +262,7 @@ export function convertCoreObjectItems(
       slug = `/authors/${newItems?.id}`;
       description = sliceText(newItems?.information, limitText);
       countText = `Subcribe: <span class="text-tw-light-pink">${totalSubcribes}</span>`;
-      
+
       createdBy = `Title: <span class="text-tw-light-pink">${
         newItems?.title || "N/A"
       }</span>`;
@@ -272,4 +278,14 @@ export function convertCoreObjectItems(
     countText,
     createdBy,
   };
+}
+
+// Input user store, and get the output ['BLOG','COURSE', 'EXAM']
+export function getEmployeePermission(user) {
+  if (user && user.permissions && Array.isArray(user.permissions)) {
+    return user.permissions
+      .filter((permission) => permission.includes("_"))
+      .map((permission) => permission.split("_")[1]);
+  }
+  return null;
 }

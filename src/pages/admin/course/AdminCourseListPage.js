@@ -171,7 +171,7 @@ const AdminCourseListPage = () => {
       convertSecondToDiffForHumans(item.duration),
       item.author_name,
       item.tags,
-      item.achievements.trim(),
+      item.achievements?.trim(),
       item.enrollmentCount,
       item.rating,
     ]);
@@ -645,7 +645,7 @@ const AdminCourseListPage = () => {
       //   })
       // );
 
-      const fd = helperChangeStatusCourse(isChecked, courseId, courses);
+      const fd = helperChangeStatusCourse(isChecked, courseId, courses, true);
 
       await axiosBearer.put(`/course`, fd);
       toast.success(MESSAGE_UPDATE_STATUS_SUCCESS);

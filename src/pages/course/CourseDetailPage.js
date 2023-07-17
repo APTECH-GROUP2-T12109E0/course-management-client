@@ -2,7 +2,9 @@ import { Pagination } from "antd";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 import { v4 } from "uuid";
+import { axiosBearer } from "../../api/axiosInstance";
 import { CollapseAntCom } from "../../components/ant";
 import { BreadcrumbCom } from "../../components/breadcrumb";
 import { ButtonCom } from "../../components/button";
@@ -19,6 +21,7 @@ import {
 } from "../../components/icon";
 import { ImageCom } from "../../components/image";
 import { categoryItems, NOT_FOUND_URL } from "../../constants/config";
+import { API_ENROLLMENT_URL } from "../../constants/endpoint";
 import usePagination from "../../hooks/usePagination";
 import { CourseGridMod, CourseItemMod } from "../../modules/course";
 import {
@@ -28,12 +31,16 @@ import {
 import {
   onGetEnrollId,
   onGetLearning,
+  onMyCourseLoading,
+  onReady,
   onRelatedCourseLoading,
+  onReload,
 } from "../../store/course/courseSlice";
 import {
   convertIntToStrMoney,
   convertSecondToDiffForHumans,
   convertStrToSlug,
+  showMessageError,
 } from "../../utils/helper";
 
 // const sectionItems = [
@@ -79,6 +86,7 @@ const CourseDetailPage = () => {
   const navigate = useNavigate();
 
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { slug } = useParams();
   const { user } = useSelector((state) => state.auth);
 
@@ -109,9 +117,15 @@ const CourseDetailPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, courseBySlug?.id]);
 
+  // useEffect(() => {
+
+  // }, [dispatch, user]);
+
   useEffect(() => {
-    if (isEnrolled && user?.role === "USER")
+    if (isEnrolled && user?.role === "USER") {
+      dispatch(onMyCourseLoading(user.id));
       navigate(`/learn/${courseBySlug?.slug}`);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEnrolled]);
 
@@ -163,6 +177,32 @@ const CourseDetailPage = () => {
   const category = categoryItems.find(
     (item) => item.slug === convertStrToSlug(courseBySlug?.category_name)
   );
+
+  const handleEnroll = async () => {
+    const slug = courseBySlug?.slug;
+    if (courseBySlug?.price === 0) {
+      try {
+        setIsLoading(true);
+        const res = await axiosBearer.post(API_ENROLLMENT_URL, {
+          user_id: user?.id,
+          course_id: courseBySlug?.id,
+        });
+        if (res?.data?.type === "success") {
+          // Delay nhìn cho nó ngầu xD
+          setTimeout(() => {
+            toast.success(res?.data?.message);
+            setIsLoading(false);
+            navigate(`/learn/${slug}`);
+          }, 1000);
+        }
+      } catch (error) {
+        showMessageError(error);
+        setIsLoading(false);
+      }
+    } else {
+      navigate(`/checkout/${slug}`);
+    }
+  };
 
   return (
     <>
@@ -316,17 +356,21 @@ const CourseDetailPage = () => {
                   </HeadingH2Com>
                 )}
                 <GapYCom></GapYCom>
-                <Link
+                {/* <Link
                   to={
                     courseBySlug?.price === 0
                       ? `/learn/${slug}`
                       : `/checkout/${slug}`
                   }
                 >
-                  <ButtonCom backgroundColor="gradient">
-                    Enrolling Now
-                  </ButtonCom>
-                </Link>
+                </Link> */}
+                <ButtonCom
+                  isLoading={isLoading}
+                  backgroundColor="gradient"
+                  onClick={() => handleEnroll()}
+                >
+                  Enrolling Now
+                </ButtonCom>
                 <GapYCom></GapYCom>
                 <div className="pl-[10.5rem] mx-auto text-start text-sm">
                   <div className="flex flex-col gap-y-2">

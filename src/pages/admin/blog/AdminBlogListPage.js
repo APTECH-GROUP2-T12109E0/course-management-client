@@ -22,6 +22,7 @@ import {
   MIN_LENGTH_NAME,
   categoryItems,
   statusBlogItems,
+  MESSAGE_ITEM_NOT_FOUND,
 } from "../../../constants/config";
 import { showMessageError } from "../../../utils/helper";
 import LoadingCom from "../../../components/common/LoadingCom";
@@ -41,12 +42,19 @@ import { Link } from "@mui/material";
 import Swal from "sweetalert2";
 import { v4 } from "uuid";
 import ReactModal from "react-modal";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { InputCom } from "../../../components/input";
 import { LabelCom } from "../../../components/label";
 import { TextEditorQuillCom } from "../../../components/texteditor";
 import { BreadcrumbCom } from "../../../components/breadcrumb";
 import { mainColor } from "../../../constants/mainTheme";
+import {
+  onBulkDeleteBlog,
+  onDeleteBlog,
+  onGetBlogsForAdmin,
+  onPostBlog,
+} from "../../../store/admin/blog/blogSlice";
+import useExportExcel from "../../../hooks/useExportExcel";
 const schemaValidation = yup.object().shape({
   name: yup
     .string()
@@ -59,6 +67,13 @@ const schemaValidation = yup.object().shape({
 });
 
 const AdminBlogListPage = () => {
+  const dispatch = useDispatch();
+  const {
+    adminBlogs: blogs,
+    isPostBlogSuccess,
+    isBulkDeleteSuccess,
+  } = useSelector((state) => state.adminBlog);
+  console.log("adminBlogs:", blogs);
   /********* State ********* */
   //API State
   const [image, setImage] = useState([]);
@@ -71,12 +86,29 @@ const AdminBlogListPage = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
-  const [blogs, setBlogs] = useState([]);
+  // const [blogs, setBlogs] = useState([]);
   const [filterBlog, setFilterBlog] = useState([]);
   const [search, setSearch] = useState("");
   const { user } = useSelector((state) => state.auth);
-
   /********* END API State ********* */
+
+  const { handleExcelData } = useExportExcel("blog");
+  const handleExport = () => {
+    const headers = ["No", "Title", "Category", "Image", "Status", "Content"];
+    const data = blogs.map((item, index) => [
+      index + 1,
+      item.name,
+      item.category_name,
+      item.image,
+      item.status === 1
+        ? "Published"
+        : item.status === 0
+        ? "UnPublished"
+        : "Proccessing",
+      item.description,
+    ]);
+    handleExcelData(headers, data);
+  };
 
   /********* More Action Menu ********* */
   const dropdownItems = [
@@ -86,7 +118,7 @@ const AdminBlogListPage = () => {
         <div
           rel="noopener noreferrer"
           className="hover:text-tw-success transition-all duration-300"
-          onClick={() => toast.info("Developing...")}
+          onClick={handleExport}
         >
           Export
         </div>
@@ -98,9 +130,9 @@ const AdminBlogListPage = () => {
         <div
           rel="noopener noreferrer"
           className="hover:text-tw-danger transition-all duration-300"
-          onClick={() => handleDeleteMultipleRecords()}
+          onClick={() => handleBulkDelete()}
         >
-          Remove All
+          Bulk delete
         </div>
       ),
     },
@@ -168,12 +200,11 @@ const AdminBlogListPage = () => {
               : "blog-dropdown-dark"
           } rounded-full`}
           onChange={(selectedStatus) =>
-            handleChangeStatus(row.id, selectedStatus)
+            handleChangeStatus(row.slug, selectedStatus)
           }
         />
       ),
     },
-
     {
       name: "Action",
       cell: (row) => (
@@ -182,7 +213,7 @@ const AdminBlogListPage = () => {
             className="px-3 rounded-lg mr-2"
             backgroundColor="info"
             onClick={() => {
-              handleEdit(row.id);
+              handleEdit(row.slug);
             }}
           >
             <IconEditCom className="w-5"></IconEditCom>
@@ -191,7 +222,7 @@ const AdminBlogListPage = () => {
             className="px-3 rounded-lg"
             backgroundColor="danger"
             onClick={() => {
-              handleDeleteBlog(row);
+              handleDelete(row);
             }}
           >
             <IconTrashCom className="w-5"></IconTrashCom>
@@ -203,20 +234,16 @@ const AdminBlogListPage = () => {
 
   /********* Call API ********* */
   //Get All Blog
-  const getBlogs = async () => {
-    try {
-      const res = await axiosBearer.get(`/blog/blogs`);
-      console.log(res.data);
-      setBlogs(res.data);
-      setFilterBlog(res.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  useEffect(() => {
+    dispatch(onGetBlogsForAdmin());
+    if (isPostBlogSuccess && isOpen) setIsOpen(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPostBlogSuccess]);
 
   useEffect(() => {
-    getBlogs();
-  }, []);
+    if (isBulkDeleteSuccess) clearSelectedRows();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isBulkDeleteSuccess]);
 
   const handleChangeCategory = (value) => {
     setValue("category_id", value);
@@ -259,7 +286,7 @@ const AdminBlogListPage = () => {
   }, [blogs, search]);
 
   /********* Delete one API ********* */
-  const handleDeleteBlog = ({ id, name }) => {
+  const handleDelete = ({ id, name }) => {
     Swal.fire({
       title: "Are you sure?",
       html: `You will delete blog: <span class="text-tw-danger">${name}</span>`,
@@ -270,20 +297,13 @@ const AdminBlogListPage = () => {
       confirmButtonText: "Yes, delete it!",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        try {
-          const res = await axiosBearer.delete(`/blog/${id}`);
-          getBlogs();
-          reset(res.data);
-          toast.success(res.data.message);
-        } catch (error) {
-          showMessageError(error);
-        }
+        dispatch(onDeleteBlog(id));
       }
     });
   };
 
   /********* Multi Delete API ********* */
-  const handleDeleteMultipleRecords = () => {
+  const handleBulkDelete = () => {
     if (selectedRows.length === 0) {
       toast.warning(MESSAGE_NO_ITEM_SELECTED);
       return;
@@ -300,144 +320,68 @@ const AdminBlogListPage = () => {
       confirmButtonText: "Yes, delete it!",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        try {
-          const deletePromises = selectedRows.map((row) =>
-            axiosBearer.delete(`/blog/${row.id}`)
-          );
-          await Promise.all(deletePromises);
-          toast.success(`Delete ${selectedRows.length} blogs success`);
-        } catch (error) {
-          showMessageError(error);
-        } finally {
-          getBlogs();
-          clearSelectedRows();
-        }
+        dispatch(onBulkDeleteBlog(selectedRows));
       }
     });
   };
   /********* Update Status API ********* */
 
-  // const handleChangeStatus = async (blogId, selectedStatus) => {
-  //   try {
-  //     //update new status of blog
-  //     const newBlogs = blogs.map((blog) =>
-  //       blog.id === blogId ? { ...blog, status: selectedStatus } : blog
-  //     );
+  const handleChangeStatus = (slug, selectedStatus) => {
+    const blogBySlug = getBlogBySlug(slug);
+    if (!blogBySlug) toast.error(MESSAGE_ITEM_NOT_FOUND);
 
-  //     const dataBody = newBlogs.find((blog) => blog.id === blogId);
-
-  //     const {
-  //       id,
-  //       name,
-  //       status,
-  //       image,
-  //       category_id,
-  //       view_count = 0,
-  //       user_id = user.id,
-  //       description,
-  //     } = dataBody;
-  //     console.log("value", dataBody);
-  //     const formData = {
-  //       id,
-  //       name,
-  //       status,
-  //       image,
-  //       category_id,
-  //       view_count: view_count || 0,
-  //       user_id: user_id || user.id,
-  //       description,
-  //     };
-  //     console.log("formData", formData);
-  //     await axiosBearer.put(`/blog`, formData);
-
-  //     toast.success(MESSAGE_UPDATE_STATUS_SUCCESS);
-  //     getBlogs();
-  //   } catch (error) {
-  //     showMessageError(error);
-  //   }
-  // };
-
-  const handleChangeStatus = async (blogId, selectedStatus) => {
-    try {
-      console.log("blogId",blogId);
-      console.log("selectedStatus",selectedStatus);
-      const response = await axiosBearer.get(`/blog/${blogId}`);
-      const blogData = response.data; // access to API data
-
-      const formData = {
-       ...blogData,
-       status: selectedStatus,
-      };
-      console.log("formData", formData);
-      await axiosBearer.put(`/blog`, formData);
-
-      toast.success(MESSAGE_UPDATE_STATUS_SUCCESS);
-      getBlogs();
-    } catch (error) {
-      showMessageError(error);
-    }
+    dispatch(
+      onPostBlog({
+        ...blogBySlug,
+        status: selectedStatus,
+      })
+    );
   };
 
   /********* Update API ********* */
-  const handleEdit = async (blogId) => {
-    try {
-      setIsFetching(true);
-      await getBlogById(blogId);
-      setIsOpen(true);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setIsFetching(false);
+  const getBlogBySlug = (slug, action = "n/a") => {
+    setIsFetching(true);
+    const item = blogs.find((item) => item.slug === slug);
+    switch (action) {
+      case "fetch":
+        typeof item !== "undefined" ? reset(item) : showMessageError("No data");
+        setCategorySelected(item?.category_id);
+        setStatusSelected(item?.status);
+        const imageUrl = item?.image;
+        const imgObj = [
+          {
+            uid: v4(),
+            name: imageUrl?.substring(imageUrl.lastIndexOf("/") + 1),
+            status: "done",
+            url: imageUrl,
+          },
+        ];
+        setImage(imgObj);
+        break;
+      default:
+        break;
     }
+    setIsFetching(false);
+
+    return typeof item !== "undefined" ? item : showMessageError("No data");
   };
 
-  const getBlogById = async (blogId) => {
-    try {
-      const res = await axiosBearer.get(`blog/${blogId}`);
-      reset(res.data);
-      setCategorySelected(res.data.category_id);
-      setStatusSelected(res.data.status);
-      const resImage = res.data.image;
-      const imgObj = [
-        {
-          uid: v4(),
-          name: resImage?.substring(resImage.lastIndexOf("/") + 1),
-          status: "done",
-          url: resImage,
-        },
-      ];
-      setImage(imgObj);
-    } catch (error) {
-      console.log(error);
-    }
+  const handleEdit = async (slug) => {
+    setIsOpen(true);
+    getBlogBySlug(slug, "fetch");
   };
 
-  const handleSubmitForm = async (values) => {
-    console.log(values);
- 
-    const status = values.status || 2;
-    try {
-      setIsLoading(!isLoading);
-      const test = { ...values, status, view_count: 0 };
-      console.log("test:", test);
-      const res = await axiosBearer.put(`/blog`, {
+  const handleSubmitForm = (values) => {
+    dispatch(
+      onPostBlog({
         ...values,
-        status,
-        view_count: 0,
-      });
-      console.log("res:", res);
-      toast.success(MESSAGE_UPDATE_STATUS_SUCCESS);
-      getBlogs();
-      setIsOpen(false);
-    } catch (error) {
-      showMessageError(error);
-    } finally {
-      setIsLoading(false);
-    }
+        status: values.status || 2,
+      })
+    );
   };
   return (
     <>
-      {isFetching && <LoadingCom />}
+      {(isLoading || isFetching) && <LoadingCom />}
       <div className="flex justify-between items-center">
         <HeadingH1Com>Admin Blogs</HeadingH1Com>
         <BreadcrumbCom
@@ -460,7 +404,7 @@ const AdminBlogListPage = () => {
             <div className="card-header py-3">
               <span>
                 <TableCom
-                  urlCreate="/admin/blogs/:slug"
+                  urlCreate="/admin/blogs/create"
                   tableKey={tableKey}
                   title="List Blogs"
                   columns={columns}
@@ -604,4 +548,5 @@ const AdminBlogListPage = () => {
     </>
   );
 };
+
 export default AdminBlogListPage;

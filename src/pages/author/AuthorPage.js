@@ -252,6 +252,7 @@ const AuthorPage = () => {
                         },
                       }}
                       onClick={() => handleClickAuthor(a.id)}
+                      disabled={!a.id}
                     >
                       <Avatar
                         alt={a.name}
@@ -287,7 +288,7 @@ const AuthorPage = () => {
               disabled={pagiAuthor.last}
               onClick={handleLoadMore}
             >
-              View more authors (800 more)
+              View more authors
             </Button>
           </Typography>
         </Grid>

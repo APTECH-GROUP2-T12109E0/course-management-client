@@ -43,6 +43,10 @@ const SelectDefaultAntCom = ({
             background: ${mainColor.warning} !important;
             color: ${mainColor.white} !important;
           }
+          .footer-background{
+            background: ${mainColor.dark} !important;
+            color: ${mainColor.white} !important;
+          }
        
         `}
       </style>

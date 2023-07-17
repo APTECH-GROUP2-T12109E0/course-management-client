@@ -67,7 +67,7 @@ function* handleOnBulkDeleteAnswer({ payload }) {
     yield put(onBulkDeleteAnswerSuccess(true));
     toast.success(
       `Delete [${payload.length}] ${
-        payload.length > 1 ? "parts" : "part"
+        payload.length > 1 ? "answers" : "answer"
       } success`
     );
   } catch (error) {

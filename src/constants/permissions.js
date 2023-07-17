@@ -26,35 +26,33 @@ export const MANAGER_ROLE = ALL_ROLES[1].value;
 export const EMPLOYEE_ROLE = ALL_ROLES[2].value;
 export const USER_ROLE = ALL_ROLES[3].value;
 
-export const permissions = {
-  admin: {
-    USER: ["CREATE", "READ", "UPDATE", "DELETE"],
-    COURSE: ["CREATE", "READ", "UPDATE", "DELETE"],
-    BLOG: ["CREATE", "READ", "UPDATE", "DELETE"],
-    ROLE: ADMIN_ROLE,
+export const ALLOWED_ADMIN_MANAGER_EMPLOYEE = [
+  ADMIN_ROLE,
+  MANAGER_ROLE,
+  EMPLOYEE_ROLE,
+];
+
+export const ALLOWED_ADMIN_MANAGER = [ADMIN_ROLE, MANAGER_ROLE];
+
+export const TITLE_POSITION_LIST = [
+  {
+    title: "CEO",
+    value: "ADMIN",
+    permission: "ADMIN",
   },
-  manager: {
-    USER: ["CREATE", "READ", "UPDATE", "DELETE"],
-    COURSE: ["CREATE", "READ", "UPDATE", "DELETE"],
-    BLOG: ["CREATE", "READ", "UPDATE", "DELETE"],
-    ROLE: MANAGER_ROLE,
+  {
+    title: "COO",
+    value: "MANAGER",
+    permission: "MANAGER",
   },
-  employeeBlog: {
-    USER: null,
-    COURSE: null,
-    BLOG: ["CREATE", "READ", "UPDATE", "DELETE"],
-    ROLE: EMPLOYEE_ROLE,
+  {
+    title: "Mastering Personnel Course Management",
+    value: "EMPLOYEE",
+    permission: "COURSE",
   },
-  employeeCourse: {
-    USER: null,
-    COURSE: ["CREATE", "READ", "UPDATE", "DELETE"],
-    BLOG: null,
-    ROLE: EMPLOYEE_ROLE,
+  {
+    title: "Mastering Content Marketing",
+    value: "EMPLOYEE",
+    permission: "BLOG",
   },
-  user: {
-    USER: null,
-    COURSE: null,
-    BLOG: ["CREATE", "READ", "UPDATE", "DELETE"],
-    ROLE: USER_ROLE,
-  },
-};
+];

@@ -6,6 +6,7 @@ export const selectAllCourseState = createSelector(
   [selectCourseReducer],
   (courseSlice) => ({
     isLoading: courseSlice.isLoading,
+    isGenerating: courseSlice.isGenerating,
     isSubmitting: courseSlice.isSubmitting,
     data: courseSlice.data,
     courseId: courseSlice.courseId,

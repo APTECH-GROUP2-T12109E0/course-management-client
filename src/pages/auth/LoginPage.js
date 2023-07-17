@@ -19,7 +19,7 @@ import {
   MESSAGE_VERIFY_SUCCESS,
 } from "../../constants/config";
 import useClickToggleBoolean from "../../hooks/useClickToggleBoolean";
-import { onLogin } from "../../store/auth/authSlice";
+import { onLoading, onLogin } from "../../store/auth/authSlice";
 import OAuth2Page from "./OAuth2Page";
 import { toast } from "react-toastify";
 import { getRememberUser, setRememberUser } from "../../utils/auth";
@@ -51,6 +51,7 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
+  const { lastUrlAccess } = useSelector((state) => state.auth);
 
   const searchParams = new URLSearchParams(location.search);
   const verifyParam = searchParams.get("verify"); // = "success" || "verified";
@@ -58,10 +59,19 @@ const LoginPage = () => {
     useClickToggleBoolean();
 
   const handleSubmitForm = (values) => {
+    if (isRemember) {
+      const { email, password } = getValues();
+      setRememberUser(email, password);
+    }
     dispatch(onLogin(values));
   };
 
   const { email, password } = getRememberUser();
+
+  useEffect(() => {
+    dispatch(onLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     setValue("email", email);
@@ -70,16 +80,9 @@ const LoginPage = () => {
   }, []);
 
   useEffect(() => {
-    if (isLoginSuccess) {
-      if (isRemember) {
-        const { email, password } = getValues();
-        setRememberUser(email, password);
-      }
-      navigate("/");
-    } else {
-      if (errorMessage) toast.error(errorMessage);
-    }
-  }, [isLoginSuccess, navigate, isRemember, getValues, errorMessage]);
+    if (!isLoginSuccess && errorMessage) toast.error(errorMessage);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoginSuccess, errorMessage]);
 
   return (
     <>

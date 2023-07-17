@@ -9,6 +9,7 @@ import questionReducer from "./admin/question/questionSlice";
 import answerReducer from "./admin/answer/answerSlice";
 import userReducer from "./admin/user/userSlice";
 import adminCourseReducer from "./admin/course/courseSlice";
+import adminBlogReducer from "./admin/blog/blogSlice";
 
 const { combineReducers } = require("@reduxjs/toolkit");
 
@@ -23,5 +24,6 @@ export const rootReducer = combineReducers({
   answer: answerReducer,
   user: userReducer,
   adminCourse: adminCourseReducer,
+  adminBlog: adminBlogReducer,
   order: orderReducer,
 });

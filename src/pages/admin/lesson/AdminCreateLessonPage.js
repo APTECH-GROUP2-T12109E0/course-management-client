@@ -22,6 +22,7 @@ import {
   CAPTION_EXT_VALID,
   MESSAGE_CAPTION_FILE_INVALID,
   MESSAGE_FIELD_REQUIRED,
+  MESSAGE_GENERAL_FAILED,
   MESSAGE_NUMBER_REQUIRED,
   MESSAGE_UPLOAD_REQUIRED,
   MESSAGE_VIDEO_FILE_INVALID,
@@ -37,17 +38,17 @@ Quill.register("modules/imageUploader", ImageUploader);
 const schemaValidation = yup.object().shape({
   name: yup.string().trim().required(MESSAGE_FIELD_REQUIRED),
   ordered: yup.number(MESSAGE_NUMBER_REQUIRED),
-  videoFile: yup
-    .mixed()
-    .test("fileRequired", MESSAGE_UPLOAD_REQUIRED, function (value) {
-      if (value) return true;
-    })
-    .test("fileFormat", MESSAGE_VIDEO_FILE_INVALID, function (value) {
-      if (!value) return true;
-      const extValidArr = VIDEO_EXT_VALID.split(", ");
-      const videoFileExt = value[0]?.name.split(".").pop().toLowerCase();
-      return extValidArr.includes(videoFileExt);
-    }),
+  // videoFile: yup
+  //   .mixed()
+  //   .test("fileRequired", MESSAGE_UPLOAD_REQUIRED, function (value) {
+  //     if (value) return true;
+  //   })
+  //   .test("fileFormat", MESSAGE_VIDEO_FILE_INVALID, function (value) {
+  //     if (!value) return true;
+  //     const extValidArr = VIDEO_EXT_VALID.split(", ");
+  //     const videoFileExt = value[0]?.name.split(".").pop().toLowerCase();
+  //     return extValidArr.includes(videoFileExt);
+  //   }),
   captionFiles: yup
     .mixed()
     .test("fileRequired", MESSAGE_UPLOAD_REQUIRED, function (value) {
@@ -80,8 +81,7 @@ const AdminCreateLessonPage = () => {
 
   /********* API State ********* */
   const [lessons, setLessons] = useState([]);
-  // const [section, setSection] = useState({});
-  // const [course, setCourse] = useState({});
+  const [videoFile, setVideoFile] = useState([]);
   /********* END API State ********* */
 
   const [isLoading, setIsLoading] = useState(false);
@@ -89,10 +89,6 @@ const AdminCreateLessonPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [description, setDescription] = useState("");
-  const resetValues = () => {
-    // setcourseSelected(null);
-    reset();
-  };
   const { data } = useSelector(selectAllCourseState);
 
   useEffect(() => {
@@ -101,9 +97,43 @@ const AdminCreateLessonPage = () => {
     }
   }, [dispatch, isSuccess]);
 
+  const getMaxOrderedLessonBySectionId = async () => {
+    try {
+      const res = await axiosBearer.get(
+        `${API_SECTION_URL}/${sectionId}/lesson/max-ordered`
+      );
+      console.log("max:", res.data);
+      setValue("ordered", res?.data > 0 ? res?.data + 1 : 0);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getMaxOrderedLessonBySectionId();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handleSubmitForm = async (values) => {
-    const { name, duration, description, ordered, videoFile, captionFiles } =
-      values;
+    if (videoFile && videoFile.length === 0) {
+      toast.error(MESSAGE_GENERAL_FAILED);
+      setError("videoFile", { message: MESSAGE_UPLOAD_REQUIRED });
+      setValue("videoFile", null);
+      return;
+    } else if (videoFile && videoFile.length > 0) {
+      const extValidArr = VIDEO_EXT_VALID.split(", ");
+      const file = videoFile[0];
+      const videoFileExt = file.name.split(".").pop().toLowerCase();
+
+      if (!extValidArr.includes(videoFileExt)) {
+        toast.error(MESSAGE_GENERAL_FAILED);
+        setError("videoFile", { message: MESSAGE_VIDEO_FILE_INVALID });
+        setValue("videoFile", null);
+        return;
+      }
+    }
+    const { name, duration, description, ordered, captionFiles } = values;
+
     let lessonId;
     try {
       setIsLoading(true);
@@ -145,11 +175,18 @@ const AdminCreateLessonPage = () => {
 
   const getLatestLessonId = async () => {
     try {
-      const res = await axiosBearer.get(`/section/${sectionId}/lesson`);
-      return res.data[0].id;
+      const res = await axiosBearer.get(`/section/${sectionId}/lesson/last`);
+      // return res.data[0].id;
+      return res.data;
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const handleGetDurationForVideo = (e) => {
+    const file = e.target.files;
+    setVideoFile(file);
+    getDurationFromVideo(file[0], setValue);
   };
 
   return (
@@ -236,7 +273,7 @@ const AdminCreateLessonPage = () => {
                       register={register}
                       placeholder="Upload video"
                       errorMsg={errors.videoFile?.message}
-                      onChange={(e) => getDurationFromVideo(e, setValue)}
+                      onChange={(e) => handleGetDurationForVideo(e)}
                     ></InputCom>
                   </div>
                   <div className="col-sm-6">

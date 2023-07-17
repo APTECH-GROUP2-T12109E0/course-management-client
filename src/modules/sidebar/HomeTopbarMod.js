@@ -1,5 +1,5 @@
 import { Button } from "@mui/material";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -40,7 +40,7 @@ import HomeSearchMod from "../search/HomeSearchMod";
 
 const HomeTopbarMod = () => {
   const { user } = useSelector((state) => state.auth);
-  const { progress } = useSelector(selectAllCourseState);
+  const { progress, notifs } = useSelector(selectAllCourseState);
 
   const location = useLocation();
   const isLearnPage = location.pathname.startsWith("/learn");
@@ -93,7 +93,9 @@ const HomeTopbarMod = () => {
 
       sse.addEventListener("user-list-event", (event) => {
         const data = JSON.parse(event.data);
-        dispatch(onAddNotification(data));
+        if (JSON.stringify(data) !== JSON.stringify(notifs)) {
+          dispatch(onAddNotification(data));
+        }
       });
 
       sse.onerror = () => {

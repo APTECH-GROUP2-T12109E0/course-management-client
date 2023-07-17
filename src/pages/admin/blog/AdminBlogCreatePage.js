@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import * as yup from "yup";
 
 import { useForm } from "react-hook-form";
@@ -6,7 +6,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { colors } from "@mui/material";
 import { BreadcrumbCom } from "../../../components/breadcrumb";
@@ -22,14 +22,20 @@ import { InputCom } from "../../../components/input";
 import GapYCom from "../../../components/common/GapYCom";
 import { showMessageError } from "../../../utils/helper";
 import { HeadingH1Com } from "../../../components/heading";
-import { MESSAGE_FIELD_REQUIRED, MESSAGE_UPLOAD_REQUIRED, categoryItems } from "../../../constants/config";
+import {
+  MESSAGE_FIELD_REQUIRED,
+  MESSAGE_UPLOAD_REQUIRED,
+  categoryItems,
+} from "../../../constants/config";
+import { onPostBlog } from "../../../store/admin/blog/blogSlice";
+import Swal from "sweetalert2";
 /********* Validation for Section function ********* */
 const schemaValidation = yup.object().shape({
-  name: yup.string().required(MESSAGE_FIELD_REQUIRED),
-  description: yup.string().required(MESSAGE_FIELD_REQUIRED),
-  status: yup.number().default(2),
-  image: yup.string().required(MESSAGE_UPLOAD_REQUIRED),
-  category_id: yup.string().required(MESSAGE_FIELD_REQUIRED),
+  // name: yup.string().required(MESSAGE_FIELD_REQUIRED),
+  // description: yup.string().required(MESSAGE_FIELD_REQUIRED),
+  // status: yup.number().default(2),
+  // image: yup.string().required(MESSAGE_UPLOAD_REQUIRED),
+  // category_id: yup.string().required(MESSAGE_FIELD_REQUIRED),
 });
 const AdminBlogCreatePage = () => {
   const {
@@ -45,12 +51,14 @@ const AdminBlogCreatePage = () => {
     resolver: yupResolver(schemaValidation),
   });
 
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
+  const { isPostBlogSuccess } = useSelector((state) => state.adminBlog);
   /********* API Area ********* */
   // const [tagItems, setTagItems] = useState([]);
   /********* END API Area ********* */
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { user } = useSelector((state) => state.auth);
   const [categorySelected, setCategorySelected] = useState(null);
   const [description, setDescription] = useState("");
   const [isHidden, setIsHidden] = useState(true);
@@ -62,28 +70,20 @@ const AdminBlogCreatePage = () => {
     setDescription("");
   };
 
-  /********* Get Blog ID from API  ********* */
+  useEffect(() => {
+    if (isPostBlogSuccess) navigate("/admin/blogs");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPostBlogSuccess]);
 
-  const handleSubmitForm = async (values) => {
-    console.log(values);
-    const user_id = user.id;
-    try {
-      setIsLoading(!isLoading);
-      const res = await axiosBearer.post(`/blog`, {
+  const handleSubmitForm = (values) => {
+    dispatch(
+      onPostBlog({
         ...values,
-        user_id,
+        user_id: user?.id,
         status: 2,
         view_count: 0,
-      });
-      toast.success(`${res.data.message}`);
-      resetValues();
-
-      navigate(`/admin/blogs`);
-    } catch (error) {
-      showMessageError(error);
-    } finally {
-      setIsLoading(false);
-    }
+      })
+    );
   };
 
   /********* Library Function Area ********* */
@@ -104,11 +104,11 @@ const AdminBlogCreatePage = () => {
               slug: "/admin",
             },
             {
-              title: "Blog List",
-              slug: "/blogs/blogList",
+              title: "Blog",
+              slug: "/admin/blogs",
             },
             {
-              title: "Create blog",
+              title: "Create",
               isActive: true,
             },
           ]}
@@ -124,7 +124,7 @@ const AdminBlogCreatePage = () => {
             >
               <div className="card-body">
                 <div className="row">
-                  <div className="col-sm-6">
+                  <div className="col-sm-12 text-center">
                     <LabelCom htmlFor="name" isRequired>
                       Title
                     </LabelCom>
@@ -133,14 +133,16 @@ const AdminBlogCreatePage = () => {
                       control={control}
                       name="name"
                       register={register}
-                      placeholder="Input Blog name"
+                      placeholder="Input title"
                       errorMsg={errors.name?.message}
                     ></InputCom>
                   </div>
-
-                  <div className="col-sm-4">
+                </div>
+                <GapYCom className="mb-3"></GapYCom>
+                <div className="row">
+                  <div className="col-sm-2 offset-5 text-center">
                     <LabelCom htmlFor="category_id" isRequired>
-                      Choose Category
+                      Blog Category
                     </LabelCom>
                     <div>
                       <SelectSearchAntCom
@@ -164,15 +166,19 @@ const AdminBlogCreatePage = () => {
                       ></InputCom>
                     </div>
                   </div>
-                  <div className="col-sm-2 relative">
+                </div>
+                <GapYCom className="mb-3"></GapYCom>
+                <div className="row">
+                  <div className="col-sm-12 text-center">
                     <LabelCom htmlFor="image" isRequired>
                       Image
                     </LabelCom>
-                    <div className="absolute w-full">
+                    <div className="w-full">
                       <ImageCropUploadAntCom
                         name="image"
                         onSetValue={setValue}
                         errorMsg={errors.image?.message}
+                        isWidthFull
                       ></ImageCropUploadAntCom>
                       <InputCom
                         type="hidden"
@@ -182,27 +188,27 @@ const AdminBlogCreatePage = () => {
                       ></InputCom>
                     </div>
                   </div>
-                  <GapYCom className="mt-20"></GapYCom>
-                  <div className="row">
-                    <LabelCom htmlFor="description" isRequired>
-                      Description
-                    </LabelCom>
-                    <TextEditorQuillCom
-                      value={description}
-                      onChange={(newDescription) => {
-                        setValue("description", newDescription);
-
-                        setDescription(newDescription);
-                        setIsDescriptionEmpty(newDescription.trim() === "");
-                      }}
-                      placeholder={
-                        isDescriptionEmpty ? "Describe your blog ..." : ""
-                      }
-                    />
-                  </div>
-                  <div className="mt-10 " style={{ color: "red" }}>
-                    {errors.description?.message}
-                  </div>
+                </div>
+                <GapYCom className="mb-3"></GapYCom>
+                <div className="row text-center">
+                  <LabelCom htmlFor="description" isRequired>
+                    Content
+                  </LabelCom>
+                  <TextEditorQuillCom
+                    value={description}
+                    onChange={(newDescription) => {
+                      setValue("description", newDescription);
+                      setDescription(newDescription);
+                      setIsDescriptionEmpty(newDescription.trim() === "");
+                    }}
+                    placeholder={
+                      isDescriptionEmpty ? "Write your content ..." : ""
+                    }
+                    className="h-[500px]"
+                  />
+                </div>
+                <div className="mt-10" style={{ color: "red" }}>
+                  {errors.description?.message}
                 </div>
                 <GapYCom className="mb-3"></GapYCom>
               </div>
@@ -210,7 +216,24 @@ const AdminBlogCreatePage = () => {
                 <ButtonCom type="submit" isLoading={isLoading}>
                   Create
                 </ButtonCom>
-                <ButtonCom backgroundColor="danger" onClick={resetValues}>
+                <ButtonCom
+                  backgroundColor="danger"
+                  onClick={() => {
+                    Swal.fire({
+                      title: "Are you sure?",
+                      html: `You will reset all content you have input already - <span class="text-tw-success">Image still will keep</span>`,
+                      icon: "question",
+                      showCancelButton: true,
+                      confirmButtonColor: "#7366ff",
+                      cancelButtonColor: "#dc3545",
+                      confirmButtonText: "Yes, please reset!",
+                    }).then(async (result) => {
+                      if (result.isConfirmed) {
+                        resetValues();
+                      }
+                    });
+                  }}
+                >
                   Reset
                 </ButtonCom>
               </div>

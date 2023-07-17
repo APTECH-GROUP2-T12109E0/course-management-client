@@ -13,6 +13,7 @@ import {
   handleOnLoadRoles,
   handleOnLoadPermissions,
   handleOnUpdatePermissions,
+  handleOnGetLastUrlAccess,
 } from "./authHandlers";
 import {
   onForgetPassword,
@@ -28,6 +29,7 @@ import {
   onLoadRole,
   onLoadPermission,
   onUpdatePermission,
+  onGetLastUrlAccess,
 } from "./authSlice";
 
 /**
@@ -47,4 +49,5 @@ export default function* authSaga() {
   yield takeLatest(onLoadRole.type, handleOnLoadRoles);
   yield takeLatest(onLoadPermission.type, handleOnLoadPermissions);
   yield takeLatest(onUpdatePermission.type, handleOnUpdatePermissions);
+  yield takeLatest(onGetLastUrlAccess.type, handleOnGetLastUrlAccess);
 }

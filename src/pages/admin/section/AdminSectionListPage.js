@@ -100,23 +100,6 @@ const AdminSectionListPage = () => {
       selector: (row) => row.name,
       sortable: true,
     },
-    // {
-    //   name: "Status",
-    //   cell: (row) => (
-    //     <>
-    //       {row.status === 1 ? (
-    //         <ButtonCom onClick={() => {}} backgroundColor="success">
-    //           Active
-    //         </ButtonCom>
-    //       ) : (
-    //         <ButtonCom onClick={() => {}} backgroundColor="danger">
-    //           InActive
-    //         </ButtonCom>
-    //       )}
-    //     </>
-    //   ),
-    //   sortable: true,
-    // },
     {
       name: "Status",
       cell: (row) => (
@@ -163,20 +146,11 @@ const AdminSectionListPage = () => {
             className="px-3 rounded-lg mr-2"
             backgroundColor="info"
             onClick={() => {
-              // setIsFetching(true);
               handleEdit(row.id);
             }}
           >
             <IconEditCom className="w-5"></IconEditCom>
           </ButtonCom>
-          {/* <ButtonCom
-            className="px-3 rounded-lg mr-2"
-            onClick={() => {
-              alert(`View Section id: ${row.id}`);
-            }}
-          >
-            <IconEyeCom className="w-5"></IconEyeCom>
-          </ButtonCom> */}
           <ButtonCom
             className="px-3 rounded-lg"
             backgroundColor="danger"
@@ -324,7 +298,8 @@ const AdminSectionListPage = () => {
       await getSectionsByCourseId();
       await getCourseById();
     } catch (error) {
-      showMessageError(error);
+      // showMessageError(error);
+      console.log(error);
     } finally {
       setIsFetching(false);
     }
