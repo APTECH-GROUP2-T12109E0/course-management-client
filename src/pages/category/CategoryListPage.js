@@ -162,7 +162,7 @@ const CategoryListPage = () => {
             className="px-3 rounded-lg"
             backgroundColor="danger"
             onClick={() => {
-              handleDeleteBlog(row);
+              handleDeleteCategory(row);
             }}
           >
             <IconTrashCom className="w-5"></IconTrashCom>
@@ -226,7 +226,7 @@ const CategoryListPage = () => {
   }, [categories, search]);
 
   /********* Delete one API ********* */
-  const handleDeleteBlog = ({ id, name }) => {
+  const handleDeleteCategory = ({ id, name }) => {
     Swal.fire({
       title: "Are you sure?",
       html: `You will delete category: <span class="text-tw-danger">${name}</span>`,
@@ -237,7 +237,7 @@ const CategoryListPage = () => {
       confirmButtonText: "Yes, delete it!",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        try {
+        try {console.log(id);
           const res = await axiosBearer.delete(`/category/${id}`);
           getCategories();
           reset(res.data);
@@ -471,34 +471,6 @@ const CategoryListPage = () => {
                 </div>
               </div>
               <GapYCom className="mb-20"></GapYCom>
-              <div className="row">
-                <div className="col-sm-4">
-                  <LabelCom htmlFor="category_id" isRequired>
-                    Choose Category
-                  </LabelCom>
-                  <div>
-                    <SelectSearchAntCom
-                      selectedValue={categorySelected}
-                      listItems={categoryItems}
-                      onChange={handleChangeCategory}
-                      className="w-full py-1"
-                      status={
-                        errors.category_id &&
-                        errors.category_id.message &&
-                        "error"
-                      }
-                      errorMsg={errors.category_id?.message}
-                      placeholder="Input category to search"
-                    ></SelectSearchAntCom>
-                    <InputCom
-                      type="hidden"
-                      control={control}
-                      name="category_id"
-                      register={register}
-                    ></InputCom>
-                  </div>
-                </div>
-              </div>
               <GapYCom className="mb-35 bt-10"></GapYCom>
               <div className="row">
                 <div className="col-sm-12">

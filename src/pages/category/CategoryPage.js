@@ -28,7 +28,7 @@ const CategoryPage = () => {
           <img src={imageUrl} alt="/" className="w-full h-60 object-cover" />
         )}
 
-        {user && user.role !== 'ADMIN' && (
+        {user && (user.role === 'ADMIN' || user.role === 'MANAGER') && (
           <nav className="flex justify-end space-x-20 h-16 bg-white">
             <Link
               to="/categories/categoryList"
