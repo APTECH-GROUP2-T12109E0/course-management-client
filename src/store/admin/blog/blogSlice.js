@@ -6,6 +6,7 @@ const blogSlice = createSlice({
     adminBlogs: [], // adminBlogs used for admin
     blogs: [], // blogs used for client
     myBlogs: [], // blogs by user id used for client
+    blogId: null,
     isLoading: false,
     isPostBlogSuccess: false,
     isBulkDeleteSuccess: false,
@@ -27,6 +28,10 @@ const blogSlice = createSlice({
       isLoading: false,
       isBulkDeleteSuccess: false,
       adminBlogs: action.payload,
+    }),
+    onSaveBlogId: (state, action) => ({
+      ...state,
+      blogId: action.payload,
     }),
     // blogs used for client
     onGetBlogs: (state, action) => ({
@@ -94,6 +99,7 @@ export const {
   onLoading,
   onGetBlogsForAdmin,
   onGetBlogsForAdminSuccess,
+  onSaveBlogId,
   onGetBlogs,
   onGetBlogsSuccess,
   onGetMyBlogs,

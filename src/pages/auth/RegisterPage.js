@@ -22,7 +22,11 @@ import {
 } from "../../constants/config";
 import { regexName } from "../../constants/regex";
 import useClickToggleBoolean from "../../hooks/useClickToggleBoolean";
-import { onRegister, onRegisterSuccess } from "../../store/auth/authSlice";
+import {
+  onLoading,
+  onRegister,
+  onRegisterSuccess,
+} from "../../store/auth/authSlice";
 import OAuth2Page from "./OAuth2Page";
 
 const schemaValidation = yup.object().shape({
@@ -65,13 +69,11 @@ const RegisterPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isLoading, isRegisterSuccess } = useSelector((state) => state.auth);
-  
-
 
   const { value: acceptTerm, handleToggleBoolean: handleToggleTerm } =
     useClickToggleBoolean();
 
-  const handleRegister =(values) => {
+  const handleRegister = (values) => {
     if (!acceptTerm) {
       toast.warning(MESSAGE_POLICY_REQUIRED);
       return;
@@ -79,9 +81,13 @@ const RegisterPage = () => {
     dispatch(onRegister(values));
   };
 
- 
   useEffect(() => {
-    if(isRegisterSuccess){
+    dispatch(onLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (isRegisterSuccess) {
       dispatch(onRegisterSuccess(false));
       navigate("/login");
     }

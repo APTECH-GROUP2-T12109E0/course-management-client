@@ -3,7 +3,11 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import * as yup from "yup";
-import { BASE_API_URL, IMAGE_DEFAULT } from "../../constants/config";
+import {
+  BASE_API_URL,
+  IMAGE_DEFAULT,
+  MESSAGE_LOGIN_REQUIRED,
+} from "../../constants/config";
 import { selectUser } from "../../store/auth/authSelector";
 import { selectAllCourseState } from "../../store/course/courseSelector";
 import {
@@ -19,6 +23,9 @@ import { IconTrashCom } from "../icon";
 import { DialogConfirmMuiCom } from "../mui";
 import { TextEditorQuillCom } from "../texteditor";
 import { Card } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { onGetLastUrlAccess } from "../../store/auth/authSlice";
 
 const schemaValidation = yup.object().shape({
   comment: yup.string(),
@@ -37,9 +44,7 @@ const CommentCom = ({
   const [posts, setPosts] = useState([]);
   const [comment, setComment] = useState("");
   const { courseId, isSubmitting } = useSelector(selectAllCourseState);
-
-  //Chỗ này lấy blogId từ Selector
-  const blogId = 0;
+  const { blogId } = useSelector((state) => state.adminBlog);
 
   const {
     control,
@@ -54,6 +59,7 @@ const CommentCom = ({
   });
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
     let url =
@@ -88,8 +94,6 @@ const CommentCom = ({
       userId: user.id,
       userName: user.name,
     };
-    console.log(newPost);
-    console.log(posts);
     setPosts([...posts, newPost]);
     dispatch(
       onSavePost({
@@ -107,8 +111,6 @@ const CommentCom = ({
   const addComment = (comment) => {
     const newPosts = [...posts];
     const newPost = newPosts.find((p) => p.id === comment.postId);
-    console.log(newPost);
-    console.log(newPosts);
     if (newPost !== undefined) {
       newPost.comments = [...newPost.comments, comment];
       setPosts(newPosts);
@@ -187,7 +189,15 @@ const CommentCom = ({
       <GapYCom></GapYCom>
       <div
         className="flex justify-center items-center"
-        onClick={() => setIsShowCommentBox(!isShowCommentBox)}
+        onClick={() => {
+          if (!user) {
+            toast.warn(MESSAGE_LOGIN_REQUIRED);
+            dispatch(onGetLastUrlAccess(window.location.pathname));
+            navigate("/login");
+            return;
+          }
+          setIsShowCommentBox(!isShowCommentBox);
+        }}
       >
         {isShowCommentBox ? (
           <ButtonCom backgroundColor="danger">Hide</ButtonCom>

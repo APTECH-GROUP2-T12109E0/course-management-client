@@ -180,7 +180,7 @@ const CourseDetailPage = () => {
 
   const handleEnroll = async () => {
     const slug = courseBySlug?.slug;
-    if (courseBySlug?.price === 0) {
+    if (courseBySlug?.price === 0 && user?.role === "USER") {
       try {
         setIsLoading(true);
         const res = await axiosBearer.post(API_ENROLLMENT_URL, {

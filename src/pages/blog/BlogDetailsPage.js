@@ -2,21 +2,25 @@ import moment from "moment/moment";
 import React, { useEffect, useState } from "react";
 import { AiOutlineClockCircle } from "react-icons/ai";
 import { FaEye } from "react-icons/fa";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { axiosBearer } from "../../api/axiosInstance";
 import { SpinAntCom } from "../../components/ant";
 import { BreadcrumbCom } from "../../components/breadcrumb";
+import { CommentCom } from "../../components/comment";
 import GapYCom from "../../components/common/GapYCom";
 import { HeadingH1Com } from "../../components/heading";
 import { ImageCom } from "../../components/image";
 import { NOT_FOUND_URL } from "../../constants/config";
+import { onSaveBlogId } from "../../store/admin/blog/blogSlice";
 import { getBlogViewCount, setBlogViewCount } from "../../utils/authBlog";
 
 const BlogDetailsPage = () => {
+  const dispatch = useDispatch();
   const { slug } = useParams();
   const [blog, setBlog] = useState(null);
+  console.log("blog:", blog);
   const { user } = useSelector((state) => state.auth);
   const [viewCount, setViewCount] = useState(0);
   const navigate = useNavigate();
@@ -32,6 +36,7 @@ const BlogDetailsPage = () => {
         }
 
         setBlog({
+          id: response.data.id,
           name: response.data.name,
           description: response.data.description,
           image: response.data.image,
@@ -54,6 +59,10 @@ const BlogDetailsPage = () => {
 
     fetchData();
   }, [slug]);
+
+  useEffect(() => {
+    if (blog) dispatch(onSaveBlogId(blog.id));
+  }, [blog]);
 
   const updateViewCount = async () => {
     try {
@@ -129,6 +138,7 @@ const BlogDetailsPage = () => {
                 ></div>
               </h3>
             </div>
+            <CommentCom type="BLOG"></CommentCom>
           </div>
         </section>
       ) : (

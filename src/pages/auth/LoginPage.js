@@ -19,7 +19,7 @@ import {
   MESSAGE_VERIFY_SUCCESS,
 } from "../../constants/config";
 import useClickToggleBoolean from "../../hooks/useClickToggleBoolean";
-import { onLogin } from "../../store/auth/authSlice";
+import { onLoading, onLogin } from "../../store/auth/authSlice";
 import OAuth2Page from "./OAuth2Page";
 import { toast } from "react-toastify";
 import { getRememberUser, setRememberUser } from "../../utils/auth";
@@ -67,6 +67,11 @@ const LoginPage = () => {
   };
 
   const { email, password } = getRememberUser();
+
+  useEffect(() => {
+    dispatch(onLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     setValue("email", email);
