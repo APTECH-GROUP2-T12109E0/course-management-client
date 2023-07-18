@@ -130,6 +130,9 @@ const LearnPage = () => {
   useEffect(() => {
     setIsCompleted(0);
   }, [lessonId]);
+  useEffect(() => {
+    console.log("isPlaying:", isPlaying);
+  }, [isPlaying]);
 
   useEffect(() => {
     const countDown =
@@ -146,11 +149,12 @@ const LearnPage = () => {
     }, 1000);
     return () => clearInterval(interval);
   });
-  const handleTogglePlay = () => {
-    setIsPlaying(!isPlaying);
+  const handlePlay = () => {
+    setIsPlaying(true);
   };
 
   const handleGetProgress = ({ playedSeconds, played }) => {
+    console.log(playedSeconds);
     if (played > 0.9) {
       setIsCompleted((prev) => prev + 1);
     }
@@ -203,6 +207,7 @@ const LearnPage = () => {
   };
 
   const handlePauseVideo = () => {
+    setIsPlaying(false);
     if (lessonId > 0 && video.id > 0 && sectionId > 0) {
       dispatch(
         onSaveTrackingVideo({
@@ -217,8 +222,8 @@ const LearnPage = () => {
     }
   };
 
-  const onWriteNote = () => {
-    setIsPlaying(false);
+  const onWriteNote = (isShowNote) => {
+    if (!isShowNote) setIsPlaying(false);
   };
   const onSelectNote = (resumePoint) => {
     player.current.seekTo(resumePoint);
@@ -444,7 +449,7 @@ const LearnPage = () => {
             onProgress={handleGetProgress}
             onPause={handlePauseVideo}
             onEnded={handleEnded}
-            onClick={handleTogglePlay}
+            onPlay={handlePlay}
             onReady={handleOnReady}
           />
         </div>

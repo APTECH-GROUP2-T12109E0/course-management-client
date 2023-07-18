@@ -109,7 +109,7 @@ const RatingListMuiCom = () => {
         </Grid>
         <Grid item xs={10} sm={10} md={10}>
           {courseRating.map((c) => (
-            <Grid container spacing={2} justifyContent="center">
+            <Grid key={c.star} container spacing={2} justifyContent="center">
               <Grid item xs={7} sm={7} md={7}>
                 <BorderLinearProgress
                   variant="determinate"

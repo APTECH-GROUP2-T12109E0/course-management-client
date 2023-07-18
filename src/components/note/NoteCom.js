@@ -225,7 +225,7 @@ const NoteCom = ({
           setIsShowNote(!isShowNote);
           setNote("");
           setIsFocus(!isFocus);
-          onWriteNote();
+          onWriteNote(isShowNote);
         }}
       >
         <p>
