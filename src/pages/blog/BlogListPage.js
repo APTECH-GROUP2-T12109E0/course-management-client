@@ -304,26 +304,7 @@ const BlogListPage = () => {
       }
     });
   };
-
-  const exportExcel = () => {
-    if (blogs == null || blogs.length == 0) {
-      toast.loading("No data to export!");
-      return;
-    }
-
-    const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
-    const fileExtension = '.xlsx';
-    
-    var currentDate = new Date();
-    const fileName = moment(currentDate).format('YYYYMMDDHHmmss');
-
-    const ws = XLSX.utils.json_to_sheet(blogs);
-    const wb = { Sheets: { 'data': ws }, SheetNames: ['data'] };
-    const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-    const data = new Blob([excelBuffer], {type: fileType});
-    FileSaver.saveAs(data, fileName + fileExtension);
-  };
-
+  
   /********* Multi Delete API ********* */
   const handleBulkDelete = () => {
     if (selectedRows.length === 0) {
