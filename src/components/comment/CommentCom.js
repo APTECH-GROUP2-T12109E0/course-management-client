@@ -28,6 +28,7 @@ const schemaValidation = yup.object().shape({
 const CommentCom = ({
   title,
   placeholder = "Leave your comment here...",
+  type,
   commentUrl = "",
   replyUrl = "",
 }) => {
@@ -36,6 +37,10 @@ const CommentCom = ({
   const [posts, setPosts] = useState([]);
   const [comment, setComment] = useState("");
   const { courseId, isSubmitting } = useSelector(selectAllCourseState);
+
+  //Chỗ này lấy blogId từ Selector
+  const blogId = 0;
+
   const {
     control,
     register,
@@ -51,7 +56,9 @@ const CommentCom = ({
   const dispatch = useDispatch();
 
   useEffect(() => {
-    let url = BASE_API_URL + `/post/stream/${courseId}`;
+    let url =
+      BASE_API_URL +
+      `/post/stream/${type === "COURSE" ? courseId : blogId}/${type}`;
     const sse = new EventSource(url);
     sse.addEventListener("post-list-event", (event) => {
       const data = JSON.parse(event.data);
@@ -72,7 +79,8 @@ const CommentCom = ({
     const newPost = {
       comments: [],
       content: comment,
-      courseId,
+      typeId: type === "COURSE" ? courseId : blogId,
+      type,
       created_at: new Date(),
       id: Math.floor(Math.random() * 1000) + 1000,
       likedUsers: [],
@@ -83,7 +91,14 @@ const CommentCom = ({
     console.log(newPost);
     console.log(posts);
     setPosts([...posts, newPost]);
-    dispatch(onSavePost({ courseId, userId: user.id, content: comment }));
+    dispatch(
+      onSavePost({
+        typeId: type === "COURSE" ? courseId : blogId,
+        type,
+        userId: user.id,
+        content: comment,
+      })
+    );
 
     setIsShowCommentBox(false);
     setComment("");

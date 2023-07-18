@@ -249,6 +249,7 @@ const LearnPage = () => {
 
   const handleOnReady = React.useCallback(() => {
     if (!isReady || isReload) {
+      console.log("ASLDKJSADLJASLKJDLSKADJLKDJLSKAJDKLSADJL");
       player.current.seekTo(tracking ? tracking.resumePoint : 0);
       dispatch(onReady(true));
       dispatch(onReload(false));
@@ -385,7 +386,7 @@ const LearnPage = () => {
             borderRadius: "10px",
           }}
         >
-          <CommentCom />
+          <CommentCom type="COURSE" />
         </Paper>
       ),
     },

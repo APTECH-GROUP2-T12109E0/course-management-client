@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { HeadingH1Com } from "../../../components/heading";
 import { InputCom } from "../../../components/input";
@@ -32,6 +32,8 @@ const AdminCreateSectionPage = () => {
     register,
     handleSubmit,
     reset,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schemaValidation),
@@ -47,6 +49,22 @@ const AdminCreateSectionPage = () => {
   const resetValues = () => {
     reset();
   };
+
+  const getMaxOrderedSectionByCourseId = async () => {
+    try {
+      const res = await axiosBearer.get(
+        `${API_COURSE_URL}/${courseId}/section/max-ordered`
+      );
+      setValue("ordered", res?.data > 0 ? res?.data + 1 : 0);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getMaxOrderedSectionByCourseId();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   /********* Get Course ID from API  ********* */
   const handleSubmitForm = async (values) => {
@@ -67,8 +85,6 @@ const AdminCreateSectionPage = () => {
       setIsLoading(false);
     }
   };
-
-  /********* Library Function Area ********* */
 
   return (
     <>
@@ -132,7 +148,6 @@ const AdminCreateSectionPage = () => {
                       register={register}
                       placeholder="Input section ordered"
                       errorMsg={errors.ordered?.message}
-                      defaultValue={0}
                     ></InputCom>
                   </div>
                 </div>

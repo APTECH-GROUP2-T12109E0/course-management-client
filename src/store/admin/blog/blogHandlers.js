@@ -42,6 +42,7 @@ function* handleOnGetBlogs() {
 }
 
 function* handleOnGetMyBlogs({ payload }) {
+  console.log("handle: ", payload);
   try {
     const res = yield call(requestGetMyBlogs, payload);
     if (res.status === 200) yield put(onGetMyBlogsSuccess(res.data));

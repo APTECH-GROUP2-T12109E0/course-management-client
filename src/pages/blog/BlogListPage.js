@@ -46,6 +46,7 @@ import {
   onPostBlog,
 } from "../../store/admin/blog/blogSlice";
 import { showMessageError } from "../../utils/helper";
+import useExportExcel from "../../hooks/useExportExcel";
 
 /********* Validation for Section function ********* */
 const schemaValidation = yup.object().shape({
@@ -82,6 +83,25 @@ const BlogListPage = () => {
   const [search, setSearch] = useState("");
   const { user } = useSelector((state) => state.auth);
   /********* END API State ********* */
+  const { handleExcelData } = useExportExcel(
+    `blog_${user?.first_name.toLowerCase()}`
+  );
+  const handleExport = () => {
+    const headers = ["No", "Title", "Category", "Image", "Status", "Content"];
+    const data = blogs.map((item, index) => [
+      index + 1,
+      item.name,
+      item.category_name,
+      item.image,
+      item.status === 1
+        ? "Published"
+        : item.status === 0
+        ? "UnPublished"
+        : "Proccessing",
+      item.description,
+    ]);
+    handleExcelData(headers, data);
+  };
 
   /********* More Action Menu ********* */
   const dropdownItems = [
@@ -91,7 +111,7 @@ const BlogListPage = () => {
         <div
           rel="noopener noreferrer"
           className="hover:text-tw-success transition-all duration-300"
-          onClick={() => toast.info("Developing...")}
+          onClick={handleExport}
         >
           Export
         </div>

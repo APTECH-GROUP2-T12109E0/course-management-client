@@ -23,5 +23,6 @@ export const API_LESSON_URL = "/lesson";
 export const API_TAG_URL = "/tag";
 export const API_AUTHOR_URL = "/author";
 export const API_CHECKOUT_URL = "/checkout";
+export const API_ENROLLMENT_URL = "/enrollment";
 
 export const API_IMG_URL = "/course/download"; // Example: "/course/download?courseId=";

@@ -20,6 +20,7 @@ const persistConfig = {
     "answer",
     "user",
     "adminCourse",
+    "adminBlog",
   ],
 };
 const persistedReducer = persistReducer(persistConfig, rootReducer);
