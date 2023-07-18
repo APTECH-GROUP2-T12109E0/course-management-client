@@ -128,8 +128,8 @@ const CategoryPage = lazy(() => import("./pages/category/CategoryPage.js"));
 const CategoryDetailPage = lazy(() =>
   import("./pages/category/CategoryDetailPage.js")
 );
-const CategoryCreatePage = lazy(() => import("./pages/category/CategoryCreatePage.js"));
-const CategoryListPage = lazy(() => import("./pages/category/CategoryListPage.js"));
+const CategoryCreatePage = lazy(() => import("./pages/admin/category/AdminCategoryCreatePage.js"));
+const CategoryListPage = lazy(() => import("./pages/admin/category/AdminCategoryListPage.js"));
 
 const CoursePage = lazy(() => import("./pages/course/CoursePage.js"));
 const MyCoursePage = lazy(() => import("./pages/course/MyCoursePage.js"));
@@ -281,11 +281,11 @@ function App() {
             element={<CategoryDetailPage></CategoryDetailPage>}
           ></Route>
           <Route
-            path="/categories/categoryList"
+            path="/admin/categories"
             element={<CategoryListPage></CategoryListPage>}
           ></Route>
           <Route
-            path="/categories/categoryCreate"
+            path="/admin/categories/create"
             element={<CategoryCreatePage></CategoryCreatePage>}
           ></Route>
           <Route path="/courses" element={<CoursePage></CoursePage>}></Route>

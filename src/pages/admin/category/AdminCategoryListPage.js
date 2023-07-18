@@ -9,36 +9,35 @@ import {
   MESSAGE_UPDATE_STATUS_SUCCESS,
   MESSAGE_UPLOAD_REQUIRED,
   MIN_LENGTH_NAME,
-  categoryItems,
-} from "../../constants/config";
+} from "../../../constants/config";
 
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
   ImageCropUploadAntCom,
   SelectSearchAntCom,
-} from "../../components/ant";
-import { ButtonCom } from "../../components/button";
+} from "../../../components/ant";
+import { ButtonCom } from "../../../components/button";
 import {
   IconEditCom,
   IconRemoveCom,
   IconTrashCom,
-} from "../../components/icon";
+} from "../../../components/icon";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
-import { showMessageError } from "../../utils/helper";
-import { HeadingFormH5Com, HeadingH1Com } from "../../components/heading";
-import GapYCom from "../../components/common/GapYCom";
-import { TableCom } from "../../components/table";
+import { showMessageError } from "../../../utils/helper";
+import { HeadingFormH5Com, HeadingH1Com } from "../../../components/heading";
+import GapYCom from "../../../components/common/GapYCom";
+import { TableCom } from "../../../components/table";
 import ReactModal from "react-modal";
-import { InputCom } from "../../components/input";
-import { LabelCom } from "../../components/label";
+import { InputCom } from "../../../components/input";
+import { LabelCom } from "../../../components/label";
 import { useSelector } from "react-redux";
-import { axiosBearer } from "../../api/axiosInstance";
-import { BreadcrumbCom } from "../../components/breadcrumb";
-import { TextEditorQuillCom } from "../../components/texteditor";
+import { axiosBearer } from "../../../api/axiosInstance";
+import { BreadcrumbCom } from "../../../components/breadcrumb";
+import { TextEditorQuillCom } from "../../../components/texteditor";
 import { v4 } from "uuid";
-import LoadingCom from "../../components/common/LoadingCom";
+import LoadingCom from "../../../components/common/LoadingCom";
 import * as FileSaver from "file-saver";
 import * as XLSX from "xlsx";
 import moment from "moment/moment";
@@ -51,11 +50,10 @@ const schemaValidation = yup.object().shape({
     .min(MIN_LENGTH_NAME, MESSAGE_FIELD_MIN_LENGTH_NAME)
     .max(MAX_LENGTH_NAME, MESSAGE_FIELD_MAX_LENGTH_NAME),
   image: yup.string().required(MESSAGE_UPLOAD_REQUIRED),
-  category_id: yup.string().required(MESSAGE_FIELD_REQUIRED),
   description: yup.string().required(MESSAGE_FIELD_REQUIRED),
 });
 
-const CategoryListPage = () => {
+const AdminCategoryListPage = () => {
   /********* State ********* */
   //API State
   const [image, setImage] = useState([]);
@@ -172,8 +170,8 @@ const CategoryListPage = () => {
     },
   ];
 
-  /********* API List Blog ********* */
-  //Get All Blog
+  /********* API List Category ********* */
+  //Get All Category
   const getCategories = async () => {
     try {
       const res = await axiosBearer.get(`/category`);
@@ -238,7 +236,7 @@ const CategoryListPage = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {console.log(id);
-          const res = await axiosBearer.delete(`/category?id=${id}`);
+          const res = await axiosBearer.delete(`/category?categoryId=${id}`);
           getCategories();
           reset(res.data);
           toast.success(res.data.message);
@@ -361,15 +359,15 @@ const CategoryListPage = () => {
     <>
       {isFetching && <LoadingCom />}
       <div className="flex justify-between items-center">
-        <HeadingH1Com>Management Categories</HeadingH1Com>
+        <HeadingH1Com>Admin Categories</HeadingH1Com>
         <BreadcrumbCom
           items={[
             {
-              title: "Category",
-              slug: "/categories",
+              title: "Admin",
+              slug: "/admin",
             },
             {
-              title: "Management Category",
+              title: "Category",
               isActive: true,
             },
           ]}
@@ -386,7 +384,7 @@ const CategoryListPage = () => {
               <span>
                 <TableCom
                   tableKey={tableKey}
-                  urlCreate="/categories/categoryCreate"
+                  urlCreate="create"
                   title="List Categories"
                   columns={columns}
                   items={filterCategory}
@@ -430,7 +428,7 @@ const CategoryListPage = () => {
               control={control}
               name="id"
               register={register}
-              placeholder="Blog hidden id"
+              placeholder="Category hidden id"
               errorMsg={errors.id?.message}
             ></InputCom>
 
@@ -501,4 +499,4 @@ const CategoryListPage = () => {
     </>
   );
 };
-export default CategoryListPage;
+export default AdminCategoryListPage;

@@ -3,31 +3,31 @@ import * as yup from "yup";
 import {
   MESSAGE_FIELD_REQUIRED,
   MESSAGE_UPLOAD_REQUIRED,
-} from "../../constants/config";
+} from "../../../constants/config";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { showMessageError } from "../../utils/helper";
-import { HeadingH1Com } from "../../components/heading";
-import GapYCom from "../../components/common/GapYCom";
-import { LabelCom } from "../../components/label";
-import { InputCom } from "../../components/input";
-import { ButtonCom } from "../../components/button";
+import { showMessageError } from "../../../utils/helper";
+import { HeadingH1Com } from "../../../components/heading";
+import GapYCom from "../../../components/common/GapYCom";
+import { LabelCom } from "../../../components/label";
+import { InputCom } from "../../../components/input";
+import { ButtonCom } from "../../../components/button";
 import { useSelector } from "react-redux";
 import {
   ImageCropUploadAntCom,
-} from "../../components/ant";
-import { TextEditorQuillCom } from "../../components/texteditor";
-import { axiosBearer } from "../../api/axiosInstance";
-import { BreadcrumbCom } from "../../components/breadcrumb";
+} from "../../../components/ant";
+import { TextEditorQuillCom } from "../../../components/texteditor";
+import { axiosBearer } from "../../../api/axiosInstance";
+import { BreadcrumbCom } from "../../../components/breadcrumb";
 /********* Validation for Section function ********* */
 const schemaValidation = yup.object().shape({
   name: yup.string().required(MESSAGE_FIELD_REQUIRED),
   description: yup.string().required(MESSAGE_FIELD_REQUIRED),
   image: yup.string().required(MESSAGE_UPLOAD_REQUIRED)
 });
-const CategoryCreatePage = () => {
+const AdminCategoryCreatePage = () => {
   const {
     control,
     register,
@@ -69,7 +69,7 @@ const CategoryCreatePage = () => {
       toast.success(`${res.data.message}`);
       resetValues();
 
-      navigate(`/categories/categoryList`);
+      navigate(`/admin/categories`);
     } catch (error) {
       showMessageError(error);
     } finally {
@@ -91,15 +91,14 @@ const CategoryCreatePage = () => {
         <BreadcrumbCom
           items={[
             {
+              title: "Admin",
+              slug: "/",
+            },{
               title: "Category",
-              slug: "/categories",
+              slug: "/admin/categories",
             },
             {
-              title: "Category List",
-              slug: "/categories/categoryList",
-            },
-            {
-              title: "Create category",
+              title: "Create",
               isActive: true,
             },
           ]}
@@ -186,4 +185,4 @@ const CategoryCreatePage = () => {
   );
 };
 
-export default CategoryCreatePage;
+export default AdminCategoryCreatePage;
