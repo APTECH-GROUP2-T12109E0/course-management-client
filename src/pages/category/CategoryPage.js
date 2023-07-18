@@ -22,25 +22,6 @@ const CategoryPage = () => {
 
   return (
     <>
-      <div className="w-full h-full object-cover relative ">
-        {/**** Image and Sidebar ****/}
-        {imageUrl && (
-          <img src={imageUrl} alt="/" className="w-full h-60 object-cover" />
-        )}
-
-        {user && (user.role === 'ADMIN' || user.role === 'MANAGER') && (
-          <nav className="flex justify-end space-x-20 h-16 bg-white">
-            <Link
-              to="/categories/categoryList"
-              className="flex items-center text-blue-600 hover:text-blue-800 text-xl hover:font-bold hover:border-b-2"
-            >
-              <FaCog className="mr-1" />
-              Management Category
-            </Link>
-            
-          </nav>
-        )}
-      </div>
       <div className="flex justify-between items-center">
         <HeadingH1Com number={formatNumber(4)}>All Categories</HeadingH1Com>
         <BreadcrumbCom
