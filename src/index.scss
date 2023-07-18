@@ -10,6 +10,7 @@
   }
   h1 {
     @apply text-3xl md:text-4xl font-bold;
+    foo: bar;
   }
 
   button,
@@ -24,14 +25,17 @@
 @layer components {
   .layout-home {
     @apply max-w-[1440px] mx-auto;
+    foo: bar;
   }
   // ******** GENERAL CUSTOM CSS *********
   .tw-transition-all {
     @apply transition-all duration-300;
+    foo: bar;
   }
 
   .tw-bg-gradient-dark {
     @apply bg-gradient-to-t from-[rgba(0,0,0,0.5)] to-[rgba(0,0,0,0.5)];
+    foo: bar;
   }
 
   // ***** Modal ******
@@ -51,6 +55,7 @@
   // ******** SIDE BAR ********
   .sidebar {
     @apply transition-all duration-300;
+    foo: bar;
   }
 
   .animate-slide-in {
