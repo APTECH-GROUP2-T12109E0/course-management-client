@@ -238,7 +238,7 @@ const CategoryListPage = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {console.log(id);
-          const res = await axiosBearer.delete(`/category/${id}`);
+          const res = await axiosBearer.delete(`/category?id=${id}`);
           getCategories();
           reset(res.data);
           toast.success(res.data.message);
