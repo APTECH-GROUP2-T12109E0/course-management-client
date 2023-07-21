@@ -4,17 +4,26 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        primary: ["Poppins", "sans-serif;"],
+        "tw-primary": ["Rubik", "sans-serif;"],
+        "tw-secondary": ["Poppins", "sans-serif;"],
+        "tw-third": ["Roboto", "sans-serif;"],
       },
       colors: {
-        primary: "#7366ff",
-        danger: "#dc3545",
-        warning: "#f8d62b",
-        info: "#a927f9",
-        success: "#51bb25",
-        light: "#f4f4f4",
-        dark: "#2c323f",
-      }
+        "tw-primary": "#7366ff",
+        "tw-danger": "#dc3545",
+        "tw-warning": "#f8d62b",
+        "tw-info": "#2cccff",
+        "tw-success": "#51bb25",
+        "tw-light": "#f4f4f4",
+        "tw-dark": "#2c323f",
+        "tw-light-pink": "#f62682",
+        "tw-light-green": "#0be8ab",
+        "tw-light-gray":"#adb3bd",
+        "tw-orange": "#ff6651",
+      },
+      boxShadow: {
+        primary: "10px 10px 20px rgba(218, 213, 213, 0.15)",
+      },
     },
   },
   plugins: [],

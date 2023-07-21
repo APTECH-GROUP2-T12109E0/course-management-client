@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Click and Learn",
+  "name": "Create Click and Learn Sample",
   "icons": [
     {
       "src": "favicon.ico",
@@ -8,18 +8,23 @@
       "type": "image/x-icon"
     },
     {
-      "src": "logo192.png",
+      "src": "logo_click_thumb_light.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "273x289" 
     },
     {
-      "src": "logo512.png",
+      "src": "logo_click_light.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "500x227"
+    },
+    {
+      "src": "footer_download_android.png",
+      "type": "image/png",
+      "sizes": "273x289"
     }
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
+  "theme_color": "#f4f4f4",
   "background_color": "#ffffff"
 }
