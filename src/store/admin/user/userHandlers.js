@@ -1,6 +1,7 @@
 import { toast } from "react-toastify";
 import { call, put } from "redux-saga/effects";
 import { showMessageError } from "../../../utils/helper";
+import { onUpdatePermissionSuccess } from "../../auth/authSlice";
 import {
   requestCreateUser,
   requestDeleteUser,

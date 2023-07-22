@@ -1,6 +1,8 @@
 import React from "react";
 import ScrollToTopCom from "../../components/common/ScrollToTopCom";
 import { Link } from "react-router-dom";
+import { contact } from "../../constants/contact";
+import { APP_KEY_NAME, APP_NAME } from "../../constants/config";
 
 const FooterMod = () => {
   return (
@@ -9,12 +11,12 @@ const FooterMod = () => {
       <footer className="bg-black text-white">
         <div className="container mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 pt-3 px-28">
-          <Link to="/" className="inline-block">
-            <img
-              className=" w-[200px] object-cover"
-              src="/logo_click_light.png"
-              alt="Click and Learn Logo"
-            />
+            <Link to="/" className="inline-block">
+              <img
+                className=" w-[200px] object-cover"
+                src={contact.logo}
+                alt={`${APP_KEY_NAME}_logo`}
+              />
             </Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 px-28 pb-3">
@@ -22,16 +24,12 @@ const FooterMod = () => {
             <div className="md:col-span-1 px-4">
               <h5 className="font-bold mb-4 text-tw-primary">CONTACT US</h5>
               <p className="text-sm mb-2 ">
-                <a href="tel: (08)38460801">Phone: (08)38460801</a>
+                <a href={`tel:${contact.phone}`}>Phone: {contact.phone}</a>
               </p>
               <p className="text-sm mb-2">
-                <a href="mailto:contact@clickandlearn.com">
-                  Email: contact@clickandlearn.com
-                </a>
+                <a href={`mailto:${contact.email}`}>Email: {contact.email}</a>
               </p>
-              <p className="text-sm ">
-                590 Cach Mang Thang 8, District 3, Ho Chi Minh City
-              </p>
+              <p className="text-sm">{contact.address}</p>
             </div>
 
             {/* Column 2 */}
@@ -82,7 +80,7 @@ const FooterMod = () => {
           <hr className="w-150 mt-2 border-b-2 border-white" />
           <div className=" pt-4 pb-10 px-28 text-center">
             <div className="flex items-center justify-center">
-              <p className="text-sm mb-2">Copyright © 2023 Click & Learn</p>
+              <p className="text-sm mb-2">Copyright © 2023 {APP_NAME}</p>
             </div>
           </div>
         </div>

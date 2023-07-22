@@ -1,51 +1,31 @@
-import React, { useEffect, useState } from "react";
-import { SelectDefaultAntCom } from "../../components/ant";
-import {
-  MAX_LENGTH_NAME,
-  MESSAGE_FIELD_MAX_LENGTH_NAME,
-  MESSAGE_FIELD_MIN_LENGTH_NAME,
-  MESSAGE_FIELD_REQUIRED,
-  MESSAGE_NO_ITEM_SELECTED,
-  MESSAGE_UPLOAD_REQUIRED,
-  MIN_LENGTH_NAME,
-  statusBlogItems,
-} from "../../constants/config";
-import { ButtonCom } from "../../components/button";
-import { IconTrashCom } from "../../components/icon";
-import Swal from "sweetalert2";
-import { axiosBearer } from "../../api/axiosInstance";
-import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
-import { toast } from "react-toastify";
-import {
-  convertSecondToDiffForHumans,
-  showMessageError,
-} from "../../utils/helper";
-import LoadingCom from "../../components/common/LoadingCom";
-import { HeadingH1Com, HeadingH3Com } from "../../components/heading";
-import GapYCom from "../../components/common/GapYCom";
-import { TableCom } from "../../components/table";
 import {
   Avatar,
-  Divider,
-  Grid,
-  List,
   ListItem,
   ListItemAvatar,
   ListItemText,
   Typography,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
-import { selectUserId } from "../../store/auth/authSelector";
+import { toast } from "react-toastify";
+import Swal from "sweetalert2";
+import { ButtonCom } from "../../components/button";
+import GapYCom from "../../components/common/GapYCom";
+import LoadingCom from "../../components/common/LoadingCom";
+import { IconTrashCom } from "../../components/icon";
+import { TableCom } from "../../components/table";
+import { MESSAGE_NO_ITEM_SELECTED } from "../../constants/config";
 import {
   onAllDeleteNotification,
   onAllNotification,
   onDeleteNotification,
-  onReadAllNotification,
-  onReadNotification,
 } from "../../store/course/courseSlice";
+import {
+  convertSecondToDiffForHumans,
+  showMessageError,
+} from "../../utils/helper";
 
 const NotificationListPage = () => {
   // Local State
@@ -59,10 +39,11 @@ const NotificationListPage = () => {
   //State Redux
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
-  const { notifications } = useSelector((state) => state.course);
+  const { notifications, isAllDeleteNotification } = useSelector(
+    (state) => state.course
+  );
 
   const userToId = user.id;
-  console.log("userToId", userToId);
 
   //manage status and event in form
   const { control, reset } = useForm({
@@ -97,51 +78,6 @@ const NotificationListPage = () => {
             </React.Fragment>
           }
         />
-        {/* <ListItemText
-                primary={
-                  <React.Fragment>
-                    <Typography
-                      sx={{
-                        display: "inline",
-                        color: row.read ? "black" : "#fff",
-                      }}
-                      component="span"
-                      variant="body2"
-                    >
-                      {row.read ? (
-                        row.userFrom.first_name
-                      ) : (
-                        <React.Fragment>
-                          {row.userFrom.first_name}{" "}
-                          <strong style={{ color: "violet" }}>unread</strong>
-                        </React.Fragment>
-                      )}
-                    </Typography>
-                  </React.Fragment>
-                }
-                secondary={
-                  <React.Fragment>
-                    {row.content}
-                    <Typography
-                      sx={{
-                        display: "inline",
-                        color: row.read ? "black" : "#cfc6d5",
-                      }}
-                      component="span"
-                      variant="body2"
-                    >
-                      <br></br>
-                      {convertSecondToDiffForHumans(
-                        Math.floor(Date.now() / 1000) -
-                          Math.floor(
-                            new Date(row.created_at).getTime() / 1000
-                          )
-                      )}{" "}
-                      ago...
-                    </Typography>
-                  </React.Fragment>
-                }
-              /> */}
       </ListItem>
     );
   }
@@ -175,7 +111,7 @@ const NotificationListPage = () => {
             className="px-3 rounded-lg"
             backgroundColor="danger"
             onClick={() => {
-              handleDeleteBlog(row);
+              handleDelete(row);
             }}
           >
             <IconTrashCom className="w-5"></IconTrashCom>
@@ -193,7 +129,7 @@ const NotificationListPage = () => {
         <div
           rel="noopener noreferrer"
           className="hover:text-tw-danger transition-all duration-300"
-          onClick={() => handleDeleteMultipleRecords()}
+          onClick={() => handleBulkDelete()}
         >
           Remove All
         </div>
@@ -231,7 +167,12 @@ const NotificationListPage = () => {
       const data = dispatch(onAllNotification({ userToId }));
       setNotifs(data);
     }
-  }, [dispatch]); 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
+  useEffect(() => {
+    if (isAllDeleteNotification) clearSelectedRows();
+  }, [isAllDeleteNotification]);
 
   /********* Delete one API ********* */
   const clearSelectedRows = () => {
@@ -243,10 +184,8 @@ const NotificationListPage = () => {
     setSelectedRows(currentRowsSelected.selectedRows);
   };
 
-  const handleDeleteBlog = (row) => {
+  const handleDelete = (row) => {
     const { id, userFrom } = row;
-    console.log("row", row);
-    console.log("row.id", row.id);
     Swal.fire({
       title: "Are you sure?",
       html: `You will delete blog: <span class="text-tw-danger">${userFrom.first_name}</span>`,
@@ -257,28 +196,24 @@ const NotificationListPage = () => {
       confirmButtonText: "Yes, delete it!",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        try {
-          dispatch(onDeleteNotification(id));
-        } catch (error) {
-          showMessageError(error);
-        }
+        dispatch(onDeleteNotification(id));
       }
     });
   };
 
   /********* Multi Delete API ********* */
-  const handleDeleteMultipleRecords = () => {
-    if (selectedRows.length === 0) {
-      toast.warning(MESSAGE_NO_ITEM_SELECTED);
-      return;
-    }
-
-    try {
-      dispatch(onAllDeleteNotification(userToId));
-      toast.success(`Delete ${selectedRows.length} notifs success`);
-    } catch (error) {
-      showMessageError(error);
-    } 
+  const handleBulkDelete = () => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You will delete all notifications",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: "#7366ff",
+      cancelButtonColor: "#dc3545",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) dispatch(onAllDeleteNotification(userToId));
+    });
   };
 
   return (
@@ -298,8 +233,7 @@ const NotificationListPage = () => {
                   search={search}
                   setSearch={setSearch}
                   dropdownItems={dropdownItems}
-                  onSelectedRowsChange={handleRowSelection} // selected Mutilple
-                  clearSelectedRows={handleDeleteMultipleRecords}
+                  selectableRows={false}
                 ></TableCom>
               </span>
             </div>
@@ -312,35 +246,3 @@ const NotificationListPage = () => {
 };
 
 export default NotificationListPage;
-
-// import React, { useEffect, useState } from "react";
-// import { useSelector, useDispatch } from "react-redux";
-// import { onAllNotification, onReadAllNotification } from "../../store/course/courseSlice";
-// import { selectUserId } from "../../store/auth/authSelector";
-
-// const NotificationListPage = () => {
-//   const dispatch = useDispatch();
-//   const { user } = useSelector((state) => state.auth);
-//   const { notifications } = useSelector((state) => state.course);
-//  const userToId = user.id;
-// console.log("userToId",userToId);
-//   useEffect(() => {
-
-//     if (user) {
-//       console.log('ok user');
-//       dispatch(onAllNotification({userToId}));
-
-//     }
-//   }, [user, userToId, dispatch]);
-
-//   return (
-//     <div>
-//     <h1>Notification List</h1>
-//     {notifications && notifications.map((notification) => (
-//       <div key={notification.id}>{notification.content}</div>
-//     ))}
-//   </div>
-//   );
-// };
-
-// export default NotificationListPage;

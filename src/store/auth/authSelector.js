@@ -20,6 +20,7 @@ export const selectRolesAndPermissions = createSelector(
   [selectUserReducer],
   (authSlice) => ({
     roles: authSlice.roles,
+    managerEmployeeRoles: authSlice.managerEmployeeRoles,
     permissions: authSlice.permissions,
   })
 );

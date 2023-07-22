@@ -218,7 +218,6 @@ const AdminDashboardPage = () => {
     isRemain: isBlogRemain,
     handleShowMore: handleShowMoreBlog,
   } = useShowMore(sortBlogs);
-  console.log("showBlogItems:", showBlogItems);
 
   return (
     <>

@@ -266,7 +266,9 @@ const AdminSectionListPage = () => {
           );
           await Promise.all(deletePromises);
           toast.success(
-            `Delete [${selectedRows.length}] ${selectedRows.length} sections success`
+            `Delete [${selectedRows.length}] ${
+              selectedRows.length > 1 ? "sections" : "section"
+            } success`
           );
         } catch (error) {
           showMessageError(error);

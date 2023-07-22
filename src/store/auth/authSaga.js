@@ -14,6 +14,7 @@ import {
   handleOnLoadPermissions,
   handleOnUpdatePermissions,
   handleOnGetLastUrlAccess,
+  handleOnGetManagerEmployeeRoles,
 } from "./authHandlers";
 import {
   onForgetPassword,
@@ -30,6 +31,7 @@ import {
   onLoadPermission,
   onUpdatePermission,
   onGetLastUrlAccess,
+  onGetManagerEmployeeRoles,
 } from "./authSlice";
 
 /**
@@ -47,6 +49,10 @@ export default function* authSaga() {
   yield takeLatest(onUserUpdateProfile.type, handleOnUserUpdateProfile);
   yield takeLatest(onUserUpdateNoti.type, handleOnUserUpdateNoti);
   yield takeLatest(onLoadRole.type, handleOnLoadRoles);
+  yield takeLatest(
+    onGetManagerEmployeeRoles.type,
+    handleOnGetManagerEmployeeRoles
+  );
   yield takeLatest(onLoadPermission.type, handleOnLoadPermissions);
   yield takeLatest(onUpdatePermission.type, handleOnUpdatePermissions);
   yield takeLatest(onGetLastUrlAccess.type, handleOnGetLastUrlAccess);

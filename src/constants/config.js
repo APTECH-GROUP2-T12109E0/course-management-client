@@ -1,3 +1,4 @@
+export const APP_NAME = "Click & Learn";
 export const APP_KEY_NAME = "click_and_learn";
 export const BASE_DOMAIN_URL =
   process.env.REACT_APP_DOMAIN_URL ?? "http://localhost:3000";
@@ -24,7 +25,7 @@ export const LIMIT_HOME_PAGE = 4;
 export const LIMIT_SHOW_MORE = 5;
 
 // LIMIT SEARCH
-export const LIMIT_SEARCH_ITEM = 4;
+export const LIMIT_SEARCH_ITEM = 3;
 
 export const VIDEO_EXT_VALID = "mp4, avi, mov, wmv, flv, mkv, webm, mpeg, mpg";
 export const CAPTION_EXT_VALID = "en.vtt, vi.vtt, jp.vtt";

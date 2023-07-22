@@ -64,6 +64,8 @@ import { TextEditorQuillCom } from "../../../components/texteditor";
 import { BreadcrumbCom } from "../../../components/breadcrumb";
 import useExportExcel from "../../../hooks/useExportExcel";
 import { helperChangeStatusCourse } from "../../../utils/helperCourse";
+import { useDispatch } from "react-redux";
+import { onCourseLoading } from "../../../store/course/courseSlice";
 
 const schemaValidation = yup.object().shape({
   name: yup
@@ -112,6 +114,7 @@ const AdminCourseListPage = () => {
     reset();
   };
 
+  const dispatch = useDispatch();
   /********* API State ********* */
   const [tagItems, setTagItems] = useState([]);
   const [authorItems, setAuthorItems] = useState([]);
@@ -461,6 +464,7 @@ const AdminCourseListPage = () => {
     getCourses();
     getTags();
     getAuthors();
+    dispatch(onCourseLoading());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -692,6 +696,7 @@ const AdminCourseListPage = () => {
             await axiosBearer.put(`/course`, fd);
             toast.success(MESSAGE_UPDATE_STATUS_SUCCESS);
             getCourses();
+            dispatch(onCourseLoading());
           } catch (error) {
             showMessageError(error);
           }
@@ -702,6 +707,7 @@ const AdminCourseListPage = () => {
         await axiosBearer.put(`/course`, fd);
         toast.success(MESSAGE_UPDATE_STATUS_SUCCESS);
         getCourses();
+        dispatch(onCourseLoading());
       } catch (error) {
         showMessageError(error);
       }

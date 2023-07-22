@@ -54,6 +54,7 @@ const initialState = {
   accomplishments: [],
   cert: null,
   notifications: [],
+  isAllDeleteNotification: false,
   prevTime: -1,
 };
 const courseSlice = createSlice({
@@ -432,7 +433,6 @@ const courseSlice = createSlice({
         ...state,
       };
     },
-
     onLoadCertificate: (state, action) => ({
       ...state,
       isLoading: true,
@@ -442,7 +442,10 @@ const courseSlice = createSlice({
       isLoading: false,
     }),
     onDownloadCertificate: (state, action) => state,
-    onAllNotification: (state, action) => state,
+    onAllNotification: (state, action) => ({
+      ...state,
+      isAllDeleteNotification: false,
+    }),
     onAllNotificationSuccess: (state, action) => ({
       ...state,
       notifications: action.payload,
@@ -457,9 +460,10 @@ const courseSlice = createSlice({
         notifications: updatedNotifications,
       };
     },
-
-    onAllDeleteNotification: (state, action) => state,
-
+    onAllDeleteNotification: (state, action) => ({
+      ...state,
+      isAllDeleteNotification: false,
+    }),
     onAllDeleteNotificationSuccess: (state, action) => {
       const { id } = action.payload;
       const updatedNotifications = state.notifications.filter(
@@ -468,9 +472,9 @@ const courseSlice = createSlice({
       return {
         ...state,
         notifications: updatedNotifications,
+        isAllDeleteNotification: true,
       };
     },
-
     onUnloadExam: (state, action) => ({
       ...state,
       prevTime: action.payload,

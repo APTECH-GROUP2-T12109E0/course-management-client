@@ -10,6 +10,7 @@ import {
   onSelectedLesson,
 } from "../../store/course/courseSlice";
 import { convertSecondToDiffForHumans } from "../../utils/helper";
+import SpinAntCom from "./SpinAntCom";
 const { Panel } = Collapse;
 
 const CollapseAntCom = ({
@@ -24,8 +25,14 @@ const CollapseAntCom = ({
 }) => {
   const navigate = useNavigate();
 
-  const { enrollId, courseId, lessonId, tracking, isSelectLessonManual } =
-    useSelector(selectAllCourseState);
+  const {
+    enrollId,
+    courseId,
+    lessonId,
+    tracking,
+    isSelectLessonManual,
+    isLoading,
+  } = useSelector(selectAllCourseState);
 
   const [lessionId, setLessionId] = useState(0);
   const [manualSelectLesson, setManualSelectLesson] = useState(false);
@@ -76,7 +83,9 @@ const CollapseAntCom = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLearning, lessonId, tracking, manualSelectLesson]);
 
-  return parentItems.length === 0 ? null : (
+  return parentItems.length === 0 ? null : isLoading ? (
+    <SpinAntCom />
+  ) : (
     <Collapse
       // defaultActiveKey={["1"]}
       // activeKey={isOpen ? ["1", "2", "3"] : openKeys}
@@ -144,17 +153,17 @@ const CollapseAntCom = ({
           );
         })}
       {/* <Panel header="Introduce" key="1">
-        <div className="flex justify-between items-center">
-          <span>1.{text}</span>
-          <span>03:58</span>
-        </div>
-      </Panel>
-      <Panel header="How to install PHP" key="2">
-        <p>{text}</p>
-      </Panel>
-      <Panel header="Learning PHP core" key="3">
-        <p>{text}</p>
-      </Panel> */}
+          <div className="flex justify-between items-center">
+            <span>1.{text}</span>
+            <span>03:58</span>
+          </div>
+        </Panel>
+        <Panel header="How to install PHP" key="2">
+          <p>{text}</p>
+        </Panel>
+        <Panel header="Learning PHP core" key="3">
+          <p>{text}</p>
+        </Panel> */}
     </Collapse>
   );
 };

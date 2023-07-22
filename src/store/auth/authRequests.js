@@ -60,6 +60,11 @@ export const requestUserUpdateNoti = (data) => {
 export const requestLoadRoles = () => {
   return axiosBearer.get("/auth/role");
 };
+
+export const requestGetManagerEmployeeRole = () => {
+  return axiosBearer.get("/auth/role-manager-employee");
+};
+
 export const requestLoadPermissions = () => {
   return axiosBearer.get("/auth/permission");
 };

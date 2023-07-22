@@ -139,8 +139,6 @@ const CommentCom = ({
     const newPosts = posts.filter((p) => p.id !== postId);
     setPosts(newPosts);
   };
-  console.log("posts:", posts);
-  console.log("showItems:", showItems);
 
   return (
     <section className="comment-box">
@@ -197,9 +195,7 @@ const CommentCom = ({
             </ButtonCom>
           )}
         </ul>
-      ) : (
-        <SpinAntCom />
-      )}
+      ) : null}
       <GapYCom></GapYCom>
       <div
         className="flex justify-center items-center"

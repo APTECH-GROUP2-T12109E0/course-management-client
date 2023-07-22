@@ -145,6 +145,7 @@ const UserChangePasswordPage = lazy(() =>
 );
 
 const SearchPage = lazy(() => import("./pages/search/SearchPage.js"));
+const PolicyPage = lazy(() => import("./pages/PolicyPage.js"));
 
 const BlogPage = lazy(() => import("./pages/blog/BlogPage.js"));
 const BlogDetailsPage = lazy(() => import("./pages/blog/BlogDetailsPage.js"));
@@ -368,7 +369,6 @@ function App() {
             element={<NotificationListPage></NotificationListPage>}
           ></Route>
           <Route path="/search" element={<SearchPage></SearchPage>}></Route>
-
           {/* ********* ADMIN ********* */}
           <Route
             path="/admin"
@@ -514,6 +514,10 @@ function App() {
             path="/logout"
             render
             element={<Navigate to="/"></Navigate>}
+          ></Route>
+          <Route
+            path="/privacy-policy"
+            element={<PolicyPage></PolicyPage>}
           ></Route>
         </Route>
         {/* ********* END Authentication ********* */}

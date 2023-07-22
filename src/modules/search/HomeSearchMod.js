@@ -1,6 +1,6 @@
 import { Skeleton } from "antd";
 import React, { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { v4 } from "uuid";
 import axiosInstance from "../../api/axiosInstance";
@@ -11,10 +11,14 @@ import { HeadingH4Com, HeadingH5Com } from "../../components/heading";
 import { IconRemoveCom, IconSearchCom } from "../../components/icon";
 import { LIMIT_SEARCH_ITEM } from "../../constants/config";
 import useDebounceOnChange from "../../hooks/useDebounceOnChange";
+import { onGetBlogs } from "../../store/admin/blog/blogSlice";
+import { onGetAuthors } from "../../store/author/authorSlice";
+import { onCourseLoading } from "../../store/course/courseSlice";
 import { getSearchHistory, setSearchHistory } from "../../utils/helper";
 import SearchItemMod from "./SearchItemMod";
 
 const HomeSearchMod = () => {
+  const dispatch = useDispatch();
   const { data: courses } = useSelector((state) => state.course);
   const { authors } = useSelector((state) => state.author);
   const { blogs } = useSelector((state) => state.adminBlog);
@@ -37,10 +41,15 @@ const HomeSearchMod = () => {
 
   useEffect(() => {
     if (searchDebounce) {
+      dispatch(onGetAuthors());
+      dispatch(onCourseLoading());
+      dispatch(onGetBlogs());
+
       getSearchData(searchDebounce);
       setSearchHistory(searchDebounce);
       setHistoryKeyword(getSearchHistory());
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchDebounce]);
 
   useEffect(() => {

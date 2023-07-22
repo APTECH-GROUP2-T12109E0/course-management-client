@@ -57,8 +57,24 @@ export function getDurationFromVideo(
 
 // Convert second to DiffForHumans Timming, Input: 96, output: 1 min 36 seconds
 export function convertSecondToDiffForHumans(seconds = 3600) {
-  // >= 1 hour
-  if (seconds >= 3600) {
+  // >= 1 year
+  if (seconds >= 31536000) {
+    const years = Math.floor(seconds / 31536000);
+    return `${years} ${years >= 1 ? "years" : "year"}`;
+  } else if (seconds >= 2592000) {
+    // >= 1 month
+    const months = Math.floor(seconds / 2592000);
+    return `${months} ${months >= 1 ? "months" : "month"}`;
+  } else if (seconds >= 604800) {
+    // >= 1 week
+    const weeks = Math.floor(seconds / 604800);
+    return `${weeks} ${weeks >= 1 ? "weeks" : "week"}`;
+  } else if (seconds >= 86400) {
+    // >= 1 day
+    const days = Math.floor(seconds / 86400);
+    return `${days} ${days >= 1 ? "days" : "day"}`;
+  } else if (seconds >= 3600) {
+    // >= 1 hour
     const hours = Math.floor(seconds / 3600);
     const remainingSeconds = seconds % 3600;
     const minutes = Math.floor(remainingSeconds / 60);

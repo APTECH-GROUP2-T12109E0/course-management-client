@@ -20,10 +20,15 @@ import {
   IconStarCom,
 } from "../../components/icon";
 import { ImageCom } from "../../components/image";
-import { categoryItems, NOT_FOUND_URL } from "../../constants/config";
+import {
+  categoryItems,
+  MESSAGE_LOGIN_REQUIRED,
+  NOT_FOUND_URL,
+} from "../../constants/config";
 import { API_ENROLLMENT_URL } from "../../constants/endpoint";
 import usePagination from "../../hooks/usePagination";
 import { CourseGridMod, CourseItemMod } from "../../modules/course";
+import { onGetLastUrlAccess } from "../../store/auth/authSlice";
 import {
   selectAllCourseState,
   selectEnrollIdAndCourseId,
@@ -199,7 +204,13 @@ const CourseDetailPage = () => {
         setIsLoading(false);
       }
     } else {
-      navigate(`/checkout/${slug}`);
+      if (!user) {
+        toast.warn(MESSAGE_LOGIN_REQUIRED);
+        dispatch(onGetLastUrlAccess(window.location.pathname));
+        navigate("/login");
+      } else {
+        navigate(`/checkout/${slug}`);
+      }
     }
   };
 

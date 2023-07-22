@@ -10,9 +10,9 @@ const initialState = {
   isRegisterSuccess: false,
   isResetPasswordSuccess: false,
   isUserChangePasswordSuccess: false,
-  isUpdatePermissionSuccess: false,
   errorMessage: null,
   roles: [],
+  managerEmployeeRoles: [],
   permissions: [],
   lastUrlAccess: null,
 };
@@ -109,6 +109,11 @@ const authSlice = createSlice({
       ...state,
       roles: action.payload,
     }),
+    onGetManagerEmployeeRoles: (state, action) => state,
+    onGetManagerEmployeeRolesSuccess: (state, action) => ({
+      ...state,
+      managerEmployeeRoles: action.payload,
+    }),
     onLoadPermission: (state, action) => state,
     onLoadPermissionSuccess: (state, action) => ({
       ...state,
@@ -121,7 +126,6 @@ const authSlice = createSlice({
     onUpdatePermissionSuccess: (state, action) => ({
       ...state,
       isLoading: false,
-      isUpdatePermissionSuccess: action.payload,
     }),
     onLoadCurrentUser: (state, action) => ({
       ...state,
@@ -161,6 +165,8 @@ export const {
   onUserUpdateNoti,
   onLoadRole,
   onLoadRoleSuccess,
+  onGetManagerEmployeeRoles,
+  onGetManagerEmployeeRolesSuccess,
   onLoadPermission,
   onLoadPermissionSuccess,
   onUpdatePermission,

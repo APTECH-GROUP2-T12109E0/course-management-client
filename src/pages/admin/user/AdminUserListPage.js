@@ -46,6 +46,7 @@ import {
 } from "../../../store/admin/user/userSlice";
 import { selectRolesAndPermissions } from "../../../store/auth/authSelector";
 import {
+  onGetManagerEmployeeRoles,
   onLoadPermission,
   onLoadRole,
   onUpdatePermission,
@@ -96,7 +97,9 @@ const AdminUserListPage = () => {
     (state) => state.user
   );
 
-  const { roles, permissions } = useSelector(selectRolesAndPermissions);
+  const { roles, permissions, managerEmployeeRoles } = useSelector(
+    selectRolesAndPermissions
+  );
 
   /********* State ********* */
   //API State
@@ -219,16 +222,17 @@ const AdminUserListPage = () => {
     },
     {
       name: "Authorize",
-      selector: (row) => (
-        <ButtonCom
-          className="px-3 rounded-lg !text-[12px]"
-          onClick={() => {
-            handlePermission(row);
-          }}
-        >
-          Permission
-        </ButtonCom>
-      ),
+      selector: (row) =>
+        row?.role !== "USER" && (
+          <ButtonCom
+            className="px-3 rounded-lg !text-[12px]"
+            onClick={() => {
+              handlePermission(row);
+            }}
+          >
+            Permission
+          </ButtonCom>
+        ),
       width: "150px",
     },
     {
@@ -299,6 +303,7 @@ const AdminUserListPage = () => {
 
   useEffect(() => {
     dispatch(onLoadRole());
+    dispatch(onGetManagerEmployeeRoles());
     dispatch(onLoadPermission());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -523,7 +528,7 @@ const AdminUserListPage = () => {
   const handlePermission = (item) => {
     setFirstLoad(true);
 
-    const role = roles.find((r) => r.name === item.role);
+    const role = managerEmployeeRoles.find((r) => r.name === item.role);
     setRole({ id: role.id, value: role.name, label: role.name });
     setSelectedUser(item.id);
 
@@ -553,6 +558,7 @@ const AdminUserListPage = () => {
   };
 
   const handleChangeRole = (value) => {
+    console.log("value:", value);
     setRole(value);
   };
 
@@ -652,14 +658,13 @@ const AdminUserListPage = () => {
                   <div>
                     <SelectSearchAntCom
                       selectedValue={role}
-                      listItems={roles.map((r) => ({
+                      listItems={managerEmployeeRoles.map((r) => ({
                         id: r.id,
                         value: r.name,
                         label: r.name,
                       }))}
                       onChange={handleChangeRole}
                       isGetObject={true}
-                      // onChange={handleChangeCategory}
                       className="w-full py-1"
                       status={
                         errors.category_id &&

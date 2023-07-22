@@ -1,5 +1,5 @@
 import { toast } from "react-toastify";
-import { call, delay, put } from "redux-saga/effects";
+import { call, put } from "redux-saga/effects";
 import {
   MESSAGE_CHANGE_PASSWORD_SUCCESS,
   MESSAGE_FORGET_PASSWORD_SUCCESS,
@@ -7,8 +7,10 @@ import {
 } from "../../constants/config";
 import { removeToken, setToken } from "../../utils/auth";
 import { showMessageError } from "../../utils/helper";
+import { onGetAllUsers } from "../admin/user/userSlice";
 import {
   requestForgetPassword,
+  requestGetManagerEmployeeRole,
   requestGetUser,
   requestLoadPermissions,
   requestLoadRoles,
@@ -22,16 +24,17 @@ import {
   requestUserUpdateProfile,
 } from "./authRequests";
 import {
+  onGetLastUrlAccessSuccess,
+  onGetManagerEmployeeRolesSuccess,
+  onLoading,
   onLoadPermissionSuccess,
   onLoadRoleSuccess,
-  onLoading,
   onLoginSuccess,
   onRegisterSuccess,
   onResetPasswordSuccess,
+  onUpdatePermissionSuccess,
   onUpdateUserToken,
   onUserChangePasswordSuccess,
-  onGetLastUrlAccessSuccess,
-  onUpdatePermissionSuccess,
 } from "./authSlice";
 
 function* handleOnRegister(action) {
@@ -208,6 +211,17 @@ function* handleOnLoadRoles() {
     }
   } catch (error) {}
 }
+
+function* handleOnGetManagerEmployeeRoles() {
+  try {
+    const res = yield call(requestGetManagerEmployeeRole);
+    if (res.status === 200)
+      yield put(onGetManagerEmployeeRolesSuccess(res.data));
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 function* handleOnLoadPermissions() {
   try {
     const res = yield call(requestLoadPermissions);
@@ -222,8 +236,8 @@ function* handleOnUpdatePermissions({ payload }) {
   try {
     const res = yield call(requestUpdatePermissions, payload);
     if (res.status === 200) {
+      yield put(onGetAllUsers());
       toast.success(res.data.message);
-      yield put(onUpdatePermissionSuccess(true));
     }
   } catch (error) {
     console.log(error);
@@ -247,6 +261,7 @@ export {
   handleOnUserUpdateProfile,
   handleOnUserUpdateNoti,
   handleOnLoadRoles,
+  handleOnGetManagerEmployeeRoles,
   handleOnLoadPermissions,
   handleOnUpdatePermissions,
   handleOnGetLastUrlAccess,

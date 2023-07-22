@@ -174,7 +174,7 @@ const RegisterPage = () => {
             Agree with
             <Link
               className="ms-2 text-tw-primary hover:opacity-60 tw-transition-all"
-              to="#"
+              to="/privacy-policy"
             >
               Privacy Policy
             </Link>

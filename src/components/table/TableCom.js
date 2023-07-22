@@ -16,6 +16,7 @@ const TableCom = ({
   tableKey = 0,
   onSelectedRowsChange = () => {},
   classNameBtnCreate = "",
+  selectableRows = true,
   ...rest
 }) => {
   const { search, setSearch } = rest;
@@ -28,7 +29,7 @@ const TableCom = ({
       pagination
       fixedHeader
       fixedHeaderScrollHeight="500px"
-      selectableRows
+      selectableRows={selectableRows}
       selectableRowsHighlight
       onSelectedRowsChange={onSelectedRowsChange}
       highlightOnHover
