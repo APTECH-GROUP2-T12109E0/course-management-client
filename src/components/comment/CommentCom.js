@@ -26,6 +26,8 @@ import { Card } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { onGetLastUrlAccess } from "../../store/auth/authSlice";
+import useShowMore from "../../hooks/useShowMore";
+import SpinAntCom from "../ant/SpinAntCom";
 
 const schemaValidation = yup.object().shape({
   comment: yup.string(),
@@ -39,13 +41,6 @@ const CommentCom = ({
   commentUrl = "",
   replyUrl = "",
 }) => {
-  // const [isLoading, setIsLoading] = useState(false);
-  const [isShowCommentBox, setIsShowCommentBox] = useState(false);
-  const [posts, setPosts] = useState([]);
-  const [comment, setComment] = useState("");
-  const { courseId, isSubmitting } = useSelector(selectAllCourseState);
-  const { blogId } = useSelector((state) => state.adminBlog);
-
   const {
     control,
     register,
@@ -60,6 +55,15 @@ const CommentCom = ({
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const user = useSelector(selectUser);
+  const [isShowCommentBox, setIsShowCommentBox] = useState(false);
+  const { courseId, isSubmitting } = useSelector(selectAllCourseState);
+  const { blogId } = useSelector((state) => state.adminBlog);
+
+  const [posts, setPosts] = useState([]);
+  const [comment, setComment] = useState("");
+  const { showItems, isRemain, handleShowMore } = useShowMore(posts);
 
   useEffect(() => {
     let url =
@@ -76,9 +80,7 @@ const CommentCom = ({
     return () => {
       sse.close();
     };
-  }, []);
-
-  const user = useSelector(selectUser);
+  }, [blogId, courseId, type]);
 
   const handleSubmitForm = ({ comment }) => {
     const newPost = {
@@ -137,6 +139,9 @@ const CommentCom = ({
     const newPosts = posts.filter((p) => p.id !== postId);
     setPosts(newPosts);
   };
+  console.log("posts:", posts);
+  console.log("showItems:", showItems);
+
   return (
     <section className="comment-box">
       {title && (
@@ -146,45 +151,55 @@ const CommentCom = ({
         </React.Fragment>
       )}
       {/* Comment Items */}
-      <ul>
-        {posts.map((p) => (
-          <React.Fragment key={p.id}>
-            <CommentParent
-              post={p}
-              image={p.postImageUrl == null ? IMAGE_DEFAULT : p.postImageUrl}
-              userName={p.userName}
-              role={p.role}
-              parentComment={p.content}
-              userPostId={p.userId}
-              postId={p.id}
-              replyCount={p.comments.length}
-              likeCount={p.likedUsers.length}
-              likeUsers={p.likedUsers}
-              comments={p.comments}
-              addComment={addComment}
-              deletePost={deletePost}
-            ></CommentParent>
-            {p.comments.map((c) => (
-              <CommentChild
-                key={c.id}
-                image={c.imageUrl}
-                userName={c.userName}
-                role={c.role}
-                commentId={c}
-                userCommentId={c.userId}
-                childComment={c.content}
-                deleteComment={deleteComment}
-              ></CommentChild>
+      {posts.length > 0 ? (
+        <ul>
+          {showItems.length > 0 &&
+            showItems.map((p) => (
+              <React.Fragment key={p.id}>
+                <CommentParent
+                  post={p}
+                  image={
+                    p.postImageUrl == null ? IMAGE_DEFAULT : p.postImageUrl
+                  }
+                  userName={p.userName}
+                  role={p.role}
+                  parentComment={p.content}
+                  userPostId={p.userId}
+                  postId={p.id}
+                  replyCount={p.comments.length}
+                  likeCount={p.likedUsers.length}
+                  likeUsers={p.likedUsers}
+                  comments={p.comments}
+                  addComment={addComment}
+                  deletePost={deletePost}
+                ></CommentParent>
+                {p.comments.map((c) => (
+                  <CommentChild
+                    key={c.id}
+                    image={c.imageUrl}
+                    userName={c.userName}
+                    role={c.role}
+                    commentId={c}
+                    userCommentId={c.userId}
+                    childComment={c.content}
+                    deleteComment={deleteComment}
+                  ></CommentChild>
+                ))}
+              </React.Fragment>
             ))}
-          </React.Fragment>
-        ))}
-        {/*<CommentParent
-          image="https://imgix.ranker.com/user_node_img/50081/1001612215/original/live-for-our-friends-photo-u1?auto=format&q=60&fit=crop&fm=pjpg&dpr=2&w=375"
-          userName="Erza Scarlet"
-          role="USER"
-          parentComment="There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words which don't look even slightly believable. If you are going to use a passage of Lorem Ipsum, you need to be sure there isn't anything embarrassing hidden in the middle of text."
-        ></CommentParent>*/}
-      </ul>
+          {isRemain && (
+            <ButtonCom
+              onClick={handleShowMore}
+              backgroundColor="gray"
+              className="w-full !text-black flex justify-center text-2xl"
+            >
+              . . .
+            </ButtonCom>
+          )}
+        </ul>
+      ) : (
+        <SpinAntCom />
+      )}
       <GapYCom></GapYCom>
       <div
         className="flex justify-center items-center"
@@ -254,8 +269,10 @@ const CommentParent = ({
   deletePost,
 }) => {
   const user = useSelector(selectUser);
+  const navigate = useNavigate();
+
   const [isLiked, setLiked] = useState(
-    likeUsers.find((like) => like.id === user.id) ? true : false
+    likeUsers.find((like) => like.id === user?.id) ? true : false
   );
   const [isReply, setIsReply] = useState(false);
   const [comment, setComment] = useState("");
@@ -283,17 +300,31 @@ const CommentParent = ({
   const dispatch = useDispatch();
 
   const handleLike = () => {
-    setLiked(!isLiked);
-    if (!isLiked) {
-      setLikeNum(likeNum + 1);
+    if (!user) {
+      toast.warn(MESSAGE_LOGIN_REQUIRED);
+      dispatch(onGetLastUrlAccess(window.location.pathname));
+      navigate("/login");
+      return;
     } else {
-      setLikeNum(likeNum - 1);
+      setLiked(!isLiked);
+      if (!isLiked) {
+        setLikeNum(likeNum + 1);
+      } else {
+        setLikeNum(likeNum - 1);
+      }
+      dispatch(onSaveLikeOfPost({ postId, userId: user.id }));
     }
-    dispatch(onSaveLikeOfPost({ postId, userId: user.id }));
   };
 
   const handleReply = (isReply) => {
-    setIsReply(!isReply);
+    if (!user) {
+      toast.warn(MESSAGE_LOGIN_REQUIRED);
+      dispatch(onGetLastUrlAccess(window.location.pathname));
+      navigate("/login");
+      return;
+    } else {
+      setIsReply(!isReply);
+    }
   };
   // Comment Parent
   const handleSubmitForm = ({ comment }) => {
@@ -400,12 +431,12 @@ const CommentParent = ({
               <div className="flex gap-x-3">
                 <div dangerouslySetInnerHTML={{ __html: parentComment }}></div>
               </div>
-              {user.role === "ADMIN" ||
-              (user.role === "MANAGER" && role !== "ADMIN") ||
-              (user.role === "EMPLOYEE" &&
+              {user?.role === "ADMIN" ||
+              (user?.role === "MANAGER" && role !== "ADMIN") ||
+              (user?.role === "EMPLOYEE" &&
                 role !== "ADMIN" &&
                 role !== "MANAGER") ||
-              user.id === userPostId ? (
+              user?.id === userPostId ? (
                 <div className="flex gap-x-3">
                   <ButtonCom
                     className="px-3 rounded-lg"

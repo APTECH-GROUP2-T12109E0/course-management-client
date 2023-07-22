@@ -11,6 +11,7 @@ const blogSlice = createSlice({
     isPostBlogSuccess: false,
     isBulkDeleteSuccess: false,
     isBulkDeleteMyBlogSuccess: false,
+    isSaveBlogIdSuccess: false,
   },
   reducers: {
     onLoading: (state, action) => ({
@@ -31,7 +32,18 @@ const blogSlice = createSlice({
     }),
     onSaveBlogId: (state, action) => ({
       ...state,
+      isLoading: true,
+      isSaveBlogIdSuccess: false,
+    }),
+    onSaveBlogIdSuccess: (state, action) => ({
+      ...state,
+      isLoading: false,
       blogId: action.payload,
+      isSaveBlogIdSuccess: true,
+    }),
+    onSaveBlogIdDone: (state, action) => ({
+      ...state,
+      isSaveBlogIdSuccess: action.payload,
     }),
     // blogs used for client
     onGetBlogs: (state, action) => ({
@@ -100,6 +112,8 @@ export const {
   onGetBlogsForAdmin,
   onGetBlogsForAdminSuccess,
   onSaveBlogId,
+  onSaveBlogIdSuccess,
+  onSaveBlogIdDone,
   onGetBlogs,
   onGetBlogsSuccess,
   onGetMyBlogs,

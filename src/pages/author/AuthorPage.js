@@ -30,11 +30,12 @@ import {
 } from "../../store/author/authorSlice";
 import { selectAllCategoriesState } from "../../store/category/categorySelector";
 import { onLoadCategories } from "../../store/category/categorySlice";
+import SpinAntCom from "../../components/ant/SpinAntCom";
 
 const AuthorPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { pagiAuthor, top3 } = useSelector(selectAllAuthorsState);
+  const { pagiAuthor, top3, isLoading } = useSelector(selectAllAuthorsState);
   const { categories } = useSelector(selectAllCategoriesState);
   const user = useSelector(selectUser);
 
@@ -285,10 +286,10 @@ const AuthorPage = () => {
               size="medium"
               variant="contained"
               color="warning"
-              disabled={pagiAuthor.last}
+              disabled={pagiAuthor.last || isLoading}
               onClick={handleLoadMore}
             >
-              View more authors
+              {isLoading ? <SpinAntCom /> : "View more authors"}
             </Button>
           </Typography>
         </Grid>

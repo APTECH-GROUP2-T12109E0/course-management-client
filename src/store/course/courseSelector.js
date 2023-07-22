@@ -32,6 +32,7 @@ export const selectAllCourseState = createSelector(
     examination: courseSlice.examination,
     prevTime: courseSlice.prevTime,
     finishExam: courseSlice.finishExam,
+    isLoadingFinish: courseSlice.isLoadingFinish,
     generateExamSuccess: courseSlice.generateExamSuccess,
     retakeExam: courseSlice.retakeExam,
     countdown: courseSlice.countdown,

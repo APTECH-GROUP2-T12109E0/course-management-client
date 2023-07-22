@@ -38,6 +38,7 @@ import {
 } from "../../store/course/courseSelector";
 import { onGetEnrollId } from "../../store/course/courseSlice";
 import { convertToHumanTime } from "../../utils/helper";
+import SpinAntCom from "../ant/SpinAntCom";
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -84,9 +85,10 @@ function TabsMuiCom() {
   const navigate = useNavigate();
 
   const user = useSelector(selectUser);
-  const { orderHistory, refund } = useSelector(selectAllOrderState);
+  const { orderHistory, refund, isLoading } = useSelector(selectAllOrderState);
   const { isEnrolled } = useSelector(selectEnrollIdAndCourseId);
   const [value, setValue] = useState(0);
+  const [rowId, setRowId] = useState(0);
   const [slug, setSlug] = useState("");
 
   useEffect(() => {
@@ -144,6 +146,7 @@ function TabsMuiCom() {
           net_price: invoice?.net_price,
         })
       );
+      setRowId(orderId);
     }
   };
 
@@ -254,8 +257,15 @@ function TabsMuiCom() {
                           </TableCell>
                           <TableCell align="left">
                             <Typography align="center">
-                              <Button onClick={() => handleClickInvoice(o.id)}>
-                                Invoice
+                              <Button
+                                onClick={() => handleClickInvoice(o.id)}
+                                disabled={isLoading}
+                              >
+                                {isLoading && rowId === o.id ? (
+                                  <SpinAntCom />
+                                ) : (
+                                  "Invoice"
+                                )}
                               </Button>
                             </Typography>
                           </TableCell>

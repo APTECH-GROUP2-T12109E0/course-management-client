@@ -157,7 +157,6 @@ const AdminCreateCoursePage = () => {
   const getTags = async () => {
     try {
       const res = await axiosBearer.get(`${API_TAG_URL}`);
-      console.log("tag res:", res);
       const newRes = res.data.map((item) => {
         const tagNames = item.name.split(" ");
         // ['Spring', 'Boot']
@@ -169,7 +168,6 @@ const AdminCreateCoursePage = () => {
           label: capitalLabelArr.join(" "),
         };
       });
-      console.log("newRes:", newRes);
       setTagItems(newRes);
     } catch (error) {
       showMessageError(error);

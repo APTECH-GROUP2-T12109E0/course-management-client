@@ -6,6 +6,9 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { Typography } from "@mui/material";
+import { useSelector } from "react-redux";
+import { selectAllCourseState } from "../../store/course/courseSelector";
+import SpinAntCom from "../ant/SpinAntCom";
 
 const DialogConfirmMuiCom = ({
   open,
@@ -20,6 +23,8 @@ const DialogConfirmMuiCom = ({
   warning,
   warningContent,
 }) => {
+  const { isLoadingFinish } = useSelector(selectAllCourseState);
+
   return (
     <div>
       <Dialog
@@ -50,7 +55,7 @@ const DialogConfirmMuiCom = ({
         <DialogActions>
           <Button onClick={onClose}>{closeContent}</Button>
           <Button autoFocus onClick={onConfirm}>
-            {confirmContent}
+            {isLoadingFinish ? <SpinAntCom /> : confirmContent}
           </Button>
         </DialogActions>
       </Dialog>

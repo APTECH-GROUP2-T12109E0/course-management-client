@@ -8,5 +8,6 @@ export const selectAllOrderState = createSelector(
     orderHistory: orderSlice.orderHistory,
     refund: orderSlice.refund,
     invoice: orderSlice.invoice,
+    isLoading: orderSlice.isLoading,
   })
 );

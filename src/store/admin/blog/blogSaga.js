@@ -8,6 +8,7 @@ import {
   handleOnGetBlogsForAdmin,
   handleOnGetMyBlogs,
   handleOnPostBlog,
+  handleOnSaveBlogId,
 } from "./blogHandlers";
 import {
   onBulkDeleteBlog,
@@ -18,11 +19,13 @@ import {
   onGetBlogsForAdmin,
   onGetMyBlogs,
   onPostBlog,
+  onSaveBlogId,
 } from "./blogSlice";
 
 export default function* adminBlogSaga() {
   yield takeLatest(onGetBlogsForAdmin.type, handleOnGetBlogsForAdmin);
   yield takeLatest(onGetBlogs.type, handleOnGetBlogs);
+  yield takeLatest(onSaveBlogId.type, handleOnSaveBlogId);
   yield takeLatest(onGetMyBlogs.type, handleOnGetMyBlogs);
   yield takeLatest(onPostBlog.type, handleOnPostBlog);
   yield takeLatest(onDeleteBlog.type, handleOnDeleteBlog);

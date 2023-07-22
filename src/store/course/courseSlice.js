@@ -392,11 +392,15 @@ const courseSlice = createSlice({
       isGenerating: false,
       generateExamSuccess: true,
     }),
-    onFinishExam: (state, action) => state,
+    onFinishExam: (state, action) => ({
+      ...state,
+      isLoadingFinish: true,
+    }),
     onFinishExamSuccess: (state, action) => ({
       ...state,
       finishExam: action.payload,
       generateExamSuccess: false,
+      isLoadingFinish: false,
     }),
     onRetakeExam: (state, action) => state,
     onRetakeExamSuccess: (state, action) => ({

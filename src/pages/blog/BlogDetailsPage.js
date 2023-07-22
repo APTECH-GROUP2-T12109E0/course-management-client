@@ -13,7 +13,10 @@ import GapYCom from "../../components/common/GapYCom";
 import { ImageCom } from "../../components/image";
 import { NOT_FOUND_URL } from "../../constants/config";
 import { API_BLOG_URL } from "../../constants/endpoint";
-import { onSaveBlogId } from "../../store/admin/blog/blogSlice";
+import {
+  onSaveBlogId,
+  onSaveBlogIdDone,
+} from "../../store/admin/blog/blogSlice";
 import { getBlogViewCount, setBlogViewCount } from "../../utils/authBlog";
 
 const BlogDetailsPage = () => {
@@ -23,6 +26,9 @@ const BlogDetailsPage = () => {
   const { user } = useSelector((state) => state.auth);
   const [viewCount, setViewCount] = useState(0);
   const navigate = useNavigate();
+  const { isSaveBlogIdSuccess, blogId } = useSelector(
+    (state) => state.adminBlog
+  );
 
   const fetchData = async () => {
     try {
@@ -64,6 +70,11 @@ const BlogDetailsPage = () => {
     if (blog) dispatch(onSaveBlogId(blog.id));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [blog]);
+
+  useEffect(() => {
+    if (isSaveBlogIdSuccess) dispatch(onSaveBlogIdDone(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSaveBlogIdSuccess]);
 
   const updateViewCount = async () => {
     try {
@@ -140,7 +151,7 @@ const BlogDetailsPage = () => {
                 ></div>
               </h3>
             </div>
-            <CommentCom type="BLOG"></CommentCom>
+            {blogId && <CommentCom type="BLOG"></CommentCom>}
           </div>
         </section>
       ) : (

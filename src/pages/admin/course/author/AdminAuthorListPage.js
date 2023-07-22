@@ -24,6 +24,8 @@ import { LabelCom } from "../../../../components/label";
 import { TableCom } from "../../../../components/table";
 import { TextAreaCom } from "../../../../components/textarea";
 import {
+  AVATAR_DEFAULT,
+  IMAGE_DEFAULT,
   MAX_LENGTH_NAME,
   MESSAGE_FIELD_MAX_LENGTH_NAME,
   MESSAGE_FIELD_MIN_LENGTH_NAME,
@@ -119,7 +121,12 @@ const AdminAuthorListPage = () => {
     {
       name: "Image",
       selector: (row) => (
-        <img width={50} height={50} src={`${row.image}`} alt={row.name} />
+        <img
+          width={50}
+          height={50}
+          src={`${row.image === null ? AVATAR_DEFAULT : row.image}`}
+          alt={row.name}
+        />
       ),
       width: "80px",
     },

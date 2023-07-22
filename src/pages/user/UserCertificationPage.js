@@ -356,29 +356,29 @@ const UserCertificationPage = () => {
             }}
           >
             <Typography align="center">
-              <ButtonBase
-                onClick={() =>
-                  window.open(sessionStorage.getItem("certificatePdf"))
-                }
-              >
-                <Document
-                  loading={<SpinAntCom loadingText={"Loading ..."} />}
-                  file={sessionStorage.getItem("certificatePdf")}
-                >
-                  <Page pageNumber={1} renderTextLayer={false} />
-                </Document>
-              </ButtonBase>
               {isLoading ? (
-                ""
+                <SpinAntCom />
               ) : (
-                <Button
-                  variant="contained"
-                  size="large"
-                  color="secondary"
-                  onClick={handleDownloadCertificate}
-                >
-                  Download Cert
-                </Button>
+                <React.Fragment>
+                  <ButtonBase
+                    onClick={() =>
+                      window.open(sessionStorage.getItem("certificatePdf"))
+                    }
+                  >
+                    <Document file={sessionStorage.getItem("certificatePdf")}>
+                      <Page pageNumber={1} renderTextLayer={false} />
+                    </Document>
+                  </ButtonBase>
+
+                  <Button
+                    variant="contained"
+                    size="large"
+                    color="secondary"
+                    onClick={handleDownloadCertificate}
+                  >
+                    Download Cert
+                  </Button>
+                </React.Fragment>
               )}
             </Typography>
           </Paper>

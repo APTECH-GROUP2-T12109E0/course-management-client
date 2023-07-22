@@ -19,6 +19,7 @@ import {
   onGetMyBlogsSuccess,
   onLoading,
   onPostBlogSuccess,
+  onSaveBlogIdSuccess,
 } from "./blogSlice";
 
 function* handleOnGetBlogsForAdmin() {
@@ -45,6 +46,15 @@ function* handleOnGetMyBlogs({ payload }) {
   try {
     const res = yield call(requestGetMyBlogs, payload);
     if (res.status === 200) yield put(onGetMyBlogsSuccess(res.data));
+  } catch (error) {
+    console.log(error);
+    yield put(onLoading(false));
+  }
+}
+
+function* handleOnSaveBlogId({ payload }) {
+  try {
+    yield put(onSaveBlogIdSuccess(payload));
   } catch (error) {
     console.log(error);
     yield put(onLoading(false));
@@ -137,6 +147,7 @@ function* handleOnBulkDeleteMyBlog({ payload }) {
 export {
   handleOnGetBlogsForAdmin,
   handleOnGetBlogs,
+  handleOnSaveBlogId,
   handleOnGetMyBlogs,
   handleOnPostBlog,
   handleOnDeleteBlog,
