@@ -120,7 +120,7 @@ const LearnPage = () => {
           sectionId: sectionId,
           lessonId: lessonId,
           videoId: video.id,
-          resumePoint: player.current.getCurrentTime(),
+          resumePoint: player.current?.getCurrentTime(),
         })
       );
     }
@@ -211,7 +211,7 @@ const LearnPage = () => {
           sectionId: sectionId,
           lessonId: lessonId,
           videoId: video.id,
-          resumePoint: player.current.getCurrentTime(),
+          resumePoint: player.current?.getCurrentTime(),
         })
       );
     }
@@ -241,7 +241,7 @@ const LearnPage = () => {
           sectionId: sectionId,
           lessonId: lessonId,
           videoId: video.id,
-          resumePoint: player.current.getCurrentTime(),
+          resumePoint: player.current?.getCurrentTime(),
         })
       );
     }
