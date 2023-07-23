@@ -151,41 +151,74 @@ const CommentCom = ({
       {/* Comment Items */}
       {posts.length > 0 ? (
         <ul>
-          {showItems.length > 0 &&
-            showItems.map((p) => (
-              <React.Fragment key={p.id}>
-                <CommentParent
-                  post={p}
-                  image={
-                    p.postImageUrl == null ? IMAGE_DEFAULT : p.postImageUrl
-                  }
-                  userName={p.userName}
-                  role={p.role}
-                  parentComment={p.content}
-                  userPostId={p.userId}
-                  postId={p.id}
-                  replyCount={p.comments.length}
-                  likeCount={p.likedUsers.length}
-                  likeUsers={p.likedUsers}
-                  comments={p.comments}
-                  addComment={addComment}
-                  deletePost={deletePost}
-                ></CommentParent>
-                {p.comments.map((c) => (
-                  <CommentChild
-                    key={c.id}
-                    image={c.imageUrl}
-                    userName={c.userName}
-                    role={c.role}
-                    commentId={c}
-                    userCommentId={c.userId}
-                    childComment={c.content}
-                    deleteComment={deleteComment}
-                  ></CommentChild>
-                ))}
-              </React.Fragment>
-            ))}
-          {isRemain && (
+          {showItems.length > 0 && type === "BLOG"
+            ? showItems.map((p) => (
+                <React.Fragment key={p.id}>
+                  <CommentParent
+                    post={p}
+                    image={
+                      p.postImageUrl == null ? IMAGE_DEFAULT : p.postImageUrl
+                    }
+                    userName={p.userName}
+                    role={p.role}
+                    parentComment={p.content}
+                    userPostId={p.userId}
+                    postId={p.id}
+                    replyCount={p.comments.length}
+                    likeCount={p.likedUsers.length}
+                    likeUsers={p.likedUsers}
+                    comments={p.comments}
+                    addComment={addComment}
+                    deletePost={deletePost}
+                  ></CommentParent>
+                  {p.comments.map((c) => (
+                    <CommentChild
+                      key={c.id}
+                      image={c.imageUrl}
+                      userName={c.userName}
+                      role={c.role}
+                      commentId={c}
+                      userCommentId={c.userId}
+                      childComment={c.content}
+                      deleteComment={deleteComment}
+                    ></CommentChild>
+                  ))}
+                </React.Fragment>
+              ))
+            : posts.map((p) => (
+                <React.Fragment key={p.id}>
+                  <CommentParent
+                    post={p}
+                    image={
+                      p.postImageUrl == null ? IMAGE_DEFAULT : p.postImageUrl
+                    }
+                    userName={p.userName}
+                    role={p.role}
+                    parentComment={p.content}
+                    userPostId={p.userId}
+                    postId={p.id}
+                    replyCount={p.comments.length}
+                    likeCount={p.likedUsers.length}
+                    likeUsers={p.likedUsers}
+                    comments={p.comments}
+                    addComment={addComment}
+                    deletePost={deletePost}
+                  ></CommentParent>
+                  {p.comments.map((c) => (
+                    <CommentChild
+                      key={c.id}
+                      image={c.imageUrl}
+                      userName={c.userName}
+                      role={c.role}
+                      commentId={c}
+                      userCommentId={c.userId}
+                      childComment={c.content}
+                      deleteComment={deleteComment}
+                    ></CommentChild>
+                  ))}
+                </React.Fragment>
+              ))}
+          {isRemain && type === "BLOG" && (
             <ButtonCom
               onClick={handleShowMore}
               backgroundColor="gray"
