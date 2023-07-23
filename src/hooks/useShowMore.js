@@ -13,7 +13,7 @@ export default function useShowMore(
     setShowItemsCount(newShowItemsCount);
   };
 
-  const showItems = items.slice(0, showItemsCount);
+  const showItems = items?.slice(0, showItemsCount);
   const isRemain = showItemsCount < items.length;
 
   return {

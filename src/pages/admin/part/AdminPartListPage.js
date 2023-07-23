@@ -329,10 +329,10 @@ const AdminPartListPage = () => {
 
   const handleSubmitForm = (values) => {
     const part = getPartById(values.id);
-    if (part.maxPoint > values.maxPoint) {
+    if (part.maxPoint !== values.maxPoint) {
       Swal.fire({
         title: `The <span class="text-tw-danger">Max Point</span> are being reduced!`,
-        html: `If you reduced the max point of this Part, the point of all quizzes in <span class="text-tw-danger">${fakeName(
+        html: `If you change the max point of this Part, the point of all quizzes in <span class="text-tw-danger">${fakeName(
           "PART",
           part?.id
         )}</span> will be reset to 0`,

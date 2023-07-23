@@ -170,14 +170,14 @@ const AdminQuestionListPage = () => {
       sortable: true,
     },
     {
-      name: "Finish",
+      name: "Status",
       cell: (row) =>
         row.fullAnswer ? (
           <ButtonCom
             icon={<IconCheckCom />}
             padding="px-3"
             backgroundColor="success"
-            className="!cursor-default"
+            className="!cursor-default rounded-none w-full"
           >
             Done
           </ButtonCom>
@@ -186,11 +186,12 @@ const AdminQuestionListPage = () => {
             icon={<IconClockCom />}
             padding="px-3"
             backgroundColor="danger"
-            className="!cursor-default"
+            className="!cursor-default rounded-none w-full"
           >
             Pending
           </ButtonCom>
         ),
+      width: "150px",
     },
     {
       name: "Answer",
@@ -205,6 +206,7 @@ const AdminQuestionListPage = () => {
           </Link>
         </>
       ),
+      width: "100px",
     },
     {
       name: "Point",

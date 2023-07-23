@@ -139,6 +139,44 @@ export function convertDateTime(dateTimeString, isShowYear = true) {
   return newDateTime;
 }
 
+// Input: 2023-06-20T16:21:34.017435Z, Output: 1 min ago, 1 year ago ...
+export function convertDateTimeToDiffForHumans(timestamp) {
+  const now = new Date();
+  const date = new Date(timestamp);
+  if (isNaN(date.getTime())) return timestamp;
+
+  const diffInMilliseconds = now - date;
+
+  const minute = 60 * 1000;
+  const hour = 60 * minute;
+  const day = 24 * hour;
+  const week = 7 * day;
+  const month = 30 * day;
+  const year = 365 * day;
+
+  if (diffInMilliseconds < minute) {
+    return "Just now";
+  } else if (diffInMilliseconds < hour) {
+    const minutesAgo = Math.floor(diffInMilliseconds / minute);
+    return `${minutesAgo} minute${minutesAgo === 1 ? "" : "s"} ago`;
+  } else if (diffInMilliseconds < day) {
+    const hoursAgo = Math.floor(diffInMilliseconds / hour);
+    return `${hoursAgo} hour${hoursAgo === 1 ? "" : "s"} ago`;
+  } else if (diffInMilliseconds < week) {
+    const daysAgo = Math.floor(diffInMilliseconds / day);
+    return `${daysAgo} day${daysAgo === 1 ? "" : "s"} ago`;
+  } else if (diffInMilliseconds < month) {
+    const weeksAgo = Math.floor(diffInMilliseconds / week);
+    return `${weeksAgo} week${weeksAgo === 1 ? "" : "s"} ago`;
+  } else if (diffInMilliseconds < year) {
+    const monthsAgo = Math.floor(diffInMilliseconds / month);
+    return `${monthsAgo} month${monthsAgo === 1 ? "" : "s"} ago`;
+  } else {
+    const yearsAgo = Math.floor(diffInMilliseconds / year);
+    return `${yearsAgo} year${yearsAgo === 1 ? "" : "s"} ago`;
+  }
+}
+
 // Input: 2023-06-20T16:21:34.017435Z, Output: 10 Total date
 export function countDateTime(createdAt) {
   const createdDate = new Date(createdAt);
