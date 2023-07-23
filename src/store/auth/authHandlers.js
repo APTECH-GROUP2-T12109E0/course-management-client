@@ -237,6 +237,7 @@ function* handleOnUpdatePermissions({ payload }) {
     const res = yield call(requestUpdatePermissions, payload);
     if (res.status === 200) {
       yield put(onGetAllUsers());
+      yield put(onUpdatePermissionSuccess());
       toast.success(res.data.message);
     }
   } catch (error) {
