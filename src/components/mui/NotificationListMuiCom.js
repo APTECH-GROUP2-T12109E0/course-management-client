@@ -123,7 +123,7 @@ const NotificationListMuiCom = ({ notifs }) => {
             </React.Fragment>
           ))
         )}
-        <ListItem onClick={handleReadAllNotifications}>
+        <ListItem>
           <Grid
             container
             justifyContent="center"

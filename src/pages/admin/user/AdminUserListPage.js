@@ -1,5 +1,4 @@
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Button } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import ReactModal from "react-modal";
@@ -31,7 +30,7 @@ import { TableCom } from "../../../components/table";
 import {
   AVATAR_DEFAULT,
   MAX_LENGTH_NAME,
-  MAX_LENGTH_VARCHAR,
+  MAX_LENGTH_PASSWORD,
   MESSAGE_FIELD_REQUIRED,
   MESSAGE_NO_ITEM_SELECTED,
   MESSAGE_READONLY,
@@ -51,7 +50,11 @@ import {
   onLoadRole,
   onUpdatePermission,
 } from "../../../store/auth/authSlice";
-import { getUserNameByEmail, showMessageError } from "../../../utils/helper";
+import {
+  getUserNameByEmail,
+  showMessageError,
+  sliceText,
+} from "../../../utils/helper";
 
 const schemaValidation = yup.object().shape({
   first_name: yup
@@ -68,28 +71,15 @@ const schemaValidation = yup.object().shape({
     .matches(regexName, MESSAGE_REGEX_NAME)
     .min(3, "Minimum is 3 letters")
     .max(MAX_LENGTH_NAME, `Maximum ${MAX_LENGTH_NAME} letters`),
-  // email: yup
-  //   .string()
-  //   .required(MESSAGE_FIELD_REQUIRED)
-  //   .email(MESSAGE_EMAIL_INVALID),
   newPassword: yup
     .string()
     .transform((value) => (value === "" ? null : value))
     .nullable()
     .min(8, "Minimum is 8 letters")
-    .max(MAX_LENGTH_VARCHAR, `Maximum ${MAX_LENGTH_VARCHAR} letters`),
+    .max(MAX_LENGTH_PASSWORD, `Maximum ${MAX_LENGTH_PASSWORD} letters`),
 });
 
-const schemaValidationPermission = yup.object().shape({
-  // name: yup
-  //   .string()
-  //   .required(MESSAGE_FIELD_REQUIRED)
-  //   .min(MIN_LENGTH_NAME, MESSAGE_FIELD_MIN_LENGTH_NAME)
-  //   .max(MAX_LENGTH_NAME, MESSAGE_FIELD_MAX_LENGTH_NAME),
-  // status: yup.number().default(2),
-  // image: yup.string().required(MESSAGE_UPLOAD_REQUIRED),
-  // category_id: yup.string().required(MESSAGE_FIELD_REQUIRED),
-});
+const schemaValidationPermission = yup.object().shape({});
 
 const AdminUserListPage = () => {
   const dispatch = useDispatch();
@@ -154,30 +144,18 @@ const AdminUserListPage = () => {
     },
   ];
 
-  //manage status and event in form
   const {
     control,
     register,
     handleSubmit,
     setValue,
-    watch,
-    setError,
     reset,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schemaValidation),
   });
 
-  const {
-    control: controlPermission,
-    register: registerPermission,
-    handleSubmit: handleSubmitPermission,
-    setValue: setValuePermission,
-    watch: watchPermission,
-    setError: setErrorPermission,
-    reset: resetPermission,
-    formState: { errors: errosPermission },
-  } = useForm({
+  const { handleSubmit: handleSubmitPermission } = useForm({
     resolver: yupResolver(schemaValidationPermission),
   });
 
@@ -267,6 +245,11 @@ const AdminUserListPage = () => {
       width: "150px",
     },
     {
+      name: "Updated By",
+      selector: (row) => sliceText(row?.updatedBy ?? "N/A", 12),
+      sortable: true,
+    },
+    {
       name: "Action",
       cell: (row) => (
         <>
@@ -324,17 +307,6 @@ const AdminUserListPage = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [permissions, role]);
-
-  // useEffect(() => {
-  //   if (roles.length > 0 && roleItem) {
-  //     const obj = roles.find((r) => r.name === roleItem.role);
-  //     setRole({
-  //       id: obj.id,
-  //       value: obj.name,
-  //       label: obj.name,
-  //     });
-  //   }
-  // }, [roleItem, roles]);
 
   const clearSelectedRows = () => {
     setSelectedRows([]);

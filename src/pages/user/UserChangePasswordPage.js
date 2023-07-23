@@ -1,5 +1,5 @@
 import { yupResolver } from "@hookform/resolvers/yup";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import * as yup from "yup";
@@ -11,6 +11,7 @@ import { HeadingH1Com } from "../../components/heading";
 import { InputCom } from "../../components/input";
 import { LabelCom } from "../../components/label";
 import {
+  MAX_LENGTH_PASSWORD,
   MAX_LENGTH_VARCHAR,
   MESSAGE_CONFIRM_PASSWORD_INVALID,
   MESSAGE_FIELD_REQUIRED,
@@ -28,12 +29,12 @@ const schemaValidation = yup.object().shape({
     .string()
     .required(MESSAGE_FIELD_REQUIRED)
     .min(8, "Minimum is 8 letters")
-    .max(MAX_LENGTH_VARCHAR, `Maximum ${MAX_LENGTH_VARCHAR} letters`),
+    .max(MAX_LENGTH_PASSWORD, `Maximum ${MAX_LENGTH_PASSWORD} letters`),
   confirmPassword: yup
     .string()
     .oneOf([yup.ref("password"), null], MESSAGE_CONFIRM_PASSWORD_INVALID)
     .min(8, "Minimum is 8 letters")
-    .max(MAX_LENGTH_VARCHAR, `Maximum ${MAX_LENGTH_VARCHAR} letters`)
+    .max(MAX_LENGTH_PASSWORD, `Maximum ${MAX_LENGTH_PASSWORD} letters`)
     .required(MESSAGE_FIELD_REQUIRED),
 });
 

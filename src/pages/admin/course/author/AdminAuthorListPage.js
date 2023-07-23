@@ -11,6 +11,7 @@ import { axiosBearer } from "../../../../api/axiosInstance";
 import { ImageCropUploadAntCom } from "../../../../components/ant";
 import { BreadcrumbCom } from "../../../../components/breadcrumb";
 import { ButtonCom } from "../../../../components/button";
+import AdminCardCom from "../../../../components/common/card/admin/AdminCardCom";
 import GapYCom from "../../../../components/common/GapYCom";
 import { HeadingFormH5Com, HeadingH1Com } from "../../../../components/heading";
 import {
@@ -25,7 +26,6 @@ import { TableCom } from "../../../../components/table";
 import { TextAreaCom } from "../../../../components/textarea";
 import {
   AVATAR_DEFAULT,
-  IMAGE_DEFAULT,
   MAX_LENGTH_NAME,
   MESSAGE_FIELD_MAX_LENGTH_NAME,
   MESSAGE_FIELD_MIN_LENGTH_NAME,
@@ -53,8 +53,7 @@ const schemaValidation = yup.object().shape({
   information: yup
     .string()
     .required(MESSAGE_FIELD_REQUIRED)
-    .min(MIN_LENGTH_NAME, MESSAGE_FIELD_MIN_LENGTH_NAME)
-    .max(MAX_LENGTH_NAME, MESSAGE_FIELD_MAX_LENGTH_NAME),
+    .min(MIN_LENGTH_NAME, MESSAGE_FIELD_MIN_LENGTH_NAME),
   image: yup.string().required(MESSAGE_UPLOAD_REQUIRED),
 });
 
@@ -142,6 +141,11 @@ const AdminAuthorListPage = () => {
       sortable: true,
     },
     {
+      name: "Updated By",
+      selector: (row) => sliceText(row?.updatedBy ?? "N/A", 12),
+      sortable: true,
+    },
+    {
       name: "Actions",
       cell: (row) => (
         <>
@@ -207,7 +211,6 @@ const AdminAuthorListPage = () => {
   const getAuthors = async () => {
     try {
       const res = await axiosBearer.get(API_AUTHOR_URL);
-      console.log(res.data);
       setAuthors(res.data);
       setFilterAuthor(res.data);
     } catch (error) {
@@ -365,6 +368,7 @@ const AdminAuthorListPage = () => {
         });
         return newData;
       });
+      getAuthors();
       toast.success(`${res.data.message}`);
     } catch (error) {
       showMessageError(error);
@@ -398,21 +402,19 @@ const AdminAuthorListPage = () => {
       <div className="row">
         <div className="col-sm-12">
           <div className="card">
-            <div className="card-header py-3">
-              <span>
-                <TableCom
-                  tableKey={tableKey}
-                  urlCreate={`/admin/courses/authors/create`}
-                  title="List Author"
-                  columns={columns}
-                  items={filterAuthor}
-                  search={search}
-                  dropdownItems={dropdownItems}
-                  setSearch={setSearch}
-                  onSelectedRowsChange={handleRowSelection} // selected Mutilple
-                ></TableCom>
-              </span>
-            </div>
+            <AdminCardCom>
+              <TableCom
+                tableKey={tableKey}
+                urlCreate={`/admin/courses/authors/create`}
+                title="List Author"
+                columns={columns}
+                items={filterAuthor}
+                search={search}
+                dropdownItems={dropdownItems}
+                setSearch={setSearch}
+                onSelectedRowsChange={handleRowSelection} // selected Mutilple
+              ></TableCom>
+            </AdminCardCom>
           </div>
         </div>
       </div>
@@ -511,10 +513,9 @@ const AdminAuthorListPage = () => {
                     name="information"
                     control={control}
                     register={register}
-                    placeholder="Description information of author..."
-                  >
-                    {watch("information")}
-                  </TextAreaCom>
+                    value={watch("information")}
+                    placeholder="Write the information of author..."
+                  />
                 </div>
               </div>
             </div>

@@ -10,6 +10,7 @@ import * as yup from "yup";
 import { CheckBoxAntCom } from "../../../components/ant";
 import { BreadcrumbCom } from "../../../components/breadcrumb";
 import { ButtonCom } from "../../../components/button";
+import AdminCardCom from "../../../components/common/card/admin/AdminCardCom";
 import CardHeaderCom from "../../../components/common/card/CardHeaderCom";
 import GapYCom from "../../../components/common/GapYCom";
 import LoadingCom from "../../../components/common/LoadingCom";
@@ -59,7 +60,6 @@ const AdminAnswerListPage = () => {
 
   const { answers, isLoading, isBulkDeleteSuccess, isPostAnswerSuccess } =
     useSelector((state) => state.answer);
-  console.log("answers: ", answers);
 
   /********* State ********* */
   const [selectedRows, setSelectedRows] = useState([]);
@@ -160,6 +160,11 @@ const AdminAnswerListPage = () => {
         ) : (
           <IconRemoveCom className="text-tw-danger" />
         ),
+      sortable: true,
+    },
+    {
+      name: "Updated By",
+      selector: (row) => sliceText(row?.updatedBy ?? "N/A", 12),
       sortable: true,
     },
     {
@@ -340,25 +345,23 @@ const AdminAnswerListPage = () => {
       <div className="row">
         <div className="col-sm-12">
           <div className="card">
-            <div className="card-header py-3">
-              <span>
-                <TableCom
-                  tableKey={tableKey}
-                  urlCreate={`/admin/courses/${courseId}/parts/${partId}/questions/${questionId}/answers/create`}
-                  classNameBtnCreate={`${answers?.length >= 4 && "hidden"}`}
-                  title={`${sliceText(courseById?.name, 30)}, ${fakeName(
-                    "PART",
-                    partId
-                  )}, ${fakeName("QUIZ", questionId)}`}
-                  columns={columns}
-                  items={filterItem}
-                  search={search}
-                  setSearch={setSearch}
-                  dropdownItems={dropdownItems}
-                  onSelectedRowsChange={handleRowSelection} // selected Multiple
-                ></TableCom>
-              </span>
-            </div>
+            <AdminCardCom>
+              <TableCom
+                tableKey={tableKey}
+                urlCreate={`/admin/courses/${courseId}/parts/${partId}/questions/${questionId}/answers/create`}
+                classNameBtnCreate={`${answers?.length >= 4 && "hidden"}`}
+                title={`${sliceText(courseById?.name, 30)}, ${fakeName(
+                  "PART",
+                  partId
+                )}, ${fakeName("QUIZ", questionId)}`}
+                columns={columns}
+                items={filterItem}
+                search={search}
+                setSearch={setSearch}
+                dropdownItems={dropdownItems}
+                onSelectedRowsChange={handleRowSelection} // selected Multiple
+              />
+            </AdminCardCom>
           </div>
         </div>
       </div>

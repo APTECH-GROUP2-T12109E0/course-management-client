@@ -9,6 +9,7 @@ import Swal from "sweetalert2";
 import * as yup from "yup";
 import { BreadcrumbCom } from "../../../components/breadcrumb";
 import { ButtonCom } from "../../../components/button";
+import AdminCardCom from "../../../components/common/card/admin/AdminCardCom";
 import GapYCom from "../../../components/common/GapYCom";
 import LoadingCom from "../../../components/common/LoadingCom";
 import { HeadingFormH5Com, HeadingH1Com } from "../../../components/heading";
@@ -84,7 +85,6 @@ const AdminPartListPage = () => {
   useEffect(() => {
     if (search) {
       if (!parts) return;
-
       const result = parts.filter((item) => {
         const keys = Object.keys(item);
         // Return all items if search is empty
@@ -202,11 +202,11 @@ const AdminPartListPage = () => {
       name: "Limit Time",
       selector: (row) => convertSecondToDiffForHumans(row.limitTime),
     },
-    // {
-    //   name: "Order",
-    //   selector: (row) => row.ordered,
-    //   sortable: true,
-    // },
+    {
+      name: "Updated By",
+      selector: (row) => sliceText(row?.updatedBy ?? "N/A", 12),
+      sortable: true,
+    },
     {
       name: "Actions",
       cell: (row) => (
@@ -303,22 +303,6 @@ const AdminPartListPage = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         dispatch(onBulkDeletePart(selectedRows));
-        // try {
-        //   const deletePromises = selectedRows.map((row) =>
-        //     axiosBearer.delete(`${API_COURSE_URL}?courseId=${row.id}`)
-        //   );
-        //   await Promise.all(deletePromises);
-        //   toast.success(
-        //     `Delete [${selectedRows.length}] ${
-        //       selectedRows.length > 1 ? "parts" : "part"
-        //     } success`
-        //   );
-        // } catch (error) {
-        //   showMessageError(error);
-        // } finally {
-        //   getCourses();
-        //   clearSelectedRows();
-        // }
       }
     });
   };
@@ -423,21 +407,19 @@ const AdminPartListPage = () => {
       <div className="row">
         <div className="col-sm-12">
           <div className="card">
-            <div className="card-header py-3">
-              <span>
-                <TableCom
-                  tableKey={tableKey}
-                  urlCreate={`/admin/courses/${courseId}/parts/create`}
-                  title={`Course: ${sliceText(courseById?.name, 30)}`}
-                  columns={columns}
-                  items={filterItem}
-                  search={search}
-                  setSearch={setSearch}
-                  dropdownItems={dropdownItems}
-                  onSelectedRowsChange={handleRowSelection} // selected Multiple
-                ></TableCom>
-              </span>
-            </div>
+            <AdminCardCom>
+              <TableCom
+                tableKey={tableKey}
+                urlCreate={`/admin/courses/${courseId}/parts/create`}
+                title={`Course: ${sliceText(courseById?.name, 30)}`}
+                columns={columns}
+                items={filterItem}
+                search={search}
+                setSearch={setSearch}
+                dropdownItems={dropdownItems}
+                onSelectedRowsChange={handleRowSelection} // selected Multiple
+              />
+            </AdminCardCom>
           </div>
         </div>
       </div>

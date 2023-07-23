@@ -5,7 +5,7 @@ import { useController } from "react-hook-form";
 import ErrorCom from "../common/ErrorCom";
 
 const TextAreaCom = (props) => {
-  const { register = () => {}, control, name, children, ...rest } = props;
+  const { register = () => {}, control, name, ...rest } = props;
 
   const { fields } = useController({
     control,
@@ -21,9 +21,7 @@ const TextAreaCom = (props) => {
       {...register(name)}
       {...fields}
       {...rest}
-    >
-      {children}
-    </textarea>
+    />
   );
 };
 
@@ -31,7 +29,6 @@ TextAreaCom.propTypes = {
   control: PropTypes.any.isRequired,
   register: PropTypes.func.isRequired,
   name: PropTypes.string,
-  children: PropTypes.node,
 };
 export default withErrorBoundary(TextAreaCom, {
   FallbackComponent: ErrorCom,

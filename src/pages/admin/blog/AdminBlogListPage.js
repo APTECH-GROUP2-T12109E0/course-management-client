@@ -24,7 +24,7 @@ import {
   statusBlogItems,
   MESSAGE_ITEM_NOT_FOUND,
 } from "../../../constants/config";
-import { showMessageError } from "../../../utils/helper";
+import { showMessageError, sliceText } from "../../../utils/helper";
 import LoadingCom from "../../../components/common/LoadingCom";
 import { HeadingFormH5Com, HeadingH1Com } from "../../../components/heading";
 import ButtonBackCom from "../../../components/button/ButtonBackCom";
@@ -205,6 +205,16 @@ const AdminBlogListPage = () => {
       ),
     },
     {
+      name: "Created By",
+      selector: (row) => sliceText(row?.createdBy ?? "N/A", 12),
+      sortable: true,
+    },
+    {
+      name: "Updated By",
+      selector: (row) => sliceText(row?.updatedBy ?? "N/A", 12),
+      sortable: true,
+    },
+    {
       name: "Action",
       cell: (row) => (
         <>
@@ -261,6 +271,7 @@ const AdminBlogListPage = () => {
 
   /********* Search ********* */
   useEffect(() => {
+    console.log("blogs:", blogs);
     const result = blogs.filter((blog) => {
       const keys = Object.keys(blog);
       for (let i = 0; i < keys.length; i++) {

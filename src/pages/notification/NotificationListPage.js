@@ -1,6 +1,9 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
   Avatar,
+  Checkbox,
+  FormControlLabel,
+  FormGroup,
   ListItem,
   ListItemAvatar,
   ListItemText,
@@ -9,39 +12,39 @@ import {
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
-import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 import { ButtonCom } from "../../components/button";
 import GapYCom from "../../components/common/GapYCom";
 import LoadingCom from "../../components/common/LoadingCom";
 import { IconTrashCom } from "../../components/icon";
 import { TableCom } from "../../components/table";
-import { MESSAGE_NO_ITEM_SELECTED } from "../../constants/config";
+import { selectAllCourseState } from "../../store/course/courseSelector";
 import {
   onAllDeleteNotification,
   onAllNotification,
   onDeleteNotification,
 } from "../../store/course/courseSlice";
-import {
-  convertSecondToDiffForHumans,
-  showMessageError,
-} from "../../utils/helper";
+import { convertSecondToDiffForHumans } from "../../utils/helper";
 
 const NotificationListPage = () => {
   // Local State
   const [selectedRows, setSelectedRows] = useState([]);
   const [tableKey, setTableKey] = useState(0);
   const [search, setSearch] = useState("");
-  const [notifs, setNotifs] = useState([]);
+
   const [filterNoti, setFilterNoti] = useState([]);
   const [isFetching, setIsFetching] = useState(false);
+  const [autoRefresh, setAutoRefresh] = useState(false);
 
   //State Redux
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
-  const { notifications, isAllDeleteNotification } = useSelector(
-    (state) => state.course
-  );
+  const { notifications, isAllDeleteNotification } =
+    useSelector(selectAllCourseState);
+
+  const handleAutoRefresh = () => {
+    setAutoRefresh(!autoRefresh);
+  };
 
   const userToId = user.id;
 
@@ -163,12 +166,16 @@ const NotificationListPage = () => {
 
   /********* Get All Notification ********* */
   useEffect(() => {
-    if (user) {
-      const data = dispatch(onAllNotification({ userToId }));
-      setNotifs(data);
+    if (user && autoRefresh) {
+      const timer = setInterval(
+        () => dispatch(onAllNotification({ userToId })),
+        2000
+      );
+
+      return () => clearInterval(timer);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [user, autoRefresh]);
 
   useEffect(() => {
     if (isAllDeleteNotification) clearSelectedRows();
@@ -225,6 +232,19 @@ const NotificationListPage = () => {
           <div className="card">
             <div className="card-header py-3">
               <span>
+                <FormGroup>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        inputProps={{ "aria-label": "Checkbox demo" }}
+                        checked={autoRefresh}
+                        onChange={handleAutoRefresh}
+                      />
+                    }
+                    label="Auto Refresh Notifications"
+                  />
+                </FormGroup>
+
                 <TableCom
                   tableKey={tableKey}
                   title="All Notifications"
