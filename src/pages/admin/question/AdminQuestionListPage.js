@@ -9,6 +9,7 @@ import Swal from "sweetalert2";
 import * as yup from "yup";
 import { BreadcrumbCom } from "../../../components/breadcrumb";
 import { ButtonCom } from "../../../components/button";
+import AdminCardCom from "../../../components/common/card/admin/AdminCardCom";
 import CardHeaderCom from "../../../components/common/card/CardHeaderCom";
 import GapYCom from "../../../components/common/GapYCom";
 import LoadingCom from "../../../components/common/LoadingCom";
@@ -169,6 +170,29 @@ const AdminQuestionListPage = () => {
       sortable: true,
     },
     {
+      name: "Finish",
+      cell: (row) =>
+        row.fullAnswer ? (
+          <ButtonCom
+            icon={<IconCheckCom />}
+            padding="px-3"
+            backgroundColor="success"
+            className="!cursor-default"
+          >
+            Done
+          </ButtonCom>
+        ) : (
+          <ButtonCom
+            icon={<IconClockCom />}
+            padding="px-3"
+            backgroundColor="danger"
+            className="!cursor-default"
+          >
+            Pending
+          </ButtonCom>
+        ),
+    },
+    {
       name: "Answer",
       cell: (row) => (
         <>
@@ -183,34 +207,13 @@ const AdminQuestionListPage = () => {
       ),
     },
     {
-      name: "Finish",
-      cell: (row) => (
-        <>
-          {row.fullAnswer ? (
-            <ButtonCom
-              icon={<IconCheckCom />}
-              padding="px-3"
-              backgroundColor="success"
-              className="!cursor-default"
-            >
-              Done
-            </ButtonCom>
-          ) : (
-            <ButtonCom
-              icon={<IconClockCom />}
-              padding="px-3"
-              backgroundColor="danger"
-              className="!cursor-default"
-            >
-              Pending
-            </ButtonCom>
-          )}
-        </>
-      ),
-    },
-    {
       name: "Point",
       selector: (row) => row.point,
+      sortable: true,
+    },
+    {
+      name: "Updated By",
+      selector: (row) => sliceText(row?.updatedBy ?? "N/A", 12),
       sortable: true,
     },
     {
@@ -397,25 +400,23 @@ const AdminQuestionListPage = () => {
       <div className="row">
         <div className="col-sm-12">
           <div className="card">
-            <div className="card-header py-3">
-              <span>
-                <TableCom
-                  tableKey={tableKey}
-                  urlCreate={`/admin/courses/${courseId}/parts/${partId}/questions/create`}
-                  classNameBtnCreate={isFinish ? "hidden" : ""}
-                  title={`${sliceText(courseById?.name, 30)}, ${fakeName(
-                    "PART",
-                    partId
-                  )}`}
-                  columns={columns}
-                  items={filterItem}
-                  search={search}
-                  setSearch={setSearch}
-                  dropdownItems={dropdownItems}
-                  onSelectedRowsChange={handleRowSelection} // selected Multiple
-                ></TableCom>
-              </span>
-            </div>
+            <AdminCardCom>
+              <TableCom
+                tableKey={tableKey}
+                urlCreate={`/admin/courses/${courseId}/parts/${partId}/questions/create`}
+                classNameBtnCreate={isFinish ? "hidden" : ""}
+                title={`${sliceText(courseById?.name, 30)}, ${fakeName(
+                  "PART",
+                  partId
+                )}`}
+                columns={columns}
+                items={filterItem}
+                search={search}
+                setSearch={setSearch}
+                dropdownItems={dropdownItems}
+                onSelectedRowsChange={handleRowSelection} // selected Multiple
+              />
+            </AdminCardCom>
           </div>
         </div>
       </div>

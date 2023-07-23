@@ -31,7 +31,8 @@ import {
 } from "../../../constants/config";
 import { API_COURSE_URL } from "../../../constants/endpoint";
 import useExportExcel from "../../../hooks/useExportExcel";
-import { showMessageError } from "../../../utils/helper";
+import { showMessageError, sliceText } from "../../../utils/helper";
+import AdminCardCom from "../../../components/common/card/admin/AdminCardCom";
 
 /********* Validation for Section function ********* */
 const schemaValidation = yup.object().shape({
@@ -157,6 +158,11 @@ const AdminSectionListPage = () => {
     {
       name: "Order",
       selector: (row) => row.ordered,
+      sortable: true,
+    },
+    {
+      name: "Updated By",
+      selector: (row) => sliceText(row?.updatedBy ?? "N/A", 12),
       sortable: true,
     },
     {
@@ -438,6 +444,7 @@ const AdminSectionListPage = () => {
     } catch (error) {
       showMessageError(error);
     } finally {
+      getSectionsByCourseId();
       setIsLoading(false);
       setIsOpen(false);
     }
@@ -478,23 +485,19 @@ const AdminSectionListPage = () => {
       <GapYCom></GapYCom>
       <div className="row">
         <div className="col-sm-12">
-          <div className="card">
-            <div className="card-header py-3">
-              <span>
-                <TableCom
-                  tableKey={tableKey}
-                  urlCreate={`/admin/courses/${courseId}/sections/create`}
-                  title={`Course: ${course.name}`}
-                  columns={columns}
-                  items={filterSection}
-                  search={search}
-                  dropdownItems={dropdownItems}
-                  setSearch={setSearch}
-                  onSelectedRowsChange={handleRowSelection} // selected Mutilple
-                ></TableCom>
-              </span>
-            </div>
-          </div>
+          <AdminCardCom>
+            <TableCom
+              tableKey={tableKey}
+              urlCreate={`/admin/courses/${courseId}/sections/create`}
+              title={`Course: ${course.name}`}
+              columns={columns}
+              items={filterSection}
+              search={search}
+              dropdownItems={dropdownItems}
+              setSearch={setSearch}
+              onSelectedRowsChange={handleRowSelection} // selected Mutilple
+            ></TableCom>
+          </AdminCardCom>
         </div>
       </div>
       {/* Modal Edit */}

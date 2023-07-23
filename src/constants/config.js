@@ -17,6 +17,8 @@ export const COOKIE_EXPIRED_BLOG_DAYS = 1 / 24 / 60; // 1min
 export const MIN_LENGTH_NAME = 3;
 export const MAX_LENGTH_NAME = 100;
 export const MAX_LENGTH_VARCHAR = 255;
+export const MAX_LENGTH_PASSWORD = 20;
+
 // LIMIT PAGINATION
 export const LIMIT_PAGE = 12;
 export const LIMIT_HOME_PAGE = 4;

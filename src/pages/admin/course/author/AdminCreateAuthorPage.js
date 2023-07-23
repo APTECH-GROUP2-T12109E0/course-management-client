@@ -1,13 +1,18 @@
+import { yupResolver } from "@hookform/resolvers/yup";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import * as yup from "yup";
+import { axiosBearer } from "../../../../api/axiosInstance";
+import { ImageCropUploadAntCom } from "../../../../components/ant";
 import { BreadcrumbCom } from "../../../../components/breadcrumb";
 import { ButtonCom } from "../../../../components/button";
 import GapYCom from "../../../../components/common/GapYCom";
 import { HeadingH1Com } from "../../../../components/heading";
 import { InputCom } from "../../../../components/input";
 import { LabelCom } from "../../../../components/label";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
+import { TextAreaCom } from "../../../../components/textarea";
 import {
   MAX_LENGTH_NAME,
   MESSAGE_FIELD_MAX_LENGTH_NAME,
@@ -16,13 +21,8 @@ import {
   MESSAGE_UPLOAD_REQUIRED,
   MIN_LENGTH_NAME,
 } from "../../../../constants/config";
-import { useNavigate } from "react-router-dom";
-import { ImageCropUploadAntCom } from "../../../../components/ant";
-import { axiosBearer } from "../../../../api/axiosInstance";
-import { toast } from "react-toastify";
-import { showMessageError } from "../../../../utils/helper";
 import { API_AUTHOR_URL } from "../../../../constants/endpoint";
-import { TextAreaCom } from "../../../../components/textarea";
+import { showMessageError } from "../../../../utils/helper";
 
 const schemaValidation = yup.object().shape({
   name: yup
@@ -38,8 +38,7 @@ const schemaValidation = yup.object().shape({
   information: yup
     .string()
     .required(MESSAGE_FIELD_REQUIRED)
-    .min(MIN_LENGTH_NAME, MESSAGE_FIELD_MIN_LENGTH_NAME)
-    .max(MAX_LENGTH_NAME, MESSAGE_FIELD_MAX_LENGTH_NAME),
+    .min(MIN_LENGTH_NAME, MESSAGE_FIELD_MIN_LENGTH_NAME),
   image: yup.string().required(MESSAGE_UPLOAD_REQUIRED),
 });
 
@@ -167,7 +166,7 @@ const AdminCreateAuthorPage = () => {
                       name="information"
                       control={control}
                       register={register}
-                      placeholder="Description information of author..."
+                      placeholder="Write the information of author..."
                     ></TextAreaCom>
                   </div>
                 </div>

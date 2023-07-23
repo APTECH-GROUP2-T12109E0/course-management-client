@@ -55,6 +55,7 @@ import {
   convertSecondToDiffForHumans,
   convertStrMoneyToInt,
   showMessageError,
+  sliceText,
 } from "../../../utils/helper";
 import useOnChange from "../../../hooks/useOnChange";
 import { v4 } from "uuid";
@@ -64,8 +65,10 @@ import { TextEditorQuillCom } from "../../../components/texteditor";
 import { BreadcrumbCom } from "../../../components/breadcrumb";
 import useExportExcel from "../../../hooks/useExportExcel";
 import { helperChangeStatusCourse } from "../../../utils/helperCourse";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { onCourseLoading } from "../../../store/course/courseSlice";
+import { ALLOWED_ADMIN_MANAGER } from "../../../constants/permissions";
+import AdminCardCom from "../../../components/common/card/admin/AdminCardCom";
 
 const schemaValidation = yup.object().shape({
   name: yup
@@ -115,6 +118,7 @@ const AdminCourseListPage = () => {
   };
 
   const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
   /********* API State ********* */
   const [tagItems, setTagItems] = useState([]);
   const [authorItems, setAuthorItems] = useState([]);
@@ -199,13 +203,11 @@ const AdminCourseListPage = () => {
       name: "Course Name",
       selector: (row) => row.name,
       sortable: true,
-      width: "250px",
     },
     {
       name: "Category",
       selector: (row) => row.category_name,
       sortable: true,
-      width: "150px",
     },
     // {
     //   name: "Status",
@@ -235,23 +237,48 @@ const AdminCourseListPage = () => {
         //   onChange={(isChecked) => handleChangeSwitch(row.id, isChecked)}
         // />
         <>
-          {row.status === 1 ? (
-            <ButtonCom
-              onClick={() => handleChangeStatus(row.id, true)}
-              backgroundColor="success"
-              className="px-3 rounded-lg !text-[12px]"
-            >
-              Active
-            </ButtonCom>
+          {ALLOWED_ADMIN_MANAGER.includes(user?.role) ? (
+            row.status === 1 ? (
+              <ButtonCom
+                onClick={() => handleChangeStatus(row.id, true)}
+                backgroundColor="success"
+                className="px-3 rounded-lg !text-[12px]"
+              >
+                Active
+              </ButtonCom>
+            ) : (
+              <ButtonCom
+                onClick={() => handleChangeStatus(row.id, false)}
+                backgroundColor="danger"
+                className="px-3 rounded-lg !text-[12px]"
+              >
+                InActive
+              </ButtonCom>
+            )
           ) : (
-            <ButtonCom
-              onClick={() => handleChangeStatus(row.id, false)}
-              backgroundColor="danger"
-              className="px-3 rounded-lg !text-[12px]"
+            <div
+              className={`text-white px-3 py-2 ${
+                row.status === 1 ? "bg-tw-success" : "bg-tw-danger"
+              }`}
             >
-              InActive
-            </ButtonCom>
+              {row.status === 1 ? "Active" : "InActive"}
+            </div>
           )}
+          {/* <div
+            className={`text-white px-3 py-2 ${
+              row.status === 1
+                ? "bg-tw-success"
+                : row.status === 2
+                ? "bg-tw-warning"
+                : "bg-tw-dark"
+            }`}
+          >
+            {row.status === 1
+              ? "Published"
+              : row.status === 2
+              ? "Proccessing"
+              : "UnPublished"}
+          </div> */}
         </>
       ),
       width: "120px",
@@ -267,7 +294,7 @@ const AdminCourseListPage = () => {
           </Link>
         </>
       ),
-      width: "85px",
+      width: "80px",
     },
     {
       name: "Part",
@@ -297,22 +324,28 @@ const AdminCourseListPage = () => {
           </ButtonCom>
         </>
       ),
-      width: "100px",
+      width: "85px",
     },
-    {
-      name: "$$",
-      selector: (row) =>
-        row.net_price > 0
-          ? `$${convertIntToStrMoney(row.net_price)}`
-          : `$${convertIntToStrMoney(row.price)}`,
-      sortable: true,
-      width: "80px",
-    },
+    // {
+    //   name: "$",
+    //   selector: (row) =>
+    //     row.net_price > 0
+    //       ? `$${convertIntToStrMoney(row.net_price)}`
+    //       : row.price > 0
+    //       ? `$${convertIntToStrMoney(row.price)}`
+    //       : "Free",
+    //   sortable: true,
+    //   width: "80px",
+    // },
     {
       name: "Duration",
       selector: (row) => convertSecondToDiffForHumans(row.duration),
       sortable: true,
-      width: "150px",
+    },
+    {
+      name: "Updated By",
+      selector: (row) => sliceText(row?.updated_by ?? "N/A", 12),
+      sortable: true,
     },
     {
       name: "Action",
@@ -346,7 +379,6 @@ const AdminCourseListPage = () => {
           </ButtonCom>
         </>
       ),
-      width: "100px",
     },
   ];
 
@@ -385,7 +417,6 @@ const AdminCourseListPage = () => {
   const getCourses = async () => {
     try {
       const res = await axiosBearer.get(API_COURSE_URL);
-      console.log(res.data);
       setCourses(res.data);
       setFilterCourse(res.data);
     } catch (error) {
@@ -825,7 +856,7 @@ const AdminCourseListPage = () => {
         />
       </div>
       <GapYCom></GapYCom>
-      <div className="card p-3 bg-white">
+      <AdminCardCom>
         <TableCom
           tableKey={tableKey}
           urlCreate="/admin/courses/create"
@@ -837,7 +868,7 @@ const AdminCourseListPage = () => {
           dropdownItems={dropdownItems}
           onSelectedRowsChange={handleRowSelection} // selected Mutilple
         ></TableCom>
-      </div>
+      </AdminCardCom>
 
       {/* Modal Edit */}
       <ReactModal

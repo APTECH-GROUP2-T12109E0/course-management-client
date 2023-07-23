@@ -50,6 +50,7 @@ import { TextEditorQuillCom } from "../../../components/texteditor";
 import { getToken } from "../../../utils/auth";
 import { BreadcrumbCom } from "../../../components/breadcrumb";
 import useExportExcel from "../../../hooks/useExportExcel";
+import AdminCardCom from "../../../components/common/card/admin/AdminCardCom";
 
 const AdminLessonListPage = () => {
   /********* API State ********* */
@@ -166,6 +167,10 @@ const AdminLessonListPage = () => {
       sortable: true,
     },
     {
+      name: "Duration",
+      selector: (row) => convertSecondToDiffForHumans(row.duration),
+    },
+    {
       name: "Status",
       selector: (row) => (
         <SwitchAntCom
@@ -183,8 +188,9 @@ const AdminLessonListPage = () => {
       sortable: true,
     },
     {
-      name: "Duration",
-      selector: (row) => convertSecondToDiffForHumans(row.duration),
+      name: "Updated By",
+      selector: (row) => sliceText(row?.updatedBy ?? "N/A", 12),
+      sortable: true,
     },
     {
       name: "Actions",
@@ -563,21 +569,19 @@ const AdminLessonListPage = () => {
       <div className="row">
         <div className="col-sm-12">
           <div className="card">
-            <div className="card-header py-3">
-              <span>
-                <TableCom
-                  tableKey={tableKey}
-                  urlCreate={`/admin/courses/${courseId}/sections/${sectionId}/lessons/create`}
-                  title={`Course: ${course?.name}, Section: ${section?.name}`}
-                  columns={columns}
-                  items={filterLesson}
-                  search={search}
-                  dropdownItems={dropdownItems}
-                  setSearch={setSearch}
-                  onSelectedRowsChange={handleRowSelection} // selected Mutilple
-                ></TableCom>
-              </span>
-            </div>
+            <AdminCardCom>
+              <TableCom
+                tableKey={tableKey}
+                urlCreate={`/admin/courses/${courseId}/sections/${sectionId}/lessons/create`}
+                title={`Course: ${course?.name}, Section: ${section?.name}`}
+                columns={columns}
+                items={filterLesson}
+                search={search}
+                dropdownItems={dropdownItems}
+                setSearch={setSearch}
+                onSelectedRowsChange={handleRowSelection} // selected Mutilple
+              ></TableCom>
+            </AdminCardCom>
           </div>
         </div>
       </div>

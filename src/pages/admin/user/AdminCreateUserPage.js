@@ -17,7 +17,7 @@ import { InputCom } from "../../../components/input";
 import { LabelCom } from "../../../components/label";
 import {
   MAX_LENGTH_NAME,
-  MAX_LENGTH_VARCHAR,
+  MAX_LENGTH_PASSWORD,
   MESSAGE_EMAIL_INVALID,
   MESSAGE_FIELD_REQUIRED,
   MESSAGE_REGEX_NAME,
@@ -49,7 +49,7 @@ const schemaValidation = yup.object().shape({
     .string()
     .required(MESSAGE_FIELD_REQUIRED)
     .min(8, "Minimum is 8 letters")
-    .max(MAX_LENGTH_VARCHAR, `Maximum ${MAX_LENGTH_VARCHAR} letters`),
+    .max(MAX_LENGTH_PASSWORD, `Maximum ${MAX_LENGTH_PASSWORD} letters`),
 });
 
 const AdminCreateUserPage = () => {
