@@ -41,7 +41,9 @@ function* handleOnRegister(action) {
   try {
     const res = yield call(requestRegister, action.payload);
     if (res.data.type === "success") {
-      toast.success(res.data.message);
+      toast.success(res.data.message, {
+        autoClose: false,
+      });
       yield put(onRegisterSuccess(true));
     } else if (res.data.type === "warning") {
       toast.warning(res.data.message);

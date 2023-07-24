@@ -532,7 +532,7 @@ const CommentChild = ({
       />
       <ul>
         <li>
-          <div className="media">
+          <div className="media p-[10px]">
             <img
               className="object-cover"
               srcSet={image == null ? IMAGE_DEFAULT : image}
