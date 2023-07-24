@@ -527,7 +527,6 @@ const AdminCourseListPage = () => {
   /********* Action Area ********* */
   const handleSubmitForm = async (values) => {
     const { price, net_price } = values;
-
     // if (image === "" || image[0] === undefined) {
     //   const imageSelector = document.querySelector('input[name="image"]');
     //   if (imageSelector) imageSelector.focus();
@@ -777,7 +776,6 @@ const AdminCourseListPage = () => {
         } finally {
           getCourses();
           clearSelectedRows();
-          console.log("catch");
         }
       }
     });

@@ -26,6 +26,7 @@ import {
   NOT_FOUND_URL,
 } from "../../constants/config";
 import { API_ENROLLMENT_URL } from "../../constants/endpoint";
+import { ALLOWED_ADMIN_MANAGER_EMPLOYEE } from "../../constants/permissions";
 import usePagination from "../../hooks/usePagination";
 import { CourseGridMod, CourseItemMod } from "../../modules/course";
 import { onGetLastUrlAccess } from "../../store/auth/authSlice";
@@ -188,19 +189,24 @@ const CourseDetailPage = () => {
     if (courseBySlug?.price === 0 && user?.role === "USER") {
       try {
         setIsLoading(true);
-        const res = await axiosBearer.post(API_ENROLLMENT_URL, {
-          user_id: user?.id,
-          course_id: courseBySlug?.id,
-        });
-        if (res?.data?.type === "success") {
-          setTimeout(() => {
-            toast.success(res?.data?.message);
-            setIsLoading(false);
-            navigate(`/learn/${slug}`);
-          }, 1000);
+        if (ALLOWED_ADMIN_MANAGER_EMPLOYEE.includes(user?.role)) {
+          navigate(`/learn/${slug}`);
+        } else {
+          const res = await axiosBearer.post(API_ENROLLMENT_URL, {
+            user_id: user?.id,
+            course_id: courseBySlug?.id,
+          });
+          if (res?.data?.type === "success") {
+            setTimeout(() => {
+              toast.success(res?.data?.message);
+              setIsLoading(false);
+              navigate(`/learn/${slug}`);
+            }, 1000);
+          }
         }
       } catch (error) {
         showMessageError(error);
+      } finally {
         setIsLoading(false);
       }
     } else {

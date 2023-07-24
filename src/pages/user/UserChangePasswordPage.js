@@ -2,6 +2,8 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import * as yup from "yup";
 import { BreadcrumbCom } from "../../components/breadcrumb";
 import { ButtonCom } from "../../components/button";
@@ -15,6 +17,7 @@ import {
   MAX_LENGTH_VARCHAR,
   MESSAGE_CONFIRM_PASSWORD_INVALID,
   MESSAGE_FIELD_REQUIRED,
+  MESSAGE_THIRD_PARTY_WARNING,
 } from "../../constants/config";
 import { selectIsUserChangePasswordSuccess } from "../../store/auth/authSelector";
 import { onUserChangePassword } from "../../store/auth/authSlice";
@@ -49,8 +52,16 @@ const UserChangePasswordPage = () => {
     resolver: yupResolver(schemaValidation),
   });
 
+  const navigate = useNavigate();
   const { user, isLoading } = useSelector((state) => state.auth);
   const isChangePassword = useSelector(selectIsUserChangePasswordSuccess);
+
+  useEffect(() => {
+    if (user && user.provider !== "local") {
+      toast.warn(MESSAGE_THIRD_PARTY_WARNING);
+      navigate("/");
+    }
+  }, [user]);
 
   useEffect(() => {
     if (isChangePassword) reset();

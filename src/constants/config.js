@@ -97,6 +97,9 @@ export const MESSAGE_POINT_EXCEED_MAX =
 export const MESSAGE_MAINTENANCE =
   "Sorry, This function is currently under maintenance !";
 
+export const MESSAGE_THIRD_PARTY_WARNING =
+  "Your account belongs to a third-party provider, so we cannot accept use this function within our application.";
+
 // Data Static List
 export const categoryItems = [
   {

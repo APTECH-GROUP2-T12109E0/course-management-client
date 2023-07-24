@@ -1,14 +1,20 @@
 import { yupResolver } from "@hookform/resolvers/yup";
+import { Card } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import * as yup from "yup";
 import {
   BASE_API_URL,
   IMAGE_DEFAULT,
   MESSAGE_LOGIN_REQUIRED,
 } from "../../constants/config";
+import { ADMIN_ROLE, MANAGER_ROLE } from "../../constants/permissions";
+import useShowMore from "../../hooks/useShowMore";
 import { selectUser } from "../../store/auth/authSelector";
+import { onGetLastUrlAccess } from "../../store/auth/authSlice";
 import { selectAllCourseState } from "../../store/course/courseSelector";
 import {
   onDeletePost,
@@ -17,17 +23,12 @@ import {
   onSavePost,
   onSaveReplyToPost,
 } from "../../store/course/courseSlice";
+import { convertDateTimeToDiffForHumans } from "../../utils/helper";
 import { ButtonCom } from "../button";
 import GapYCom from "../common/GapYCom";
 import { IconTrashCom } from "../icon";
 import { DialogConfirmMuiCom } from "../mui";
 import { TextEditorQuillCom } from "../texteditor";
-import { Card } from "@mui/material";
-import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
-import { onGetLastUrlAccess } from "../../store/auth/authSlice";
-import useShowMore from "../../hooks/useShowMore";
-import SpinAntCom from "../ant/SpinAntCom";
 
 const schemaValidation = yup.object().shape({
   comment: yup.string(),
@@ -72,7 +73,8 @@ const CommentCom = ({
     const sse = new EventSource(url);
     sse.addEventListener("post-list-event", (event) => {
       const data = JSON.parse(event.data);
-      setPosts(data);
+      console.log("data:", data);
+      setPosts(data.reverse());
     });
     sse.onerror = () => {
       sse.close();
@@ -296,6 +298,7 @@ const CommentParent = ({
   addComment,
   addPost,
   deletePost,
+  createdAt,
 }) => {
   const user = useSelector(selectUser);
   const navigate = useNavigate();
@@ -357,7 +360,6 @@ const CommentParent = ({
   };
   // Comment Parent
   const handleSubmitForm = ({ comment }) => {
-    // Call tới api replyUrl ở trên truyền vào, ko set cứng để bên Blog xài lại
     const newComments = {
       content: comment,
       created_at: new Date(),
@@ -413,19 +415,22 @@ const CommentParent = ({
           <div className="row">
             <div className="col-md-4">
               <h6
-                className="mt-0"
-                style={
-                  role === "ADMIN"
-                    ? { color: "#7366ff", fontWeight: "bold" }
-                    : { color: "black" }
-                }
+                className={`mt-0 ${
+                  role === ADMIN_ROLE
+                    ? "text-tw-primary !font-bold"
+                    : role === MANAGER_ROLE
+                    ? "!text-tw-success"
+                    : "text-black"
+                }`}
               >
                 {userName}
                 <span
-                  style={
-                    role === "ADMIN"
-                      ? { color: "#f73164", fontWeight: "bold" }
-                      : { color: "rgba(43,43,43,0.7)" }
+                  className={
+                    role === ADMIN_ROLE
+                      ? "!text-tw-danger !font-bold"
+                      : role === MANAGER_ROLE
+                      ? "!text-tw-success"
+                      : "text-tw-light-gray"
                   }
                 >
                   ( {role} )
@@ -460,13 +465,16 @@ const CommentParent = ({
               <div className="flex gap-x-3">
                 <div dangerouslySetInnerHTML={{ __html: parentComment }}></div>
               </div>
-              {user?.role === "ADMIN" ||
-              (user?.role === "MANAGER" && role !== "ADMIN") ||
-              (user?.role === "EMPLOYEE" &&
-                role !== "ADMIN" &&
-                role !== "MANAGER") ||
-              user?.id === userPostId ? (
-                <div className="flex gap-x-3">
+              <div className="flex items-center gap-x-3">
+                <div className="text-tw-primary">
+                  {convertDateTimeToDiffForHumans(createdAt)}
+                </div>
+                {user?.role === "ADMIN" ||
+                (user?.role === "MANAGER" && role !== "ADMIN") ||
+                (user?.role === "EMPLOYEE" &&
+                  role !== "ADMIN" &&
+                  role !== "MANAGER") ||
+                user?.id === userPostId ? (
                   <ButtonCom
                     className="px-3 rounded-lg"
                     backgroundColor="danger"
@@ -474,8 +482,8 @@ const CommentParent = ({
                   >
                     <IconTrashCom className="w-4"></IconTrashCom>
                   </ButtonCom>
-                </div>
-              ) : null}
+                ) : null}
+              </div>
             </div>
 
             {isReply && (
@@ -525,6 +533,7 @@ const CommentChild = ({
   userCommentId = 0,
   childComment = "Thanks for your comment!",
   deleteComment,
+  createdAt,
 }) => {
   const user = useSelector(selectUser);
   const dispatch = useDispatch();
@@ -554,7 +563,7 @@ const CommentChild = ({
       />
       <ul>
         <li>
-          <div className="media">
+          <div className="media p-[10px]">
             <img
               className="object-cover"
               srcSet={image == null ? IMAGE_DEFAULT : image}
@@ -564,19 +573,18 @@ const CommentChild = ({
               <div className="row">
                 <div className="col-xl-12">
                   <h6
-                    className="mt-0"
-                    style={
+                    className={`mt-0 ${
                       role === "ADMIN"
-                        ? { color: "#7366ff", fontWeight: "bold" }
-                        : { color: "black" }
-                    }
+                        ? "text-tw-primary !font-bold"
+                        : "text-black"
+                    }`}
                   >
                     {userName}
                     <span
-                      style={
+                      className={
                         role === "ADMIN"
-                          ? { color: "#f73164", fontWeight: "bold" }
-                          : { color: "rgba(43,43,43,0.7)" }
+                          ? "!text-tw-danger !font-bold"
+                          : "text-tw-light-gray"
                       }
                     >
                       ( {role} )
@@ -588,13 +596,16 @@ const CommentChild = ({
                 <div className="flex gap-x-3">
                   <div dangerouslySetInnerHTML={{ __html: childComment }}></div>
                 </div>
-                {user.role === "ADMIN" ||
-                (user.role === "MANAGER" && role !== "ADMIN") ||
-                (user.role === "EMPLOYEE" &&
-                  role !== "ADMIN" &&
-                  role !== "MANAGER") ||
-                user.id === userCommentId ? (
-                  <div className="flex gap-x-3">
+                <div className="flex items-center gap-x-3">
+                  <div className="text-tw-primary">
+                    {convertDateTimeToDiffForHumans(createdAt)}
+                  </div>
+                  {user.role === "ADMIN" ||
+                  (user.role === "MANAGER" && role !== "ADMIN") ||
+                  (user.role === "EMPLOYEE" &&
+                    role !== "ADMIN" &&
+                    role !== "MANAGER") ||
+                  user.id === userCommentId ? (
                     <ButtonCom
                       className="px-3 rounded-lg"
                       backgroundColor="danger"
@@ -602,8 +613,8 @@ const CommentChild = ({
                     >
                       <IconTrashCom className="w-4"></IconTrashCom>
                     </ButtonCom>
-                  </div>
-                ) : null}
+                  ) : null}
+                </div>
               </div>
             </div>
           </div>

@@ -188,6 +188,14 @@ const HomeTopbarMod = () => {
                 ) {
                   return null;
                 }
+                // If user is login by OAuth
+                if (
+                  user &&
+                  user.provider !== "local" &&
+                  item.url === "/profile/change-password"
+                ) {
+                  return null;
+                }
                 // If user is login, and role is not USER exclude "/order-history"
                 if (
                   user &&

@@ -84,13 +84,25 @@ const LoginPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoginSuccess, errorMessage]);
 
+  useEffect(() => {
+    if (verifyParam === "success") {
+      toast.success(MESSAGE_VERIFY_SUCCESS, {
+        autoClose: false,
+      });
+    } else if (verifyParam === "verified") {
+      toast.warning(MESSAGE_EMAIL_ACTIVED, {
+        autoClose: false,
+      });
+    }
+  }, [verifyParam]);
+
   return (
     <>
-      {verifyParam === "success" ? (
+      {/* {verifyParam === "success" ? (
         <AlertAntCom type="success" message={MESSAGE_VERIFY_SUCCESS} />
       ) : verifyParam === "verified" ? (
         <AlertAntCom type="warning" message={MESSAGE_EMAIL_ACTIVED} />
-      ) : null}
+      ) : null} */}
 
       <form className="theme-form" onSubmit={handleSubmit(handleSubmitForm)}>
         {/* <HeadingFormH1Com className="text-center !text-[#818cf8] font-tw-primary font-light mb-3">
