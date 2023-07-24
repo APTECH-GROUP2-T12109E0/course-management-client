@@ -172,6 +172,7 @@ const CommentCom = ({
                     comments={p.comments}
                     addComment={addComment}
                     deletePost={deletePost}
+                    createdAt={p.created_at}
                   ></CommentParent>
                   {p.comments.map((c) => (
                     <CommentChild
@@ -183,6 +184,7 @@ const CommentCom = ({
                       userCommentId={c.userId}
                       childComment={c.content}
                       deleteComment={deleteComment}
+                      createdAt={c.created_at}
                     ></CommentChild>
                   ))}
                 </React.Fragment>
@@ -205,6 +207,7 @@ const CommentCom = ({
                     comments={p.comments}
                     addComment={addComment}
                     deletePost={deletePost}
+                    createdAt={p.created_at}
                   ></CommentParent>
                   {p.comments.map((c) => (
                     <CommentChild
@@ -216,6 +219,7 @@ const CommentCom = ({
                       userCommentId={c.userId}
                       childComment={c.content}
                       deleteComment={deleteComment}
+                      createdAt={c.created_at}
                     ></CommentChild>
                   ))}
                 </React.Fragment>
