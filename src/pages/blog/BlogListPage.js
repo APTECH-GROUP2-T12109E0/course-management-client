@@ -368,12 +368,12 @@ const BlogListPage = () => {
 
   const handleSubmitForm = async (values) => {
     console.log("values: ", values);
-    // dispatch(
-    //   onPostBlog({
-    //     ...values,
-    //     status: values.status || 2,
-    //   })
-    // );
+    dispatch(
+      onPostBlog({
+        ...values,
+        status: values.status || 2,
+      })
+    );
   };
 
   return (

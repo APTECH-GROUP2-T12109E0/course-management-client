@@ -776,7 +776,6 @@ const AdminCourseListPage = () => {
         } finally {
           getCourses();
           clearSelectedRows();
-          console.log("catch");
         }
       }
     });
