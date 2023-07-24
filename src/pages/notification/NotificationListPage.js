@@ -166,6 +166,13 @@ const NotificationListPage = () => {
 
   /********* Get All Notification ********* */
   useEffect(() => {
+    if (user) {
+      dispatch(onAllNotification({ userToId }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
+  useEffect(() => {
     if (user && autoRefresh) {
       const timer = setInterval(
         () => dispatch(onAllNotification({ userToId })),

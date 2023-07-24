@@ -43,6 +43,11 @@ export const selectAllCourseState = createSelector(
   })
 );
 
+export const selectCountDown = createSelector(
+  [selectCourseReducer],
+  (courseSlice) => courseSlice.countdown
+);
+
 export const selectEnrollIdAndCourseId = createSelector(
   [selectCourseReducer],
   (courseSlice) => ({

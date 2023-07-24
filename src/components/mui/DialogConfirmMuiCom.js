@@ -18,6 +18,7 @@ const DialogConfirmMuiCom = ({
   confirmContent,
   title,
   title2,
+  gradeRules,
   content,
   content0,
   warning,
@@ -38,8 +39,25 @@ const DialogConfirmMuiCom = ({
           {warning}
         </Typography>
         <Typography variant="h7" ml={3} color="red">
-          {title2}
+          <strong>{title2}</strong>
         </Typography>
+
+        {gradeRules && (
+          <Typography variant="subtitle1" ml={3} mt={2}>
+            <span style={{ color: "red" }}>Point</span> &lt; 40:{" "}
+            <strong style={{ color: "#FF4136" }}>FAIL</strong>
+            <br />
+            40 &le; <span style={{ color: "red" }}>Point</span> &lt; 65:{" "}
+            <strong style={{ color: "#FF851B" }}>AVERAGE</strong>
+            <br />
+            65 &le; <span style={{ color: "red" }}>Point</span> &lt; 80:{" "}
+            <strong style={{ color: "#2ECC40" }}>GOOD</strong>
+            <br />
+            <span style={{ color: "red" }}>Point</span> &ge; 80:{" "}
+            <strong style={{ color: "#0074D9" }}>EXCELLENT</strong>
+            <br />
+          </Typography>
+        )}
 
         <DialogContent>
           <DialogContentText id="alert-dialog-description" mb={1}>

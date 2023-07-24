@@ -82,6 +82,7 @@ const ExamPage = () => {
             : 0
         }`}
         title2={`Exam Rules`}
+        gradeRules={true}
         content0={`Hardware is an important example not to be overlooked. Students need to have working microphones and 
         cameras If need be.`}
         content={`Students must also have a reliable internet connection. This is important to ensure smooth testing.

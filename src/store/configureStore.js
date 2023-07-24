@@ -29,7 +29,7 @@ const logger = createLogger({
     const excludedActions = [
       "course/onUnloadExam",
       "course/onAddNotification",
-      "course/onCountdown",
+      // "course/onCountdown",
     ];
     return !excludedActions.includes(action.type);
   },

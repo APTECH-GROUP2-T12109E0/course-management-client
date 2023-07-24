@@ -14,6 +14,8 @@ import { NoteCom } from "../../components/note";
 import { selectUserId } from "../../store/auth/authSelector";
 import {
   selectAllCourseState,
+  selectCountDown,
+  selectCountdown,
   selectIsLoadLearningStatus,
   selectIsLoading,
 } from "../../store/course/courseSelector";
@@ -54,12 +56,14 @@ const LearnPage = () => {
     generateExamSuccess,
     examination,
     retakeExam,
-    countdown,
     prevTime,
   } = useSelector(selectAllCourseState);
 
+  const countdown = useSelector(selectCountDown);
+
   const isLoading = useSelector(selectIsLoading);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlay, setIsPlay] = useState(false);
+  // const [isPause, setIsPause] = useState(false);
   // const [isSeek, setIsSeek] = useState(false);
   const [isEnd, setIsEnd] = useState(false);
   const [isFinal, setIsFinal] = useState(false);
@@ -67,6 +71,7 @@ const LearnPage = () => {
   const [isCompleted, setIsCompleted] = useState(0);
   const [playedSeconds, setPlayedSeconds] = useState(0);
   // const [readyExam, setReadyExam] = useState(false);
+  const [countDown, setCountDown] = useState(-1);
 
   const { slug } = useParams();
   const userId = useSelector(selectUserId);
@@ -132,23 +137,33 @@ const LearnPage = () => {
   }, [lessonId]);
 
   useEffect(() => {
-    const countDown =
+    const countdownDate =
       retakeExam?.created_at === null
-        ? 0
-        : Math.floor(new Date(retakeExam?.created_at).getTime() / 1000) +
-          60 -
-          Math.floor(Date.now() / 1000);
+        ? null
+        : new Date(retakeExam.created_at).getTime() + 60000; // add 60 seconds in milliseconds
 
-    const interval = setInterval(() => {
-      if (countDown > 0) {
-        dispatch(onCountdown(countDown - 1));
-      }
-    }, 1000);
-    return () => clearInterval(interval);
-  });
-  const handleTogglePlay = () => {
-    setIsPlaying(!isPlaying);
-  };
+    if (countdownDate !== null) {
+      const interval = setInterval(() => {
+        const remainingTime = Math.floor((countdownDate - Date.now()) / 1000);
+        if (remainingTime >= 0) {
+          setCountDown(remainingTime);
+        }
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [retakeExam]);
+
+  // Dispatch the onCountdown action whenever countDown changes
+  useEffect(() => {
+    if (countDown >= 0) {
+      dispatch(onCountdown(countDown));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [countDown]);
+
+  // const handleTogglePlay = () => {
+  //   setIsPlaying(!isPlaying);
+  // };
 
   const handleGetProgress = ({ playedSeconds, played }) => {
     if (played > 0.9) {
@@ -214,12 +229,18 @@ const LearnPage = () => {
           resumePoint: player.current.getCurrentTime(),
         })
       );
+      setIsPlay(false);
     }
   };
 
-  const onWriteNote = () => {
-    setIsPlaying(false);
+  const onWriteNote = (isShowNote) => {
+    if (!isShowNote) {
+      setIsPlay(true);
+    } else {
+      setIsPlay(false);
+    }
   };
+
   const onSelectNote = (resumePoint) => {
     player.current.seekTo(resumePoint);
   };
@@ -436,7 +457,7 @@ const LearnPage = () => {
                 },
               },
             }}
-            playing={isPlaying}
+            playing={isPlay}
             controls
             muted
             autoPlay
@@ -444,7 +465,8 @@ const LearnPage = () => {
             onProgress={handleGetProgress}
             onPause={handlePauseVideo}
             onEnded={handleEnded}
-            onClick={handleTogglePlay}
+            // onClick={handleTogglePlay}
+            onPlay={() => setIsPlay(true)}
             onReady={handleOnReady}
           />
         </div>
