@@ -150,9 +150,58 @@ const CommentCom = ({
         </React.Fragment>
       )}
       {/* Comment Items */}
+      <div
+        className="flex justify-center items-center"
+        onClick={() => {
+          if (!user) {
+            toast.warn(MESSAGE_LOGIN_REQUIRED);
+            dispatch(onGetLastUrlAccess(window.location.pathname));
+            navigate("/login");
+            return;
+          }
+          setIsShowCommentBox(!isShowCommentBox);
+        }}
+      >
+        {isShowCommentBox ? (
+          <ButtonCom backgroundColor="danger">Hide</ButtonCom>
+        ) : (
+          <ButtonCom>Comment</ButtonCom>
+        )}
+      </div>
+      <GapYCom></GapYCom>
+      {isShowCommentBox && (
+        <form onSubmit={handleSubmit(handleSubmitForm)}>
+          <TextEditorQuillCom
+            value={comment}
+            onChange={(comment) => {
+              setValue("comment", comment);
+              setComment(comment);
+            }}
+            placeholder={placeholder}
+          ></TextEditorQuillCom>
+          <GapYCom className="mb-5"></GapYCom>
+          <div>
+            <ButtonCom
+              type="submit"
+              backgroundColor="pink"
+              isLoading={isSubmitting}
+            >
+              Send
+            </ButtonCom>
+            <ButtonCom
+              className="!text-black ml-2"
+              backgroundColor="gray"
+              onClick={() => setIsShowCommentBox(false)}
+            >
+              Close
+            </ButtonCom>
+          </div>
+        </form>
+      )}
+      <GapYCom></GapYCom>
       {posts.length > 0 ? (
         <ul>
-          {showItems.length > 0 && type === "BLOG"
+          {showItems.length > 0
             ? showItems.map((p) => (
                 <React.Fragment key={p.id}>
                   <CommentParent
@@ -223,7 +272,7 @@ const CommentCom = ({
                   ))}
                 </React.Fragment>
               ))}
-          {isRemain && type === "BLOG" && (
+          {isRemain && (
             <ButtonCom
               onClick={handleShowMore}
               backgroundColor="gray"
@@ -234,55 +283,6 @@ const CommentCom = ({
           )}
         </ul>
       ) : null}
-      <GapYCom></GapYCom>
-      <div
-        className="flex justify-center items-center"
-        onClick={() => {
-          if (!user) {
-            toast.warn(MESSAGE_LOGIN_REQUIRED);
-            dispatch(onGetLastUrlAccess(window.location.pathname));
-            navigate("/login");
-            return;
-          }
-          setIsShowCommentBox(!isShowCommentBox);
-        }}
-      >
-        {isShowCommentBox ? (
-          <ButtonCom backgroundColor="danger">Hide</ButtonCom>
-        ) : (
-          <ButtonCom>Comment</ButtonCom>
-        )}
-      </div>
-      <GapYCom></GapYCom>
-      {isShowCommentBox && (
-        <form onSubmit={handleSubmit(handleSubmitForm)}>
-          <TextEditorQuillCom
-            value={comment}
-            onChange={(comment) => {
-              setValue("comment", comment);
-              setComment(comment);
-            }}
-            placeholder={placeholder}
-          ></TextEditorQuillCom>
-          <GapYCom className="mb-5"></GapYCom>
-          <div>
-            <ButtonCom
-              type="submit"
-              backgroundColor="pink"
-              isLoading={isSubmitting}
-            >
-              Send
-            </ButtonCom>
-            <ButtonCom
-              className="!text-black ml-2"
-              backgroundColor="gray"
-              onClick={() => setIsShowCommentBox(false)}
-            >
-              Close
-            </ButtonCom>
-          </div>
-        </form>
-      )}
     </section>
   );
 };
