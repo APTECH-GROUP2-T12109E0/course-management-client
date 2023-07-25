@@ -26,6 +26,7 @@ import {
   MESSAGE_NUMBER_REQUIRED,
   MESSAGE_UPLOAD_REQUIRED,
   MESSAGE_VIDEO_FILE_INVALID,
+  NOT_FOUND_URL,
   VIDEO_EXT_VALID,
 } from "../../../constants/config";
 import { API_LESSON_URL, API_SECTION_URL } from "../../../constants/endpoint";
@@ -164,6 +165,10 @@ const AdminCreateLessonPage = () => {
       setIsSuccess(true);
       navigate(`/admin/courses/${courseId}/sections/${sectionId}/lessons`);
     } catch (error) {
+      if (error.response.status === 404) {
+        navigate(NOT_FOUND_URL);
+        return;
+      }
       // Rollback
       await axiosBearer.delete(
         `/section/${sectionId}/lesson?lessonId=${lessonId}`

@@ -22,6 +22,7 @@ import {
   MESSAGE_UPDATE_STATUS_SUCCESS,
   MESSAGE_UPLOAD_REQUIRED,
   MESSAGE_VIDEO_FILE_INVALID,
+  NOT_FOUND_URL,
   VIDEO_EXT_VALID,
 } from "../../../constants/config";
 import { toast } from "react-toastify";
@@ -345,7 +346,10 @@ const AdminLessonListPage = () => {
       );
       setSection(res.data);
     } catch (error) {
-      console.log(error);
+      if (error.response.status === 404) {
+        navigate(NOT_FOUND_URL);
+        return false;
+      }
     }
   };
 
