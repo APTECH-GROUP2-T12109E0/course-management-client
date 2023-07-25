@@ -68,6 +68,7 @@ const AdminCreateUserPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isPostUserSuccess, isLoading } = useSelector((state) => state.user);
+  const { user } = useSelector((state) => state.auth);
 
   const [role, setRole] = useState("USER");
 
@@ -186,7 +187,12 @@ const AdminCreateUserPage = () => {
                   <div>
                     <SelectDefaultAntCom
                       selectedValue={role}
-                      listItems={ALL_ROLES.filter((r) => r.value !== "ADMIN")}
+                      listItems={ALL_ROLES.filter((r) => {
+                        if (user?.role === "MANAGER") {
+                          return r.value !== "ADMIN" && r.value !== "MANAGER";
+                        }
+                        return r.value !== "ADMIN";
+                      })}
                       defaultValue={ALL_ROLES[3].value}
                       onChange={handleChangeRole}
                       className="w-full py-1"

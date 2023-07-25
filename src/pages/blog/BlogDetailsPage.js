@@ -10,6 +10,7 @@ import { SpinAntCom } from "../../components/ant";
 import { BreadcrumbCom } from "../../components/breadcrumb";
 import { CommentCom } from "../../components/comment";
 import GapYCom from "../../components/common/GapYCom";
+import { IconAuthorCom } from "../../components/icon";
 import { ImageCom } from "../../components/image";
 import { NOT_FOUND_URL } from "../../constants/config";
 import { API_BLOG_URL } from "../../constants/endpoint";
@@ -23,7 +24,9 @@ const BlogDetailsPage = () => {
   const dispatch = useDispatch();
   const { slug } = useParams();
   const [blog, setBlog] = useState(null);
+  const [author, setAuthor] = useState(null);
   const { user } = useSelector((state) => state.auth);
+  const { usersAllRole } = useSelector((state) => state.user);
   const [viewCount, setViewCount] = useState(0);
   const navigate = useNavigate();
   const { isSaveBlogIdSuccess, blogId } = useSelector(
@@ -32,7 +35,6 @@ const BlogDetailsPage = () => {
 
   const fetchData = async () => {
     try {
-      await updateViewCount(); // Call updateViewCount to update new view_count
       const response = await axiosInstance.get(`${API_BLOG_URL}/${slug}`);
 
       if (response.data.user_id !== user?.id && response.data.status !== 1) {
@@ -67,7 +69,16 @@ const BlogDetailsPage = () => {
   }, [slug]);
 
   useEffect(() => {
-    if (blog) dispatch(onSaveBlogId(blog.id));
+    if (user && blog) {
+    }
+  }, [user, blog]);
+
+  useEffect(() => {
+    if (blog) {
+      dispatch(onSaveBlogId(blog.id));
+      updateViewCount(); // Call updateViewCount to update new view_count
+      setAuthor(usersAllRole.find((item) => item.id === blog?.user_id));
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [blog]);
 
@@ -79,7 +90,8 @@ const BlogDetailsPage = () => {
   const updateViewCount = async () => {
     try {
       const cookieViewCount = getBlogViewCount(slug);
-      if (cookieViewCount === 0) {
+      if (cookieViewCount === 0 && blog.user_id !== user?.id) {
+        console.log("ok call...");
         await axiosBearer.put(`${API_BLOG_URL}/view-count/${slug}`, {
           view_count: viewCount + 1,
         });
@@ -138,13 +150,19 @@ const BlogDetailsPage = () => {
                 </div>
                 <div className="flex justify-end">
                   <FaEye className="mr-[10px] text-[20px]" />
-                  <label className="block mr-[20px] mb-0 text-[#999] text-[13px]">
+                  <label className="block mb-0 text-[#999] text-[13px]">
                     {blog.view_count}
                   </label>
                 </div>
               </div>
 
-              <h1 className="text-3xl font-medium">{blog.name}</h1>
+              <h1 className="text-3xl font-medium text-tw-light-pink">
+                {blog.name}
+              </h1>
+              <div className="text-tw-light-gray">
+                <span>Created By: </span>
+                <span className="font-bold">{author?.name}</span>
+              </div>
               <h3 className="my-5 text-lg capitalize leading-7">
                 <div
                   dangerouslySetInnerHTML={{ __html: blog.description }}

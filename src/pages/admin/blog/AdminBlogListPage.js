@@ -228,6 +228,14 @@ const AdminBlogListPage = () => {
             <IconEditCom className="w-5"></IconEditCom>
           </ButtonCom>
           <ButtonCom
+            className="px-3 rounded-lg mr-2"
+            onClick={() => {
+              window.open(`/blogs/${row.slug}`, "_blank");
+            }}
+          >
+            <IconEyeCom className="w-5"></IconEyeCom>
+          </ButtonCom>
+          <ButtonCom
             className="px-3 rounded-lg"
             backgroundColor="danger"
             onClick={() => {
