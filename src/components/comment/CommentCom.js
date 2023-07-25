@@ -73,7 +73,6 @@ const CommentCom = ({
     const sse = new EventSource(url);
     sse.addEventListener("post-list-event", (event) => {
       const data = JSON.parse(event.data);
-      console.log("data:", data);
       setPosts(data.reverse());
     });
     sse.onerror = () => {

@@ -1,10 +1,25 @@
+import { yupResolver } from "@hookform/resolvers/yup";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import ReactModal from "react-modal";
+import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
+import Swal from "sweetalert2";
+import { v4 } from "uuid";
+import * as yup from "yup";
 import { axiosBearer } from "../../../api/axiosInstance";
+import {
+  ImageCropUploadAntCom,
+  SelectDefaultAntCom,
+  SelectSearchAntCom,
+  SelectTagAntCom,
+} from "../../../components/ant";
+import { BreadcrumbCom } from "../../../components/breadcrumb";
 import { ButtonCom } from "../../../components/button";
+import AdminCardCom from "../../../components/common/card/admin/AdminCardCom";
 import GapYCom from "../../../components/common/GapYCom";
+import LoadingCom from "../../../components/common/LoadingCom";
 import { HeadingFormH5Com, HeadingH1Com } from "../../../components/heading";
 import {
   IconBookCom,
@@ -15,14 +30,10 @@ import {
   IconTrashCom,
   IconVideoCom,
 } from "../../../components/icon";
+import { InputCom } from "../../../components/input";
+import { LabelCom } from "../../../components/label";
 import { TableCom } from "../../../components/table";
-import {
-  API_AUTHOR_URL,
-  API_COURSE_URL,
-  API_TAG_URL,
-} from "../../../constants/endpoint";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
+import { TextEditorQuillCom } from "../../../components/texteditor";
 import {
   categoryItems,
   levelItems,
@@ -32,24 +43,23 @@ import {
   MESSAGE_FIELD_MIN_LENGTH_NAME,
   MESSAGE_FIELD_REQUIRED,
   MESSAGE_GENERAL_FAILED,
+  MESSAGE_NET_PRICE_HIGHER_PRICE,
   MESSAGE_NO_ITEM_SELECTED,
   MESSAGE_NUMBER_POSITIVE,
   MESSAGE_NUMBER_REQUIRED,
-  MESSAGE_NET_PRICE_HIGHER_PRICE,
+  MESSAGE_UPDATE_STATUS_SUCCESS,
   MESSAGE_UPLOAD_REQUIRED,
   MIN_LENGTH_NAME,
-  MESSAGE_UPDATE_STATUS_SUCCESS,
 } from "../../../constants/config";
-import { LabelCom } from "../../../components/label";
-import { InputCom } from "../../../components/input";
 import {
-  ImageCropUploadAntCom,
-  SelectDefaultAntCom,
-  SelectSearchAntCom,
-  SelectTagAntCom,
-  SwitchAntCom,
-} from "../../../components/ant";
-import Swal from "sweetalert2";
+  API_AUTHOR_URL,
+  API_COURSE_URL,
+  API_TAG_URL,
+} from "../../../constants/endpoint";
+import { ALLOWED_ADMIN_MANAGER } from "../../../constants/permissions";
+import useExportExcel from "../../../hooks/useExportExcel";
+import useOnChange from "../../../hooks/useOnChange";
+import { onCourseLoading } from "../../../store/course/courseSlice";
 import {
   convertIntToStrMoney,
   convertSecondToDiffForHumans,
@@ -57,18 +67,7 @@ import {
   showMessageError,
   sliceText,
 } from "../../../utils/helper";
-import useOnChange from "../../../hooks/useOnChange";
-import { v4 } from "uuid";
-import { Link } from "react-router-dom";
-import LoadingCom from "../../../components/common/LoadingCom";
-import { TextEditorQuillCom } from "../../../components/texteditor";
-import { BreadcrumbCom } from "../../../components/breadcrumb";
-import useExportExcel from "../../../hooks/useExportExcel";
 import { helperChangeStatusCourse } from "../../../utils/helperCourse";
-import { useDispatch, useSelector } from "react-redux";
-import { onCourseLoading } from "../../../store/course/courseSlice";
-import { ALLOWED_ADMIN_MANAGER } from "../../../constants/permissions";
-import AdminCardCom from "../../../components/common/card/admin/AdminCardCom";
 
 const schemaValidation = yup.object().shape({
   name: yup
@@ -93,10 +92,6 @@ const schemaValidation = yup.object().shape({
     .nullable()
     .typeError(MESSAGE_NUMBER_REQUIRED)
     .min(0, MESSAGE_NUMBER_POSITIVE),
-  // duration: yup
-  //   .number(MESSAGE_FIELD_REQUIRED)
-  //   .typeError(MESSAGE_NUMBER_REQUIRED)
-  //   .min(0, MESSAGE_NUMBER_POSITIVE),
 });
 
 const AdminCourseListPage = () => {

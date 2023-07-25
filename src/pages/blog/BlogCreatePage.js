@@ -305,7 +305,7 @@ const BlogCreatePage = () => {
                 <ButtonCom type="submit" isLoading={isLoading}>
                   Create
                 </ButtonCom>
-                <ButtonCom
+                {/* <ButtonCom
                   backgroundColor="danger"
                   onClick={() => {
                     Swal.fire({
@@ -324,7 +324,7 @@ const BlogCreatePage = () => {
                   }}
                 >
                   Reset
-                </ButtonCom>
+                </ButtonCom> */}
               </div>
             </form>
           </div>

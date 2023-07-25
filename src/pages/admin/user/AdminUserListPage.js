@@ -549,8 +549,6 @@ const AdminUserListPage = () => {
     setPermission(value);
   };
 
-  console.log("isLoading:", isLoading);
-
   return (
     <>
       {isFetching && <LoadingCom />}
