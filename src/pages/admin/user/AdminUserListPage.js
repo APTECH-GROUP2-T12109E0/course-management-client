@@ -630,11 +630,13 @@ const AdminUserListPage = () => {
                   <div>
                     <SelectSearchAntCom
                       selectedValue={role}
-                      listItems={managerEmployeeRoles.map((r) => ({
-                        id: r.id,
-                        value: r.name,
-                        label: r.name,
-                      }))}
+                      listItems={managerEmployeeRoles.map((r) => {
+                        return {
+                          id: r.id,
+                          value: r.name,
+                          label: r.name,
+                        };
+                      })}
                       onChange={handleChangeRole}
                       isGetObject={true}
                       className="w-full py-1"

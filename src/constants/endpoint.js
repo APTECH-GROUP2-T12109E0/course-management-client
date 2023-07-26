@@ -1,7 +1,8 @@
 import { BASE_API_URL, BASE_DOMAIN_URL } from "./config";
 
-export const IMG_BB_URL =
-  "https://api.imgbb.com/1/upload?key=460ff2aea92fbc932901efd11f0637fb";
+export const IMG_BB_URL = `https://api.imgbb.com/1/upload?key=${
+  process.env.REACT_APP_IMG_BB_KEY || ""
+}`;
 
 // ******************* Authentication ENDPOINT *********************
 export const API_REGISTER_URL = "/auth/register";

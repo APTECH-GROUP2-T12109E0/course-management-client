@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import ReactModal from "react-modal";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -28,6 +28,7 @@ import {
   MESSAGE_NUMBER_POSITIVE,
   MESSAGE_NUMBER_REQUIRED,
   MESSAGE_UPDATE_STATUS_SUCCESS,
+  NOT_FOUND_URL,
 } from "../../../constants/config";
 import { API_COURSE_URL } from "../../../constants/endpoint";
 import useExportExcel from "../../../hooks/useExportExcel";
@@ -286,6 +287,7 @@ const AdminSectionListPage = () => {
     });
   };
 
+  const navigate = useNavigate();
   /********** Fetch data Area ************ */
   /********* API List Section ********* */
   const getSectionsByCourseId = async () => {
@@ -296,6 +298,10 @@ const AdminSectionListPage = () => {
       setSections(res.data);
       setFilterSection(res.data);
     } catch (error) {
+      if (error.response.status === 404) {
+        navigate(NOT_FOUND_URL);
+        return false;
+      }
       console.log(error);
     }
   };

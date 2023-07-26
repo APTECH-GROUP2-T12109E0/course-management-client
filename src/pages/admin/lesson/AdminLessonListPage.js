@@ -335,6 +335,10 @@ const AdminLessonListPage = () => {
       const res = await axiosBearer.get(`${API_COURSE_URL}/${courseId}`);
       setCourse(res.data);
     } catch (error) {
+      if (error.response.status === 404) {
+        navigate(NOT_FOUND_URL);
+        return false;
+      }
       console.log(error);
     }
   };
