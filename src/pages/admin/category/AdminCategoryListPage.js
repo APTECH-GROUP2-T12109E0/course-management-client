@@ -1,52 +1,46 @@
 import React, { useEffect, useState } from "react";
 import * as yup from "yup";
 import {
-  categoryItems,
   MAX_LENGTH_NAME,
   MESSAGE_FIELD_MAX_LENGTH_NAME,
   MESSAGE_FIELD_MIN_LENGTH_NAME,
   MESSAGE_FIELD_REQUIRED,
   MESSAGE_NO_ITEM_SELECTED,
+  MESSAGE_UPDATE_STATUS_SUCCESS,
   MESSAGE_UPLOAD_REQUIRED,
   MIN_LENGTH_NAME,
-} from "../../constants/config";
+} from "../../../constants/config";
 
-import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
-import ReactModal from "react-modal";
-import { useDispatch, useSelector } from "react-redux";
-import { toast } from "react-toastify";
-import Swal from "sweetalert2";
-import { v4 } from "uuid";
-import { axiosBearer } from "../../api/axiosInstance";
+import { yupResolver } from "@hookform/resolvers/yup";
 import {
   ImageCropUploadAntCom,
   SelectSearchAntCom,
-} from "../../components/ant";
-import { BreadcrumbCom } from "../../components/breadcrumb";
-import { ButtonCom } from "../../components/button";
-import GapYCom from "../../components/common/GapYCom";
-import LoadingCom from "../../components/common/LoadingCom";
-import { HeadingFormH5Com, HeadingH1Com } from "../../components/heading";
+} from "../../../components/ant";
+import { ButtonCom } from "../../../components/button";
 import {
   IconEditCom,
-  IconEyeCom,
   IconRemoveCom,
   IconTrashCom,
-} from "../../components/icon";
-import { InputCom } from "../../components/input";
-import { LabelCom } from "../../components/label";
-import { TableCom } from "../../components/table";
-import { TextEditorQuillCom } from "../../components/texteditor";
-import {
-  onBulkDeleteMyBlog,
-  onDeleteBlog,
-  onDeleteMyBlog,
-  onGetMyBlogs,
-  onPostBlog,
-} from "../../store/admin/blog/blogSlice";
-import { showMessageError } from "../../utils/helper";
-import useExportExcel from "../../hooks/useExportExcel";
+} from "../../../components/icon";
+import { toast } from "react-toastify";
+import Swal from "sweetalert2";
+import { showMessageError } from "../../../utils/helper";
+import { HeadingFormH5Com, HeadingH1Com } from "../../../components/heading";
+import GapYCom from "../../../components/common/GapYCom";
+import { TableCom } from "../../../components/table";
+import ReactModal from "react-modal";
+import { InputCom } from "../../../components/input";
+import { LabelCom } from "../../../components/label";
+import { useSelector } from "react-redux";
+import { axiosBearer } from "../../../api/axiosInstance";
+import { BreadcrumbCom } from "../../../components/breadcrumb";
+import { TextEditorQuillCom } from "../../../components/texteditor";
+import { v4 } from "uuid";
+import LoadingCom from "../../../components/common/LoadingCom";
+import * as FileSaver from "file-saver";
+import * as XLSX from "xlsx";
+import moment from "moment/moment";
 
 /********* Validation for Section function ********* */
 const schemaValidation = yup.object().shape({
@@ -56,17 +50,10 @@ const schemaValidation = yup.object().shape({
     .min(MIN_LENGTH_NAME, MESSAGE_FIELD_MIN_LENGTH_NAME)
     .max(MAX_LENGTH_NAME, MESSAGE_FIELD_MAX_LENGTH_NAME),
   image: yup.string().required(MESSAGE_UPLOAD_REQUIRED),
-  category_id: yup.string().required(MESSAGE_FIELD_REQUIRED),
   description: yup.string().required(MESSAGE_FIELD_REQUIRED),
 });
 
-const BlogListPage = () => {
-  const dispatch = useDispatch();
-  const {
-    myBlogs: blogs,
-    isPostBlogSuccess,
-    isBulkDeleteMyBlogSuccess,
-  } = useSelector((state) => state.adminBlog);
+const AdminCategoryListPage = () => {
   /********* State ********* */
   //API State
   const [image, setImage] = useState([]);
@@ -78,30 +65,14 @@ const BlogListPage = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
-
-  const [filterBlog, setFilterBlog] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [filterCategory, setFilterCategory] = useState([]);
   const [search, setSearch] = useState("");
   const { user } = useSelector((state) => state.auth);
+  const user_id = user.id;
+
+  // console.log("isOpen",isOpen);
   /********* END API State ********* */
-  const { handleExcelData } = useExportExcel(
-    `blog_${user?.first_name.toLowerCase()}`
-  );
-  const handleExport = () => {
-    const headers = ["No", "Title", "Category", "Image", "Status", "Content"];
-    const data = blogs.map((item, index) => [
-      index + 1,
-      item.name,
-      item.category_name,
-      item.image,
-      item.status === 1
-        ? "Published"
-        : item.status === 0
-        ? "UnPublished"
-        : "Proccessing",
-      item.description,
-    ]);
-    handleExcelData(headers, data);
-  };
 
   /********* More Action Menu ********* */
   const dropdownItems = [
@@ -111,7 +82,7 @@ const BlogListPage = () => {
         <div
           rel="noopener noreferrer"
           className="hover:text-tw-success transition-all duration-300"
-          onClick={handleExport}
+          onClick={() => exportExcel()}
         >
           Export
         </div>
@@ -123,9 +94,9 @@ const BlogListPage = () => {
         <div
           rel="noopener noreferrer"
           className="hover:text-tw-danger transition-all duration-300"
-          onClick={() => handleBulkDelete()}
+          onClick={() => handleDeleteMultipleRecords()}
         >
-          Bulk delete
+          Remove All
         </div>
       ),
     },
@@ -144,9 +115,6 @@ const BlogListPage = () => {
   } = useForm({
     resolver: yupResolver(schemaValidation),
   });
-  const resetValues = () => {
-    reset();
-  };
 
   /********* Fetch API Area ********* */
   const columns = [
@@ -162,32 +130,6 @@ const BlogListPage = () => {
       width: "250px",
     },
     {
-      name: "Category",
-      selector: (row) => row.category_name,
-      sortable: true,
-    },
-    {
-      name: "Status",
-      selector: (row) => (
-        <div
-          className={`text-white px-3 py-2 ${
-            row.status === 1
-              ? "bg-tw-success"
-              : row.status === 2
-              ? "bg-tw-warning"
-              : "bg-tw-dark"
-          }`}
-        >
-          {row.status === 1
-            ? "Published"
-            : row.status === 2
-            ? "Proccessing"
-            : "UnPublished"}
-        </div>
-      ),
-      sortable: true,
-    },
-    {
       name: "Image",
       selector: (row) => (
         <img width={50} height={50} src={`${row.image}`} alt={row.name} />
@@ -197,32 +139,28 @@ const BlogListPage = () => {
       name: "Action",
       cell: (row) => (
         <>
-          {row.status === 2 && (
-            <ButtonCom
-              className="px-3 rounded-lg mr-2"
-              backgroundColor="info"
-              onClick={() => {
-                handleEdit(row.slug);
-              }}
-            >
-              <IconEditCom className="w-5"></IconEditCom>
-            </ButtonCom>
-          )}
-          {row.status !== 0 && (
-            <ButtonCom
-              className="px-3 rounded-lg mr-2"
-              onClick={() => {
-                window.open(`/blogs/${row.slug}`);
-              }}
-            >
-              <IconEyeCom className="w-5"></IconEyeCom>
-            </ButtonCom>
-          )}
+          <ButtonCom
+            className="px-3 rounded-lg mr-2"
+            backgroundColor="info"
+            onClick={() => {
+              handleEdit(row.id);
+            }}
+          >
+            <IconEditCom className="w-5"></IconEditCom>
+          </ButtonCom>
+          {/* <ButtonCom
+            className="px-3 rounded-lg mr-2"
+            onClick={() => {
+              window.open(`/categories/${row.id}`);
+            }}
+          >
+            <IconEyeCom className="w-5"></IconEyeCom>
+          </ButtonCom> */}
           <ButtonCom
             className="px-3 rounded-lg"
             backgroundColor="danger"
             onClick={() => {
-              handleDelete(row);
+              handleDeleteCategory(row);
             }}
           >
             <IconTrashCom className="w-5"></IconTrashCom>
@@ -232,7 +170,18 @@ const BlogListPage = () => {
     },
   ];
 
-  /********* API List Blog ********* */
+  /********* API List Category ********* */
+  //Get All Category
+  const getCategories = async () => {
+    try {
+      const res = await axiosBearer.get(`/category`);
+      // console.log(res.data);
+      setCategories(res.data);
+      setFilterCategory(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const handleChangeCategory = (value) => {
     setValue("category_id", value);
@@ -249,24 +198,13 @@ const BlogListPage = () => {
     setSelectedRows(currentRowsSelected.selectedRows);
   };
 
-  useEffect(() => {
-    dispatch(onGetMyBlogs(user?.id));
-    if (isPostBlogSuccess && isOpen) setIsOpen(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id, isPostBlogSuccess]);
-
-  useEffect(() => {
-    if (isBulkDeleteMyBlogSuccess) clearSelectedRows();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isBulkDeleteMyBlogSuccess]);
-
   /********* Search ********* */
   useEffect(() => {
-    const result = blogs.filter((blog) => {
-      const keys = Object.keys(blog);
+    const result = categories.filter((category) => {
+      const keys = Object.keys(category);
       for (let i = 0; i < keys.length; i++) {
         const key = keys[i];
-        const value = blog[key];
+        const value = category[key];
         if (
           typeof value === "string" &&
           value.toLowerCase().includes(search.toLowerCase())
@@ -282,14 +220,14 @@ const BlogListPage = () => {
       }
       return false;
     });
-    setFilterBlog(result);
-  }, [blogs, search]);
+    setFilterCategory(result);
+  }, [categories, search]);
 
   /********* Delete one API ********* */
-  const handleDelete = ({ id, name }) => {
+  const handleDeleteCategory = ({ id, name }) => {
     Swal.fire({
       title: "Are you sure?",
-      html: `You will delete blog: <span class="text-tw-danger">${name}</span>`,
+      html: `You will delete category: <span class="text-tw-danger">${name}</span>`,
       icon: "question",
       showCancelButton: true,
       confirmButtonColor: "#7366ff",
@@ -297,18 +235,39 @@ const BlogListPage = () => {
       confirmButtonText: "Yes, delete it!",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        dispatch(
-          onDeleteMyBlog({
-            id,
-            user_id: user?.id,
-          })
-        );
+        try {console.log(id);
+          const res = await axiosBearer.delete(`/category?categoryId=${id}`);
+          getCategories();
+          reset(res.data);
+          toast.success(res.data.message);
+        } catch (error) {
+          showMessageError(error);
+        }
       }
     });
   };
-  
+
+  const exportExcel = () => {
+    if (categories == null || categories.length == 0) {
+      toast.loading("No data to export!");
+      return;
+    }
+
+    const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+    const fileExtension = '.xlsx';
+    
+    var currentDate = new Date();
+    const fileName = moment(currentDate).format('YYYYMMDDHHmmss');
+
+    const ws = XLSX.utils.json_to_sheet(categories);
+    const wb = { Sheets: { 'data': ws }, SheetNames: ['data'] };
+    const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    const data = new Blob([excelBuffer], {type: fileType});
+    FileSaver.saveAs(data, fileName + fileExtension);
+  };
+
   /********* Multi Delete API ********* */
-  const handleBulkDelete = () => {
+  const handleDeleteMultipleRecords = () => {
     if (selectedRows.length === 0) {
       toast.warning(MESSAGE_NO_ITEM_SELECTED);
       return;
@@ -317,7 +276,7 @@ const BlogListPage = () => {
       title: "Are you sure?",
       html: `You will delete <span class="text-tw-danger">${
         selectedRows.length
-      } selected ${selectedRows.length > 1 ? "blogs" : "blog"}</span>`,
+      } selected ${selectedRows.length > 1 ? "categories" : "category"}</span>`,
       icon: "question",
       showCancelButton: true,
       confirmButtonColor: "#7366ff",
@@ -325,74 +284,90 @@ const BlogListPage = () => {
       confirmButtonText: "Yes, delete it!",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        dispatch(
-          onBulkDeleteMyBlog({
-            data: selectedRows,
-            user_id: user?.id,
-          })
-        );
+        try {
+          const deletePromises = selectedRows.map((row) =>
+            axiosBearer.delete(`/category/${row.id}`)
+          );
+          await Promise.all(deletePromises);
+          toast.success(`Delete ${selectedRows.length} categories success`);
+        } catch (error) {
+          showMessageError(error);
+        } finally {
+          getCategories();
+          clearSelectedRows();
+        }
       }
     });
   };
   /********* Update API ********* */
-  const handleEdit = async (slug) => {
-    setIsOpen(true);
-    getBlogBySlug(slug, "fetch");
-  };
-
-  const getBlogBySlug = (slug, action = "n/a") => {
-    setIsFetching(true);
-    const item = blogs.find((item) => item.slug === slug);
-    switch (action) {
-      case "fetch":
-        typeof item !== "undefined" ? reset(item) : showMessageError("No data");
-        setCategorySelected(item?.category_id);
-        const imageUrl = item?.image;
-        const imgObj = [
-          {
-            uid: v4(),
-            name: imageUrl?.substring(imageUrl.lastIndexOf("/") + 1),
-            status: "done",
-            url: imageUrl,
-          },
-        ];
-        setImage(imgObj);
-        break;
-      default:
-        break;
+  const handleEdit = async (categoryId) => {
+    try {
+      setIsFetching(true);
+      await getCategoryById(categoryId);
+      setIsOpen(true);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsFetching(false);
     }
-    setIsFetching(false);
-
-    return typeof item !== "undefined" ? item : showMessageError("No data");
   };
+
+  const getCategoryById = async (categoryId) => {
+    try {
+      const res = await axiosBearer.get(`category/${categoryId}`);
+      reset(res.data);
+      setCategorySelected(res.data.category_id);
+
+      const resImage = res.data.image;
+      const imgObj = [
+        {
+          uid: v4(),
+          name: resImage.substring(resImage.lastIndexOf("/") + 1),
+          status: "done",
+          url: resImage,
+        },
+      ];
+
+      setImage(imgObj);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    getCategories();
+  }, []);
 
   const handleSubmitForm = async (values) => {
-    console.log("values: ", values);
-    dispatch(
-      onPostBlog({
-        ...values,
-        status: values.status || 2,
-      })
-    );
+    console.log(values);
+    const status = values.status || 2;
+    try {
+      setIsLoading(!isLoading);
+      const test = { ...values, user_id, status, view_count: 0 };
+      console.log("test:",test);
+      toast.success(MESSAGE_UPDATE_STATUS_SUCCESS);
+      getCategories();
+      setIsOpen(false);
+      // Navigate(`/admin/categories`);
+    } catch (error) {
+      showMessageError(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <>
       {isFetching && <LoadingCom />}
       <div className="flex justify-between items-center">
-        <HeadingH1Com>Management Blogs</HeadingH1Com>
+        <HeadingH1Com>Admin Categories</HeadingH1Com>
         <BreadcrumbCom
           items={[
             {
-              title: "Home",
-              slug: "/",
+              title: "Admin",
+              slug: "/admin",
             },
             {
-              title: "Blog",
-              slug: "/blogs",
-            },
-            {
-              title: "Management",
+              title: "Category",
               isActive: true,
             },
           ]}
@@ -403,13 +378,16 @@ const BlogListPage = () => {
         <div className="col-sm-12">
           <div className="card">
             <div className="card-header py-3">
+              {/* <HeadingH2Com className="text-tw-light-pink">
+                List Courses
+              </HeadingH2Com> */}
               <span>
                 <TableCom
                   tableKey={tableKey}
-                  urlCreate="/blogs/create"
-                  title="Your blogs"
+                  urlCreate="create"
+                  title="List Categories"
                   columns={columns}
-                  items={filterBlog}
+                  items={filterCategory}
                   search={search}
                   setSearch={setSearch}
                   dropdownItems={dropdownItems}
@@ -417,6 +395,7 @@ const BlogListPage = () => {
                 ></TableCom>
               </span>
             </div>
+            <div className="card-body flex gap-x-4 h-[50vh]"></div>
           </div>
         </div>
       </div>
@@ -424,14 +403,14 @@ const BlogListPage = () => {
       {/* Modal Edit */}
       <ReactModal
         isOpen={isOpen}
-        onRequestClose={() => setIsOpen(false)}
+        onRequestClose={() => setIsOpen(false)} 
         overlayClassName="modal-overplay fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center"
         className={`modal-content scroll-hidden  max-w-5xl max-h-[90vh] overflow-y-auto bg-white rounded-lg outline-none transition-all duration-300 ${
           isOpen ? "w-50" : "w-0"
         }`}
       >
         <div className="card-header bg-tw-primary flex justify-between text-white">
-          <HeadingFormH5Com className="text-2xl">Edit Blog</HeadingFormH5Com>
+          <HeadingFormH5Com className="text-2xl">Edit Category</HeadingFormH5Com>
           <ButtonCom backgroundColor="danger" className="px-2">
             <IconRemoveCom
               className="flex items-center justify-center p-2 w-10 h-10 rounded-xl bg-opacity-20 text-white"
@@ -444,6 +423,15 @@ const BlogListPage = () => {
             className="theme-form"
             onSubmit={handleSubmit(handleSubmitForm)}
           >
+            <InputCom
+              type="hidden"
+              control={control}
+              name="id"
+              register={register}
+              placeholder="Category hidden id"
+              errorMsg={errors.id?.message}
+            ></InputCom>
+
             <div className="card-body">
               <div className="row">
                 <div className="col-sm-8">
@@ -481,51 +469,21 @@ const BlogListPage = () => {
                 </div>
               </div>
               <GapYCom className="mb-20"></GapYCom>
-              <div className="row">
-                <div className="col-sm-4">
-                  <LabelCom htmlFor="category_id" isRequired>
-                    Choose Category
-                  </LabelCom>
-                  <div>
-                    <SelectSearchAntCom
-                      selectedValue={categorySelected}
-                      listItems={categoryItems}
-                      onChange={handleChangeCategory}
-                      className="w-full py-1"
-                      status={
-                        errors.category_id &&
-                        errors.category_id.message &&
-                        "error"
-                      }
-                      errorMsg={errors.category_id?.message}
-                      placeholder="Input category to search"
-                    ></SelectSearchAntCom>
-                    <InputCom
-                      type="hidden"
-                      control={control}
-                      name="category_id"
-                      register={register}
-                    ></InputCom>
-                  </div>
-                </div>
-              </div>
               <GapYCom className="mb-35 bt-10"></GapYCom>
               <div className="row">
                 <div className="col-sm-12">
-                  <LabelCom htmlFor="description" isRequired>
-                    Description
-                  </LabelCom>
+                  <LabelCom htmlFor="description" isRequired>Description</LabelCom>
                   <TextEditorQuillCom
                     value={watch("description")}
                     onChange={(description) => {
                       setValue("description", description);
                     }}
-                    placeholder="Write your blog..."
+                    placeholder="Write your category..."
                   />
                 </div>
                 <div className="mt-10 " style={{ color: "red" }}>
-                  {errors.description?.message}
-                </div>
+                    {errors.description?.message}
+                  </div>
               </div>
               <GapYCom></GapYCom>
             </div>
@@ -533,6 +491,7 @@ const BlogListPage = () => {
               <ButtonCom type="submit" isLoading={isLoading}>
                 Update
               </ButtonCom>
+             
             </div>
           </form>
         </div>
@@ -540,4 +499,4 @@ const BlogListPage = () => {
     </>
   );
 };
-export default BlogListPage;
+export default AdminCategoryListPage;

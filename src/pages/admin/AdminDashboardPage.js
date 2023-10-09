@@ -67,6 +67,14 @@ const adminMenuItems = [
     area: ["BLOG"],
     icon: <IconBlogCom className="mx-auto" />,
   },
+  {
+    id: 4,
+    title: "Cate",
+    slug: "/admin/categories",
+    permission: ALLOWED_ADMIN_MANAGER,
+    area: ["CATEGORY"],
+    icon: <IconBlogCom className="mx-auto" />,
+  },
 ];
 
 const AdminDashboardPage = () => {
